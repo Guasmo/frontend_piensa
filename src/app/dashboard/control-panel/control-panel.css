@@ -1,0 +1,125 @@
+
+/* Vista completa */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e6e6e6;
+  padding: 20px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Panel sin cuadro en móviles */
+.panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* Solo en pantallas grandes, mostrar cuadro blanco */
+@media (min-width: 768px) {
+  .panel {
+    background-color: white;
+    padding: 60px 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+  }
+}
+
+/* Logo */
+.logo {
+  font-size: 60px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Título */
+.title {
+  font-size: 18px;
+  font-style: italic;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Botones redondos */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.circle {
+  width: 60px;
+  height: 60px;
+  background-color: #555;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+/* Botón vacío si necesitas */
+.empty {
+  width: 60px;
+  height: 60px;
+  background-color: transparent;
+}
+
+/* Colores al pasar el mouse */
+.hover-yellow:active {
+  background-color: yellow;
+  box-shadow: 0 0 20px yellow;
+}
+
+.hover-red:active {
+  background-color: red;
+  box-shadow: 0 0 20px red;
+}
+
+.hover-purple:active {
+  background-color: purple;
+  box-shadow: 0 0 20px purple;
+}
+
+.hover-green:active {
+  background-color: #00e676;
+  box-shadow: 0 0 20px #00e676;
+}
+
+.hover-blue:active{
+  background-color: #2979ff;
+  box-shadow: 0 0 20px #2979ff;
+}
+
+/* Botón inferior con animación */
+.back-button {
+  margin-top: auto;
+  width: 100%;
+  padding: 12px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-style: italic;
+  font-size: 16px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #333;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.back-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
