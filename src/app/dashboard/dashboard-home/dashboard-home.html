@@ -1,15 +1,13 @@
-<div class="dashboard-wrapper">
-  <div class="profile-card">
+<div class="dashboard-screen">
+  <div class="dashboard-box">
     <div class="avatar"></div>
-    <p class="username">{{ username }}</p>
-  </div>
+    <p class="username">Username</p>
 
-  <div class="button-group">
-    <button routerLink="/dashboard/control-panel" class="action-button">Control Panel</button>
-    <button routerLink="/dashboard/history" class="action-button">History</button>
-  </div>
+    <div class="button-group">
+      <button routerLink="/dashboard/circle-menu" class="action-button">Control Panel</button>
+      <button routerLink="/dashboard/history" class="action-button">History</button>
+    </div>
 
-  <div class="logout-container">
-    <button (click)="logout()" class="logout-button">Log Out</button>
+    <button class="logout-button" (click)="logout()">Log Out</button>
   </div>
 </div>
