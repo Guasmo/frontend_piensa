@@ -1,15 +1,24 @@
-.dashboard-wrapper {
+.dashboard-screen {
+  height: 100vh;
+  background: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dashboard-box {
+  background: #fefefe;
+  padding: 3rem;
+  border-radius: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 95%;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
-  max-width: 400px;
-  margin: auto;
-  background: linear-gradient(145deg, #ffffff, #e6e6e6);
-  border-radius: 20px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 1s ease;
+  animation: fadeIn 0.8s ease both;
 }
+
 
 @keyframes fadeIn {
   from {
@@ -22,93 +31,74 @@
   }
 }
 
-.profile-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
 .avatar {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   background-image: url('https://cdn-icons-png.flaticon.com/512/149/149071.png');
   background-size: cover;
+  background-position: center;
   border-radius: 50%;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  animation: scaleUp 0.6s ease-in-out;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  animation: pulse 5s infinite ease-in-out;
 }
 
-@keyframes scaleUp {
-  from {
-    transform: scale(0.5);
-  }
-  to {
+@keyframes pulse {
+  0%, 100% {
     transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
   }
 }
 
 .username {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-top: 0.8rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  animation: fadeIn 1s ease 0.5s both;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #111;
+  text-align: center;
 }
+
 
 .button-group {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  width: 100%;
+  gap: 1.2rem;
+  margin-bottom: 2.5rem;
 }
 
+
 .action-button {
+  width: 100%;
+  padding: 1.2rem;
   background: linear-gradient(to right, #000, #333);
   color: white;
-  padding: 1rem;
-  border-radius: 15px;
-  border: none;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 14px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  animation: slideIn 0.8s ease forwards;
 }
 
 .action-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  transform: scale(1.04);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.logout-container {
-  margin-top: 3rem;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  animation: fadeIn 1s ease 0.8s both;
-}
 
 .logout-button {
+  padding: 1rem 2.5rem;
+  border-radius: 30px;
   background: white;
   color: #e4002b;
   border: 2px solid #e4002b;
-  padding: 1rem 2rem;
-  border-radius: 30px;
   font-weight: bold;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease;
+  transition: background 0.3s, transform 0.3s;
 }
 
 .logout-button:hover {
