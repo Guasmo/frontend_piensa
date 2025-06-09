@@ -1,3 +1,4 @@
+
 <body>
   <div class="container">
     <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 10 24 38" style="height: 122.4px; width: auto;" preserveAspectRatio="xMidYMid meet">
@@ -11,16 +12,17 @@
     <input class="input white-bg" type="email" placeholder="Email" />
     <input class="input white-bg" type="password" placeholder="Password" />
     <div class="forgot">Forget password?</div>
-    <button class="btn-black">Sign in</button>
+    <button class="btn-black" routerLink="/dashboard">Sign in</button>
     <div class="divider">or continue</div>
 <button class="btn-google">
-  <img src="assets/icons/google-icon.svg" alt="Google icon" class="icon" />
+<img src="assets/icons/google-icon.svg
+" class="icon" />
   Log in with Google
 </button>
     <div class="signup">
       <p>
         Don't you have an account?
-        <b><a routerLink="/register" class="underline-hover">Sign Up</a></b>
+        <b><a routerLink="/auth/register" class="underline-hover">Sign Up</a></b>
       </p>
     </div>
   </div>

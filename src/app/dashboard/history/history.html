@@ -1,26 +1,33 @@
-<div class="history-wrapper">
-  <div class="logo">S</div>
-  <h2 class="title">History</h2>
+<div class="history-screen">
+  <div class="history-wrapper">
+    <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 10 24 38" style="height: 122.4px; width: auto;" preserveAspectRatio="xMidYMid meet">
+      <g fill="#000000">
+        <g transform="scale(1.02)">
+          <path d="M0.20 35.70L3.80 35.70Q3.95 37.80 5.05 39.45Q6.15 41.10 8.08 42.05Q10.00 43 12.60 43Q14.85 43 16.38 42.33Q17.90 41.65 18.68 40.45Q19.45 39.25 19.45 37.65Q19.45 36 18.65 35Q17.85 34 16.35 33.30Q14.85 32.60 12.80 31.95Q10.85 31.35 8.85 30.55Q6.85 29.75 5.13 28.60Q3.40 27.45 2.35 25.82Q1.30 24.20 1.30 21.90Q1.30 19.65 2.52 17.67Q3.75 15.70 6.13 14.47Q8.50 13.25 11.85 13.25Q17.10 13.25 19.70 16.10Q22.30 18.95 22.20 23.65L18.60 23.65Q18.50 20.10 16.60 18.55Q14.70 17 11.65 17Q9.10 17 7.20 18.17Q5.30 19.35 5.30 21.85Q5.30 22.95 5.72 23.77Q6.15 24.60 7.13 25.30Q8.10 26 9.78 26.67Q11.45 27.35 13.90 28.15Q15.50 28.65 17.18 29.35Q18.85 30.05 20.27 31.10Q21.70 32.15 22.57 33.77Q23.45 35.40 23.45 37.85Q23.45 40.20 22.32 42.23Q21.20 44.25 18.82 45.50Q16.45 46.75 12.70 46.75Q9.50 46.75 7.23 45.88Q4.95 45 3.50 43.60Q2.05 42.20 1.27 40.67Q0.50 39.15 0.25 37.80Q0 36.45 0.20 35.70Z" />
+        </g>
+      </g>
+    </svg>    <h2 class="title">History</h2>
 
-  <div class="history-list">
-    <div
-      class="history-item"
-      *ngFor="let item of historyItems; let i = index"
-      (click)="toggleItem(i)"
-      [class.expanded]="expandedIndex === i"
-    >
-      <div class="summary">
-        <p class="title">{{ item.name }}</p>
-        <p>{{ item.position }}</p>
-        <p>{{ item.timestamp }}</p>
-      </div>
-      <div class="arrow">{{ expandedIndex === i ? '▲' : '▼' }}</div>
-      <div class="details" *ngIf="expandedIndex === i">
-        <p>Volume used: {{ item.volume }}%</p>
-        <p>Battery consumed: {{ item.battery }}%</p>
+    <div class="history-list">
+      <div
+        class="history-item"
+        *ngFor="let item of historyItems; let i = index"
+        (click)="toggleItem(i)"
+        [class.expanded]="expandedIndex === i"
+      >
+        <div class="summary">
+          <p class="title">{{ item.name }}</p>
+          <p>{{ item.position }}</p>
+          <p>{{ item.timestamp }}</p>
+        </div>
+        <div class="arrow">{{ expandedIndex === i ? '▲' : '▼' }}</div>
+        <div class="details" *ngIf="expandedIndex === i">
+          <p>Volume used: {{ item.volume }}%</p>
+          <p>Battery consumed: {{ item.battery }}%</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <button routerLink="/dashboard" class="back-button">Back</button>
+    <button routerLink="/dashboard" class="back-button">Back</button>
+  </div>
 </div>
