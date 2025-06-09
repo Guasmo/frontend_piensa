@@ -20,7 +20,6 @@ export class Register {
   constructor(private http: HttpClient, private router: Router) {}
 
   onSubmit() {
-    // Validaciones básicas
     if (!this.username || !this.email || !this.password) {
       this.errorMessage = 'Todos los campos son obligatorios.';
       return;
