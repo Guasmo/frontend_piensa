@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
   templateUrl: './register.html',
   styleUrls: ['./register.css']
 })
-export class RegisterComponent {
+export class Register {
   username: string = '';
   email: string = '';
   password: string = '';
