@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-register',
   templateUrl: './register.html',
   styleUrls: ['./register.css'],
-    imports: [CommonModule, FormsModule, HttpClientModule]
+    imports: [CommonModule, FormsModule, HttpClientModule, RouterLink]
 })
 export class Register {
   username: string = '';
