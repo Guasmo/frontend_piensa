@@ -1,108 +1,136 @@
-.dashboard-screen {
-  height: 100vh;
-  background: #e0e0e0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.dashboard-box {
-  background: #fefefe;
-  padding: 3rem;
-  border-radius: 25px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  width: 95%;
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: fadeIn 0.8s ease both;
-}
-
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .dashboard-screen {
+    height: 98vh;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 16px;
   }
-}
 
-.avatar {
-  width: 120px;
-  height: 120px;
-  background-image: url('https://cdn-icons-png.flaticon.com/512/149/149071.png');
-  background-size: cover;
-  background-position: center;
-  border-radius: 50%;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  animation: pulse 5s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
+  .dashboard-box {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.8s ease both;
   }
-  50% {
-    transform: scale(1.08);
+
+  @media (min-width: 768px) {
+    .dashboard-box {
+      background: white;
+      padding: 3rem;
+      border-radius: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
   }
-}
 
-.username {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
-  color: #111;
-  text-align: center;
-}
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
+  .avatar {
+    width: 120px;
+    height: 120px;
+    background-image: url('https://cdn-icons-png.flaticon.com/512/149/149071.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    animation: pulse 5s infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.08);
+    }
+  }
+
+  .username {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #111;
+    text-align: center;
+  }
 
 .button-group {
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: column;   /* Vertical */
+  align-items: center;      /* Centrado horizontal */
   gap: 1.2rem;
   margin-bottom: 2.5rem;
 }
 
-
 .action-button {
-  width: 100%;
-  padding: 1.2rem;
-  background: linear-gradient(to right, #000, #333);
+  width: 200px;             /* o el tamaño que quieras */
+  padding: 30px;
+  background-color: black;
   color: white;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 16px;
   border: none;
-  border-radius: 14px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
 }
 
-.action-button:hover {
-  transform: scale(1.04);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
+  .action-button:hover {
+    transform: scale(1.04);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .control-icon {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+  }
 
 
-.logout-button {
-  padding: 1rem 2.5rem;
-  border-radius: 30px;
-  background: white;
-  color: #e4002b;
-  border: 2px solid #e4002b;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
-}
 
-.logout-button:hover {
-  background: #e4002b;
-  color: white;
-  transform: translateY(-2px);
-}
+  .logout-button {
+    padding: 1rem 2.5rem;
+    border-radius: 30px;
+    background: white;
+    color: #e4002b;
+    border: 2px solid #e4002b;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+  }
+
+  .logout-button:hover {
+    background: #e4002b;
+    color: white;
+    transform: translateY(-2px);
+  }

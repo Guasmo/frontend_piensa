@@ -4,8 +4,13 @@
     <p class="username">Username</p>
 
     <div class="button-group">
-      <button routerLink="/dashboard/circle-menu" class="action-button">Control Panel</button>
-      <button routerLink="/dashboard/history" class="action-button">History</button>
+   <button routerLink="/dashboard/select-panel" class="action-button">
+<img class="control-icon" src="assets/icons/control-panel.svg" alt="Control Icon">
+  Control Panel
+</button>
+
+      <button routerLink="/dashboard/history" class="action-button"> <img class="control-icon history" src="assets/icons/history.svg" alt="Control Icon">
+History</button>
     </div>
 
     <button class="logout-button" (click)="logout()">Log Out</button>

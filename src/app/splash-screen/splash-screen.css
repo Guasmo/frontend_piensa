@@ -1,0 +1,84 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 98vh;
+  background-color: #fff;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+/* Contenedor central */
+.splash-container {
+  background-color: #fff;
+  padding: 40px 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Letra S grande */
+.big-s {
+  font-size: 20vw;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 2rem;
+}
+
+/* Contenedor de letras pequeñas */
+.letters {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Letras animadas */
+.letter {
+  font-size: 6vw;
+  font-weight: bold;
+  color: black;
+  opacity: 0;
+  transform: scale(0.5);
+  animation: growLetter 0.6s forwards;
+}
+
+.letter:nth-child(1) { animation-delay: 0.3s; }
+.letter:nth-child(2) { animation-delay: 0.6s; }
+.letter:nth-child(3) { animation-delay: 0.9s; }
+.letter:nth-child(4) { animation-delay: 1.2s; }
+.letter:nth-child(5) { animation-delay: 1.5s; }
+.letter:nth-child(6) { animation-delay: 1.8s; }
+.letter:nth-child(7) { animation-delay: 2.1s; }
+
+@keyframes growLetter {
+  to {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Adaptación para pantallas pequeñas */
+@media (max-width: 600px) {
+    .splash-container {
+          box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+
+    }
+  .big-s {
+    font-size: 30vw;
+  }
+
+  .letter {
+    font-size: 10vw;
+  }
+
+  .splash-container {
+    padding: 30px 15px;
+  }
+}

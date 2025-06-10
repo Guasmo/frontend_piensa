@@ -7,7 +7,6 @@ import { RouterLink } from '@angular/router';
   templateUrl: './select-panel.html',
   styleUrl: './select-panel.css'
 })
-
 export class SelectPanel {
   private pressedButton: HTMLElement | null = null;
   private originalColor: string = '';
@@ -57,11 +56,11 @@ export class SelectPanel {
     }
   }
 
-  // Método original para mantener compatibilidad (opcional)
+  // Método para cambio de color con animación (mantiene compatibilidad)
   changeColor(event: MouseEvent, color: string): void {
     const target = event.target as HTMLElement;
     target.style.backgroundColor = color;
-
+    
     // Activar animación brillante
     target.classList.add('shiny');
     setTimeout(() => {
