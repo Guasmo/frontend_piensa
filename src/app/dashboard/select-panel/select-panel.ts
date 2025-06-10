@@ -9,27 +9,32 @@ import { RouterLink } from '@angular/router';
 })
 export class SelectPanel {
   private pressedButton: HTMLElement | null = null;
-  private originalColor: string = '';
 
-  // Método cuando se presiona el botón (mouse o touch)
-  onButtonDown(event: MouseEvent | TouchEvent, color: string): void {
+  // Método universal para mouse y touch usando PointerEvent
+  onButtonDown(event: PointerEvent, color: string): void {
     event.preventDefault(); // Prevenir comportamientos por defecto
-    const target = event.target as HTMLElement;
-    this.pressedButton = target;
+    event.stopPropagation(); // Evitar propagación
     
-    // Guardar el color original
-    this.originalColor = target.style.backgroundColor || '';
+    const target = event.target as HTMLElement;
+    
+    // Solo procesar si no es el botón oculto
+    if (target.classList.contains('button-hiden')) {
+      return;
+    }
+    
+    this.pressedButton = target;
     
     // Cambiar color y aplicar efecto presionado
     target.style.backgroundColor = color;
     target.classList.add('pressed');
-    
-    // Activar animación brillante
     target.classList.add('shiny');
   }
 
-  // Método cuando se suelta el botón (mouse o touch)
-  onButtonUp(event: MouseEvent | TouchEvent): void {
+  // Método cuando se suelta el botón
+  onButtonUp(event: PointerEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
     if (this.pressedButton) {
       // Remover efecto presionado
       this.pressedButton.classList.remove('pressed');
@@ -45,9 +50,15 @@ export class SelectPanel {
     }
   }
 
-  // Método para cuando el mouse sale del botón (para evitar que se quede presionado)
-  onButtonLeave(event: MouseEvent | TouchEvent): void {
+  // Método para cuando se sale del botón
+  onButtonLeave(event: PointerEvent): void {
     const target = event.target as HTMLElement;
+    
+    // No procesar el botón oculto
+    if (target.classList.contains('button-hiden')) {
+      return;
+    }
+    
     target.classList.remove('pressed');
     target.classList.remove('shiny');
     
@@ -56,13 +67,18 @@ export class SelectPanel {
     }
   }
 
-  // Método para cambio de color con animación (mantiene compatibilidad)
+  // Método de respaldo para compatibilidad
   changeColor(event: MouseEvent, color: string): void {
+    event.preventDefault();
     const target = event.target as HTMLElement;
-    target.style.backgroundColor = color;
     
-    // Activar animación brillante
+    if (target.classList.contains('button-hiden')) {
+      return;
+    }
+    
+    target.style.backgroundColor = color;
     target.classList.add('shiny');
+    
     setTimeout(() => {
       target.classList.remove('shiny');
     }, 600);
