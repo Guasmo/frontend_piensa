@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Logo } from '../../logo/logo';
 
 @Component({
   selector: 'app-select-panel',
-  imports: [RouterLink],
+  imports: [RouterLink, Logo],
   templateUrl: './select-panel.html',
   styleUrl: './select-panel.css'
 })

@@ -3,13 +3,14 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Logo } from '../../logo/logo';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  imports: [CommonModule, FormsModule, HttpClientModule, RouterLink]
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterLink, Logo]
 })
 export class Login {
   usernameOrEmail: string = '';

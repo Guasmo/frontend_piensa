@@ -5,8 +5,7 @@ section {
   min-height: 98vh; /* O altura que quieras */
   padding: 20px; /* Un poco de padding para que no quede pegado en pantallas pequeñas */
   box-sizing: border-box;
-    animation: fadeIn 0.5s ease both;
-
+  animation: fadeIn 0.5s ease both;
 }
 
 @keyframes fadeIn {
