@@ -1,0 +1,60 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+.splash-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 2vw;
+}
+
+.letter-block {
+  font-size: 6vw;
+  font-weight: bold;
+  animation: bounce 2s;
+  text-align: center;
+}
+
+/* Animación suave */
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+}
+
+/* Línea separadora */
+.separator {
+  width: 2px;
+  height: 8vw;
+  background-color: #3A6274;
+}
+
+/* Colores */
+.color-blue {
+  color: #3A6274;
+}
+
+.gradient {
+  background: linear-gradient(to bottom, #A0A0A0, #3A3A3A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .letter-block {
+    font-size: 10vw;
+  }
+
+  .separator {
+    height: 12vw;
+  }
+}

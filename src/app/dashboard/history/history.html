@@ -3,6 +3,7 @@
     <div class="logo">S</div>
     <h2 class="title">History</h2>
 
+
     <div class="history-list">
       <div
         class="history-item"
@@ -16,6 +17,7 @@
           <p>{{ item.timestamp }}</p>
         </div>
         <div class="arrow">{{ expandedIndex === i ? '▲' : '▼' }}</div>
+
 
         <div class="details" *ngIf="expandedIndex === i">
           <p>Volume used: {{ item.volume }}%</p>
