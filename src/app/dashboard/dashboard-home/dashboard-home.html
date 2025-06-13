@@ -1,18 +1,58 @@
-<div class="dashboard-screen">
-  <div class="dashboard-box">
-    <div class="avatar"></div>
-    <p class="username">Username</p>
+<!-- S.A.R.A. - Dashboard Home Layout Final -->
+<div class="sara-dashboard futuristic">
+  <nav class="sara-navbar">
+    <div class="logo-section">
+      <h1 class="logo-text">S.A.R.A.</h1>
 
-    <div class="button-group">
-   <button routerLink="/dashboard/select-panel" class="action-button">
-<img class="control-icon" src="assets/icons/control-panel.svg" alt="Control Icon">
-  Control Panel
-</button>
+    </div>
+    <span class="user-badge">{{ username }}</span>
+  </nav>
 
-      <button routerLink="/dashboard/history" class="action-button"> <img class="control-icon history" src="assets/icons/history.svg" alt="Control Icon">
-History</button>
+  <main class="sara-content column-layout">
+    <div class="row">
+      <div class="widget-card big-card" routerLink="/dashboard/select-panel">
+        <div class="widget-icon">
+          <img class="control-icon" src="assets/icons/control-panel.svg" alt="Control Icon">
+        </div>
+        <div class="widget-label">Control Panel</div>
+      </div>
+
+      <div class="widget-card flip-card big-card" (click)="flipCard = !flipCard" [class.flipped]="flipCard">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <img src="https://img.icons8.com/ios11/512/FFFFFF/info.png" alt="info" class="info-icon" />
+          </div>
+          <div class="flip-back">
+            <h4>What does it show?</h4>
+            <p>Displays voltage, current, and power data in real-time.</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <button class="logout-button" (click)="logout()">Log Out</button>
-  </div>
+    <div class="row">
+      <div class="widget-card big-card" routerLink="/dashboard/history">
+        <div class="widget-icon">
+          <img src="assets/icons/history.svg" alt="History" />
+        </div>
+        <div class="widget-label">History</div>
+      </div>
+
+      <div class="widget-card flip-card big-card" (click)="flipCardAI = !flipCardAI" [class.flipped]="flipCardAI">
+        <div class="flip-inner">
+          <div class="flip-front">
+            <img src="https://img.icons8.com/ios11/512/FFFFFF/info.png" alt="info" class="info-icon" />
+          </div>
+          <div class="flip-back">
+             <h4>What does it show?</h4>
+            <p>Displays speaker name, position, and energy use.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="sara-footer">
+    <button class="logout-btn" (click)="logout()">Disconnect</button>
+  </footer>
 </div>
