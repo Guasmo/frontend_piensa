@@ -1,10 +1,20 @@
+:host {
+  display: block;
+  min-height: 98vh;
+  background: linear-gradient(to bottom, #ffffff, #3A6274);
+  font-family: 'Segoe UI', sans-serif;
+  color: #000;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
 /* Contenedor para centrar todo en pantalla */
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 98vh;
-  background-color: white;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
