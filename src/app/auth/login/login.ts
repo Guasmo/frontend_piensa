@@ -1,12 +1,44 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
-  imports: [RouterLink],
+  standalone: true,
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrls: ['./login.css'],
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterLink]
 })
 export class Login {
-  
+  usernameOrEmail: string = '';
+  password: string = '';
+  errorMessage: string = '';
+
+  constructor(private http: HttpClient, private router: Router) {}
+
+  onLogin() {
+    if (!this.usernameOrEmail || !this.password) {
+      this.errorMessage = 'Por favor, llena todos los campos.';
+      return;
+    }
+
+    const payload = {
+      usernameOrEmail: this.usernameOrEmail,
+      password: this.password
+    };
+
+    this.http.post('https://backendpiensa-production-3d53.up.railway.app/auth/login', payload)
+      .subscribe({
+        next: (res: any) => {
+          localStorage.setItem('token', res.token); // si el backend te da un JWT
+          this.router.navigate(['/dashboard']); // redirige al panel
+        },
+        error: (err) => {
+          console.error(err);
+          this.errorMessage = err.error?.message || 'Error al iniciar sesión.';
+        }
+      });
+  }
 }

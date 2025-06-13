@@ -6,11 +6,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/user';
+  private apiUrl = 'https://backendpiensa-production-3d53.up.railway.app';
 
   constructor(private http: HttpClient) {}
 
   create(user: { username: string, email: string, password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, user);
+    return this.http.post(`${this.apiUrl}/auth/register`, user);
   }
+  login(credentials: { email: string; password: string }): Observable<any> {
+  return this.http.post(`${this.apiUrl}/auth/login`, credentials);
+}
 }

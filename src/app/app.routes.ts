@@ -6,10 +6,11 @@ import { ControlPanel } from './dashboard/control-panel/control-panel';
 import { SplashScreen } from './splash-screen/splash-screen';
 import { Register } from './auth/register/register';
 import { SelectPanel } from './dashboard/select-panel/select-panel';
+import { AuthGuard } from './auth/auth-guard';
 
 export const routes: Routes = [
     { path: '', component: SplashScreen },
-    { path: 'dashboard', component: DashboardHome },
+    { path: 'dashboard', component: DashboardHome, canActivate: [AuthGuard]},
     { path: 'dashboard/control-panel', component: ControlPanel },
     { path: 'dashboard/history', component: History },
     { path: 'auth/login', component: Login },

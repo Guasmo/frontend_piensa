@@ -36,7 +36,7 @@ export class Register {
       password: this.password
     };
 
-    this.http.post('https://backendpiensa-production-3d53.up.railway.app/user/', payload)
+    this.http.post('https://backendpiensa-production-3d53.up.railway.app/auth/register', payload)
       .subscribe({
         next: response => {
           this.successMessage = '¡Cuenta creada exitosamente!';
