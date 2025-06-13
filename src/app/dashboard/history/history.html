@@ -1,26 +1,29 @@
-<div class="history-wrapper">
-  <div class="logo">S</div>
-  <h2 class="title">History</h2>
+<div class="app-container">
+  <div class="history-wrapper">
+    <div class="logo">S</div>
+    <h2 class="title">History</h2>
 
-  <div class="history-list">
-    <div
-      class="history-item"
-      *ngFor="let item of historyItems; let i = index"
-      (click)="toggleItem(i)"
-      [class.expanded]="expandedIndex === i"
-    >
-      <div class="summary">
-        <p class="title">{{ item.name }}</p>
-        <p>{{ item.position }}</p>
-        <p>{{ item.timestamp }}</p>
-      </div>
-      <div class="arrow">{{ expandedIndex === i ? '▲' : '▼' }}</div>
-      <div class="details" *ngIf="expandedIndex === i">
-        <p>Volume used: {{ item.volume }}%</p>
-        <p>Battery consumed: {{ item.battery }}%</p>
+    <div class="history-list">
+      <div
+        class="history-item"
+        *ngFor="let item of historyItems; let i = index"
+        (click)="toggleItem(i)"
+        [class.expanded]="expandedIndex === i"
+      >
+        <div class="summary">
+          <p class="title">{{ item.name }}</p>
+          <p>{{ item.position }}</p>
+          <p>{{ item.timestamp }}</p>
+        </div>
+        <div class="arrow">{{ expandedIndex === i ? '▲' : '▼' }}</div>
+
+        <div class="details" *ngIf="expandedIndex === i">
+          <p>Volume used: {{ item.volume }}%</p>
+          <p>Battery consumed: {{ item.battery }}%</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <button routerLink="/dashboard" class="back-button">Back</button>
+    <button routerLink="/dashboard" class="back-button">Back</button>
+  </div>
 </div>
