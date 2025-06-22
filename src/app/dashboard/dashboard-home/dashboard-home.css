@@ -1,9 +1,11 @@
 :host {
   display: block;
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
   background: linear-gradient(to bottom, #ffffff, #3A6274);
   font-family: 'Segoe UI', sans-serif;
-  color: #000;
+  color: hsl(0, 0%, 0%);
   overflow-x: hidden;
   margin: 0;
   padding: 0;
@@ -11,6 +13,7 @@
 
 /* NAVBAR */
 .sara-navbar {
+  width: 200vh;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -61,6 +64,7 @@
   min-height: 180px;
   padding: 1.8rem;
   display: flex;
+  justify-content: center;
   flex-direction: column;
   align-items: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -122,6 +126,12 @@
   color: #ffffff;
   backface-visibility: hidden;
 }
+
+.icon {
+  display: flex;
+  justify-content: center;
+}
+
 
 .flip-front img.info-icon {
   width: 48px;
@@ -193,4 +203,3 @@
     padding: 1rem;
   }
 }
-

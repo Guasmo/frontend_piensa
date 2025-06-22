@@ -53,8 +53,8 @@ body {
 .info {
   text-align: left;
   width: 100%;
+  padding: 2px;
   animation: fadeIn 1s ease-in-out;
-  margin-bottom: 1.5rem;
 }
 
 .info p {

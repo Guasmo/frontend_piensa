@@ -1,16 +1,12 @@
 <div class="app-container">
   <div class="history-wrapper">
-<app-logo/>
+    <app-logo />
     <h2 class="title">History</h2>
 
 
     <div class="history-list">
-      <div
-        class="history-item"
-        *ngFor="let item of historyItems; let i = index"
-        (click)="toggleItem(i)"
-        [class.expanded]="expandedIndex === i"
-      >
+      <div class="history-item" *ngFor="let item of historyItems; let i = index" (click)="toggleItem(i)"
+        [class.expanded]="expandedIndex === i">
         <div class="summary">
           <p class="title">{{ item.name }}</p>
           <p>{{ item.position }}</p>
