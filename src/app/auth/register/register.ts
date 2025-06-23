@@ -11,10 +11,13 @@ import { Logo } from '../../logo/logo';
   styleUrls: ['./register.css'],
     imports: [CommonModule, FormsModule, HttpClientModule, RouterLink, Logo]
 })
+
+
 export class Register {
   username: string = '';
   email: string = '';
   password: string = '';
+  userRol: number = 1; // Asignar un rol por defecto, por ejemplo, 1 para usuario normal;
   errorMessage: string = '';
   successMessage: string = '';
 
@@ -34,7 +37,8 @@ export class Register {
     const payload = {
       username: this.username,
       email: this.email,
-      password: this.password
+      password: this.password,
+      userRol: this.userRol
     };
 
     this.http.post('https://backendpiensa-production-3d53.up.railway.app/auth/register', payload)
