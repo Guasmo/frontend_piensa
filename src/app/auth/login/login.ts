@@ -30,7 +30,7 @@ export class Login {
       password: this.password
     };
 
-    this.http.post('https://backendpiensa-production-3d53.up.railway.app/auth/login', payload)
+    this.http.post('https://backendpiensa-production-e02a.up.railway.app/auth/login', payload)
       .subscribe({
         next: (res: any) => {
           localStorage.setItem('token', res.token); // si el backend te da un JWT
