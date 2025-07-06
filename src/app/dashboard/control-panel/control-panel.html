@@ -1,25 +1,44 @@
-<body>
+<div class="outer-wrapper">
   <div class="panel-wrapper">
-<app-logo/>
+    <app-logo></app-logo>
     <h2 class="title">Control Panel</h2>
 
     <div class="info">
-      <p><strong>Name:</strong> <span class="value"> Undefined</span></p>
-      <p><strong>Position:</strong> <span class="value"> Undefined </span></p>
-      <p><strong>State:</strong> <span class="value"> Undefined  </span></p>
+      <p><strong>Name:</strong> <span class="value">Undefined</span></p>
+      <p><strong>Position:</strong> <span class="value">Undefined</span></p>
+      <p><strong>State:</strong> <span class="value">Undefined</span></p>
+      <p><strong>Battery status:</strong> <span class="value">Undefined</span></p>
     </div>
 
-    <div class="metrics">
-      <label>Energy Consumption</label>
+    <button class="energy-button" (click)="ytoggleEnerg()">
+      {{ energyVisible ? 'Hide Energy Consumption ▲' : 'Show Energy Consumption ▼' }}
+    </button>
+
+     <div class="metrics" *ngIf="energyVisible">
+      <label>Current voltage</label>
       <div class="metric-box">---,-- V/h</div>
 
-      <label>Current</label>
+      <label>Current Flow</label>
       <div class="metric-box">---,-- A/h</div>
 
-      <label>Power</label>
+      <label>Current Power</label>
       <div class="metric-box">---,-- W/h</div>
     </div>
 
-    <button class="back-button" onclick="location.href='/dashboard/select-panel'">Back</button>
+    <button class="back-button" onclick="window.location.href='/dashboard/select-panel'">Back</button>
   </div>
-</body>
+</div>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const toggleButton = document.getElementById('toggleEnergy');
+    const energySection = document.getElementById('energySection');
+
+    toggleButton.addEventListener('click', () => {
+      energySection.classList.toggle('hidden');
+      toggleButton.innerText = energySection.classList.contains('hidden')
+        ? 'Show Energy Consumption ▼'
+        : 'Hide Energy Consumption ▲';
+    });
+  });
+</script>
