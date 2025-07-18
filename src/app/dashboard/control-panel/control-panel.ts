@@ -8,6 +8,13 @@ import { Logo } from '../../logo/logo';
   standalone: true,
   imports: [CommonModule, RouterModule, Logo],
   templateUrl: './control-panel.html',
-  styleUrls: ['./control-panel.css']
+  styleUrls: ['./control-panel.css'],
 })
-export class ControlPanel {}
+export class ControlPanel {
+  /** true = se muestran métricas y cuadro de energía */
+  showEnergy = false;
+
+  toggleEnergy(): void {
+    this.showEnergy = !this.showEnergy;
+  }
+}

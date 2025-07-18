@@ -1,152 +1,111 @@
-/* Fondo general degradado */
 body {
-  background: linear-gradient(to bottom, #ffffff, #6b8b9c);
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom, #f0f4f7, #3A6274);
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
+  height: 100vh;
 }
 
-/* Contenedor externo para centrar todo */
 .outer-wrapper {
-  width: 100%;
-  padding: 2rem;
-  box-sizing: border-box;
   display: flex;
   justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
-/* Tarjeta blanca centrada */
 .panel-wrapper {
-  max-width: 450px;
-  width: 100%;
   background: white;
   border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: fadeSlide 0.7s ease;
-  box-sizing: border-box;
+  padding: 30px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: 24px;
+  margin-bottom: 20px;
   font-style: italic;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-.info {
-  text-align: left;
-  width: 100%;
-  padding: 2px;
 }
 
 .info p {
-  margin: 0.5rem 0;
-  font-size: 1rem;
+  text-align: left;
+  font-size: 16px;
+  margin: 8px 0;
 }
 
 .value {
   font-style: italic;
-  border-bottom: 1px solid #444;
-  padding-bottom: 2px;
+  text-decoration: underline;
 }
 
-/* Botón desplegable */
 .energy-button {
-  margin-top: 1.5rem;
-  padding: 0.8rem 1.5rem;
   background: #007bff;
   color: white;
+  padding: 14px 20px;
   border: none;
-  border-radius: 20px;
-  font-size: 1rem;
-  font-style: italic;
+  border-radius: 30px;
   font-weight: bold;
-  width: 100%;
+  margin-top: 20px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease;
+  width: 100%;
 }
 
-.energy-button:hover {
-  background: #0056b3;
-  transform: scale(1.02);
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
 }
 
-/* Sección oculta por defecto */
+.back-button,
+.save-button {
+  background: black;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 20px;
+}
+
+.metrics {
+  margin-top: 16px;
+  text-align: left;
+}
+
+.metric-box {
+  background: #e0e0e0;
+  padding: 8px;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+.info-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #fff;
+  border: 2px solid #3A6274;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+  animation: fadeIn .25s ease;
+  text-align: left;
+}
+
+.info-box h3 {
+  margin:  px;
+  color: #3A6274;
+}
+
 .hidden {
   display: none;
 }
 
-.metrics {
-  width: 100%;
-  margin-top: 1.5rem;
-}
-
-label {
-  font-style: italic;
-  margin-bottom: 0.2rem;
-  display: block;
-  font-size: 0.95rem;
-}
-
-.metric-box {
-  background: #ccc;
-  padding: 1rem;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 1.1rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  transition: transform 0.2s ease;
-}
-
-.metric-box:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.back-button {
-  margin-top: 2rem;
-  padding: 0.8rem 2rem;
-  background: black;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-style: italic;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease;
-}
-
-.back-button:hover {
-  background: #333;
-  transform: translateY(-2px);
-}
-
-/* Animación de entrada */
-@keyframes fadeSlide {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 500px) {
-  .panel-wrapper {
-    padding: 1.2rem 1rem;
-    width: 95%;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

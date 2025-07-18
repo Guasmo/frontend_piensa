@@ -15,18 +15,6 @@
         </div>
         <div class="widget-label">Control Panel</div>
       </div>
-
-      <div class="widget-card flip-card big-card" (click)="flipCard = !flipCard" [class.flipped]="flipCard">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <img src="https://img.icons8.com/ios11/512/FFFFFF/info.png" alt="info" class="info-icon" />
-          </div>
-          <div class="flip-back">
-            <h4>What does it show?</h4>
-            <p>Displays voltage, current, and power data in real-time.</p>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="row">
@@ -35,18 +23,6 @@
           <img class="icon" src="assets/icons/history.svg" alt="History" />
         </div>
         <div class="widget-label">History</div>
-      </div>
-
-      <div class="widget-card flip-card big-card" (click)="flipCardAI = !flipCardAI" [class.flipped]="flipCardAI">
-        <div class="flip-inner">
-          <div class="flip-front">
-            <img src="https://img.icons8.com/ios11/512/FFFFFF/info.png" alt="info" class="info-icon" />
-          </div>
-          <div class="flip-back">
-            <h4>What does it show?</h4>
-            <p>Displays speaker name, position, and energy use.</p>
-          </div>
-        </div>
       </div>
     </div>
     <button class="logout-btn" (click)="logout()">Disconnect</button>

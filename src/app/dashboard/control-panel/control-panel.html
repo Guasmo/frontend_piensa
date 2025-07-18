@@ -10,35 +10,38 @@
       <p><strong>Battery status:</strong> <span class="value">Undefined</span></p>
     </div>
 
-    <button class="energy-button" (click)="ytoggleEnerg()">
-      {{ energyVisible ? 'Hide Energy Consumption ▲' : 'Show Energy Consumption ▼' }}
+    <!-- Botón: cambia texto dinámicamente -->
+    <button class="energy-button" (click)="toggleEnergy()">
+      {{ showEnergy ? 'Hide Energy Consumption ▲'
+                    : 'Show Energy Consumption ▼' }}
     </button>
 
-     <div class="metrics" *ngIf="energyVisible">
+    <!-- Bloque de métricas -->
+    <div id="energySection"
+         class="metrics energy-content"
+         [class.hidden]="!showEnergy">
       <label>Current voltage</label>
       <div class="metric-box">---,-- V/h</div>
 
-      <label>Current Flow</label>
+      <label>Current flow</label>
       <div class="metric-box">---,-- A/h</div>
 
-      <label>Current Power</label>
+      <label>Current power</label>
       <div class="metric-box">---,-- W/h</div>
     </div>
 
-    <button class="back-button" onclick="window.location.href='/dashboard/select-panel'">Back</button>
+    <!-- Cuadro adicional -->
+    <div class="info-box" *ngIf="showEnergy">
+      <h3>Energy Details</h3>
+      <ul>
+        <li><strong>Battery Health:</strong> Good</li>
+        <li><strong>Average Usage:</strong> 12.5 W</li>
+        <li><strong>Peak Load:</strong> 20.2 W</li>
+        <li><strong>Last Recharge:</strong> 3 hours ago</li>
+      </ul>
+    </div>
+
+    <button class="back-button" routerLink="/dashboard/select-panel">Back</button>
+    <button class="save-button" routerLink="/dashboard/select-panel">Save</button>
   </div>
 </div>
-
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    const toggleButton = document.getElementById('toggleEnergy');
-    const energySection = document.getElementById('energySection');
-
-    toggleButton.addEventListener('click', () => {
-      energySection.classList.toggle('hidden');
-      toggleButton.innerText = energySection.classList.contains('hidden')
-        ? 'Show Energy Consumption ▼'
-        : 'Hide Energy Consumption ▲';
-    });
-  });
-</script>
