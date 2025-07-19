@@ -9,9 +9,9 @@ import { SelectPanel } from './dashboard/select-panel/select-panel';
 import { AuthGuard } from './auth/guards/auth-guard';
 
 export const routes: Routes = [
-    { path: 'dashboard/control-panel', component: SplashScreen },
+    { path: '', component: SplashScreen },
     { path: 'deshboard/Home', component: DashboardHome},
-    { path: '', component: ControlPanel},
+    { path: 'dashboard/control-panel', component: ControlPanel},
     { path: 'dashboard/history', component: History },
     { path: 'dashboard/select-panel', component: SelectPanel},
     { path: 'auth/login', component: Login },

@@ -9,6 +9,16 @@
       <p><strong>State:</strong> <span class="value">Undefined</span></p>
       <p><strong>Battery status:</strong> <span class="value">Undefined</span></p>
     </div>
+  <div class="toggle-container">
+  <label class="switch">
+    <input type="checkbox" [(ngModel)]="isConnected" (change)="toggleStatus()" />
+    <span class="slider"></span>
+  </label>
+  <span class="status-label" [ngStyle]="{ color: isConnected ? '#3A6274' : '#888888' }">
+    {{ isConnected ? 'Conectado' : 'Desconectado' }}
+  </span>
+</div>
+
 
     <!-- Botón: cambia texto dinámicamente -->
     <button class="energy-button" (click)="toggleEnergy()">
