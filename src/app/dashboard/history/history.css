@@ -9,7 +9,7 @@
 .history-wrapper {
   align-items: center;
   background: transparent;
-  padding: 0;
+  padding: 1.5rem;
   border-radius: 0;
   box-shadow: none;
   width: 100%;
@@ -145,5 +145,9 @@
     padding: 0.9rem;
   }
 }
-
-
+.app-container {
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+}
