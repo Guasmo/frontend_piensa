@@ -35,4 +35,5 @@ export class DashboardHome implements OnInit {
     localStorage.removeItem('token');
     this.router.navigate(['/auth/login']);
   }
+
 }

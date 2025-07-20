@@ -10,10 +10,10 @@ import { AuthGuard } from './auth/guards/auth-guard';
 
 export const routes: Routes = [
     { path: '', component: SplashScreen },
-    { path: 'dashboard', component: DashboardHome, canActivate: [AuthGuard]},
-    { path: 'dashboard/control-panel', component: ControlPanel, canActivate: [AuthGuard] },
-    { path: 'dashboard/history', component: History, canActivate: [AuthGuard] },
-    { path: 'dashboard/select-panel', component: SelectPanel, canActivate: [AuthGuard] },
+    { path: 'deshboard/Home', component: DashboardHome},
+    { path: 'dashboard/control-panel', component: ControlPanel},
+    { path: 'dashboard/history', component: History },
+    { path: 'dashboard/select-panel', component: SelectPanel},
     { path: 'auth/login', component: Login },
     { path: 'auth/register', component: Register },
 ];

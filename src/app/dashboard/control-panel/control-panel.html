@@ -1,25 +1,57 @@
-<body>
+<div class="outer-wrapper">
   <div class="panel-wrapper">
-<app-logo/>
+    <app-logo></app-logo>
     <h2 class="title">Control Panel</h2>
 
     <div class="info">
-      <p><strong>Name:</strong> <span class="value"> Undefined</span></p>
-      <p><strong>Position:</strong> <span class="value"> Undefined </span></p>
-      <p><strong>State:</strong> <span class="value"> Undefined  </span></p>
+      <p><strong>Name:</strong> <span class="value">Undefined</span></p>
+      <p><strong>Position:</strong> <span class="value">Undefined</span></p>
+      <p><strong>State:</strong> <span class="value">Undefined</span></p>
+      <p><strong>Battery status:</strong> <span class="value">Undefined</span></p>
     </div>
+  <div class="toggle-container">
+  <label class="switch">
+    <input type="checkbox" [(ngModel)]="isConnected" (change)="toggleStatus()" />
+    <span class="slider"></span>
+  </label>
+  <span class="status-label" [ngStyle]="{ color: isConnected ? '#3A6274' : '#888888' }">
+    {{ isConnected ? 'Conectado' : 'Desconectado' }}
+  </span>
+</div>
 
-    <div class="metrics">
-      <label>Energy Consumption</label>
+
+    <!-- Botón: cambia texto dinámicamente -->
+    <button class="energy-button" (click)="toggleEnergy()">
+      {{ showEnergy ? 'Hide Energy Consumption ▲'
+                    : 'Show Energy Consumption ▼' }}
+    </button>
+
+    <!-- Bloque de métricas -->
+    <div id="energySection"
+         class="metrics energy-content"
+         [class.hidden]="!showEnergy">
+      <label>Current voltage</label>
       <div class="metric-box">---,-- V/h</div>
 
-      <label>Current</label>
+      <label>Current flow</label>
       <div class="metric-box">---,-- A/h</div>
 
-      <label>Power</label>
+      <label>Current power</label>
       <div class="metric-box">---,-- W/h</div>
     </div>
 
-    <button class="back-button" onclick="location.href='/dashboard/select-panel'">Back</button>
+    <!-- Cuadro adicional -->
+    <div class="info-box" *ngIf="showEnergy">
+      <h3>Energy Details</h3>
+      <ul>
+        <li><strong>Battery Health:</strong> Good</li>
+        <li><strong>Average Usage:</strong> 12.5 W</li>
+        <li><strong>Peak Load:</strong> 20.2 W</li>
+        <li><strong>Last Recharge:</strong> 3 hours ago</li>
+      </ul>
+    </div>
+
+    <button class="back-button" routerLink="/dashboard/select-panel">Back</button>
+    <button class="save-button" routerLink="/dashboard/select-panel">Save</button>
   </div>
-</body>
+</div>
