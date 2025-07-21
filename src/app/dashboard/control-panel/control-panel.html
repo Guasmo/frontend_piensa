@@ -1,64 +1,128 @@
-<!-- Agrega el navbar al inicio -->
-<app-navbar 
-  [username]="username"
-  [showLogoutButton]="showLogoutButton"
-  (logoutClick)="handleLogout()">
-</app-navbar>
-
 <div class="outer-wrapper">
   <div class="panel-wrapper">
-    <h2 class="title">Control Panel</h2>
+    <div *ngIf="isLoading" class="info-box">
+      <h3>🔄 Cargando...</h3>
+      <p>Verificando estado del parlante...</p>
+    </div>
+    
+    <div *ngIf="errorMessage" class="info-box" style="border-color: #dc3545; background: #f8d7da;">
+      <h3 style="color: #721c24;">❌ Error</h3>
+      <p style="color: #721c24;">{{ errorMessage }}</p>
+    </div>
 
-    <div class="info">
-      <p>
-        <strong>Name:</strong> 
-        <span class="value">Undefined</span>
-      </p>
-      <p>
-        <strong>Position:</strong> 
-        <span class="value">Undefined</span>
-      </p>
-      <div class="toggle-container">
-        <label class="switch">
-          <input type="checkbox" [(ngModel)]="isConnected" (change)="toggleStatus()" />
-          <span class="slider"></span>
-        </label>
-        <span class="status-label" [ngStyle]="{ color: isConnected ? '#00000' : '#00000' }">
-          {{ isConnected ? 'Conectado' : 'Desconectado' }}
-        </span>
+    <div *ngIf="!isLoading">
+      <h2 class="title">Control Panel</h2>
+
+      <!-- Información del Parlante -->
+      <div class="info">
+        <p>
+          <strong>Nombre:</strong> 
+          <span class="value">{{ speakerInfo.name }}</span>
+        </p>
+        <p>
+          <strong>Posición:</strong> 
+          <span class="value">{{ speakerInfo.position }}</span>
+        </p>
+        
+        <!-- Estado de la Sesión -->
+        <div class="toggle-container">
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="isConnected" (change)="toggleStatus()" />
+            <span class="slider"></span>
+          </label>
+          <span class="status-label" [ngStyle]="{ color: isConnected ? '#28a745' : '#dc3545' }">
+            {{ isConnected ? 'Sesión Activa' : 'Sesión Inactiva' }}
+          </span>
+        </div>
+
+        <!-- Duración de la Sesión -->
+        <div *ngIf="isConnected" style="margin-top: 10px;">
+          <p><strong>Duración:</strong> <span class="value">{{ sessionDuration }}</span></p>
+        </div>
+
+        <!-- Botón para mostrar/ocultar energía -->
+        <button class="energy-button" (click)="toggleEnergy()">
+          {{ showEnergy ? 'Ocultar Consumo de Energía ▲'
+                        : 'Mostrar Consumo de Energía ▼' }}
+        </button>
       </div>
-      <button class="energy-button" (click)="toggleEnergy()">
-        {{ showEnergy ? 'Hide Energy Consumption ▲'
-                      : 'Show Energy Consumption ▼' }}
-      </button>
-    </div>
 
-    <div id="energySection"
-         class="metrics energy-content"
-         [class.hidden]="!showEnergy">
-      <label>Current voltage</label>
-      <div class="metric-box">---,-- V/h</div>
+      <!-- Sección de Energía -->
+      <div id="energySection"
+           class="metrics energy-content"
+           [class.hidden]="!showEnergy">
+        
+        <ng-container *ngIf="latestMetrics; else noMetrics">
+          <label>Voltaje Actual</label>
+          <div class="metric-box">
+            {{ formatNumber(latestMetrics.voltage_V, 2) }} V
+          </div>
 
-      <label>Current flow</label>
-      <div class="metric-box">---,-- A/h</div>
+          <label>Corriente Actual</label>
+          <div class="metric-box">
+            {{ formatNumber(latestMetrics.current_mA, 1) }} mA
+          </div>
 
-      <label>Current power</label>
-      <div class="metric-box">---,-- W/h</div>
-    </div>
+          <label>Potencia Actual</label>
+          <div class="metric-box">
+            {{ formatNumber(latestMetrics.power_mW, 1) }} mW
+          </div>
 
-    <div class="info-box" *ngIf="showEnergy">
-      <h3>Energy Details</h3>
-      <ul>
-        <li><strong>Battery Health:</strong> Good</li>
-        <li><strong>Average Usage:</strong> 12.5 W</li>
-        <li><strong>Peak Load:</strong> 20.2 W</li>
-        <li><strong>Last Recharge:</strong> 3 hours ago</li>
-      </ul>
-    </div>
+          <label>Batería Restante</label>
+          <div class="metric-box" [ngStyle]="{ 'background-color': getBatteryColor(), 'color': 'white' }">
+            {{ formatNumber(latestMetrics.battery_remaining_percent, 1) }}% 
+            ({{ getBatteryStatus() }})
+          </div>
 
-    <div class="button-group">
-      <button class="back-button" routerLink="/dashboard/select-panel">Back</button>
-      <button class="save-button" routerLink="/dashboard/select-panel">Save</button>
+          <label>Consumo Total</label>
+          <div class="metric-box">
+            {{ formatNumber(latestMetrics.total_consumed_mAh, 1) }} mAh
+          </div>
+
+          <label>Muestra #</label>
+          <div class="metric-box">
+            {{ latestMetrics.sample_index }}
+          </div>
+
+          <!-- Última actualización -->
+          <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #666;">
+            <p>Última actualización: {{ latestMetrics.timestamp }}s desde el inicio</p>
+          </div>
+        </ng-container>
+
+        <ng-template #noMetrics>
+          <div class="info-box" style="text-align: center;">
+            {{ isConnected ? '⏳ Esperando primeros datos del ESP32...' : '🔌 Inicia una sesión para ver los datos.' }}
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Detalles de Energía Expandidos -->
+      <div class="info-box" *ngIf="showEnergy && latestMetrics">
+        <h3>📊 Estadísticas de la Sesión</h3>
+        <ul>
+          <li><strong>Estado de Batería:</strong> {{ getBatteryStatus() }}</li>
+          <li><strong>Potencia Promedio:</strong> {{ formatNumber(averagePower, 1) }} mW</li>
+          <li><strong>Pico de Carga:</strong> {{ formatNumber(peakPower, 1) }} mW</li>
+          <li><strong>Duración de Sesión:</strong> {{ sessionDuration }}</li>
+          <li><strong>Consumo Total:</strong> {{ formatNumber(latestMetrics.total_consumed_mAh, 1) }} mAh</li>
+        </ul>
+      </div>
+
+      <!-- Información de Conectividad -->
+      <div class="info-box" *ngIf="isConnected" style="border-color: #28a745; background: #d4edda;">
+        <h3 style="color: #155724;">✅ ESP32 Conectado</h3>
+        <p style="color: #155724;">
+          Recibiendo datos cada 10 segundos. 
+          <strong>ID de Sesión:</strong> {{ activeSessionId }}
+        </p>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="button-group">
+        <button class="back-button" routerLink="/dashboard/select-panel">Atrás</button>
+        <button class="save-button" routerLink="/dashboard/select-panel">Guardar</button>
+      </div>
     </div>
   </div>
 </div>

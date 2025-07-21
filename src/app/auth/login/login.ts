@@ -30,11 +30,11 @@ export class Login {
       password: this.password
     };
 
-    this.http.post('https://backendpiensa-production-e02a.up.railway.app/auth/login', payload)
+    this.http.post('http://localhost:3000/auth/login', payload)
       .subscribe({
         next: (res: any) => {
           localStorage.setItem('token', res.token); // si el backend te da un JWT
-          this.router.navigate(['/dashboard']); // redirige al panel
+          this.router.navigate(['/home']); // redirige al panel
         },
         error: (err) => {
           console.error(err);
