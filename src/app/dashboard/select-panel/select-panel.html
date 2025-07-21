@@ -1,35 +1,44 @@
 <div class="container">
     <div class="panel">
-<app-logo/>
-        <div class="title">Control Panel</div>
-        <div class="buttons">
-            <button class="circle-btn" 
-                (pointerdown)="onButtonDown($event, 'yellow')"
-                (pointerup)="onButtonUp($event)"
-                (pointerleave)="onButtonLeave($event)"
-                routerLink="/dashboard/control-panel"></button>
-            <button class="circle-btn" 
-                (pointerdown)="onButtonDown($event, 'red')"
-                (pointerup)="onButtonUp($event)"
-                (pointerleave)="onButtonLeave($event)"
-                routerLink="/dashboard/control-panel"></button>
-            <button class="circle-btn" 
-                (pointerdown)="onButtonDown($event, 'purple')"
-                (pointerup)="onButtonUp($event)"
-                (pointerleave)="onButtonLeave($event)"
-                routerLink="/dashboard/control-panel"></button>
-            <div class="spacer"></div>
-            <button class="circle-btn" 
-                (pointerdown)="onButtonDown($event, 'limegreen')"
-                (pointerup)="onButtonUp($event)"
-                (pointerleave)="onButtonLeave($event)"
-                routerLink="/dashboard/control-panel"></button>
-            <button class="circle-btn button-hiden"></button>
-            <button class="circle-btn move-right" 
-                (pointerdown)="onButtonDown($event, 'blue')"
-                (pointerup)="onButtonUp($event)"
-                (pointerleave)="onButtonLeave($event)"
-                routerLink="/dashboard/control-panel"></button>
+        <app-logo/>
+        <div class="panel-content">
+            <div class="title">Control Panel</div>
+            <div class="buttons">
+                <button class="circle-btn" 
+                    (pointerdown)="onButtonDown($event, 'yellow')"
+                    (pointerup)="onButtonUp($event)"
+                    (pointerleave)="onButtonLeave($event)"
+                    routerLink="/dashboard/control-panel">
+                </button>
+                <button class="circle-btn" 
+                    (pointerdown)="onButtonDown($event, 'red')"
+                    (pointerup)="onButtonUp($event)"
+                    (pointerleave)="onButtonLeave($event)"
+                    routerLink="/dashboard/control-panel">
+                </button>
+                <button class="circle-btn" 
+                    (pointerdown)="onButtonDown($event, 'purple')"
+                    (pointerup)="onButtonUp($event)"
+                    (pointerleave)="onButtonLeave($event)"
+                    routerLink="/dashboard/control-panel">
+                </button>
+                <div class="spacer"></div>
+                <button class="circle-btn" 
+                    (pointerdown)="onButtonDown($event, 'limegreen')"
+                    (pointerup)="onButtonUp($event)"
+                    (pointerleave)="onButtonLeave($event)"
+                    routerLink="/dashboard/control-panel">
+                </button>
+                <button class="circle-btn button-hiden">
+
+                </button>
+                <button class="circle-btn move-right" 
+                    (pointerdown)="onButtonDown($event, 'blue')"
+                    (pointerup)="onButtonUp($event)"
+                    (pointerleave)="onButtonLeave($event)"
+                    routerLink="/dashboard/control-panel">
+                </button>
+            </div>
         </div>
         <button class="back-button" routerLink="/home">Back</button>
     </div>

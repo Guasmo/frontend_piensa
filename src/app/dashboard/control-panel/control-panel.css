@@ -1,29 +1,23 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to bottom, #f0f4f7, #3A6274);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
 .outer-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
+  /* MODIFICATION: Ensures the wrapper takes full screen height for vertical centering */
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .panel-wrapper {
   background: white;
   border-radius: 20px;
-  margin: 100px;
+  /* MODIFICATION: Margin removed to allow the parent container to handle centering */
+  /* margin: 100px; */
   padding: 30px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   max-width: 400px;
-  width: 90%;
+  width: 100%;
   text-align: center;
 }
 
@@ -66,12 +60,14 @@ body {
 .save-button {
   background: black;
   color: white;
+  width: 155px;
   padding: 12px 24px;
   border: none;
   border-radius: 30px;
   font-weight: bold;
   cursor: pointer;
-  margin: 20px;
+  /* MODIFICATION: Base margin removed to work better with flexbox */
+  margin: 0;
 }
 
 .metrics {
@@ -98,7 +94,7 @@ body {
 }
 
 .info-box h3 {
-  margin:  px;
+  margin: 0 0 10px;
   color: #3A6274;
 }
 
@@ -115,9 +111,9 @@ body {
   align-items: center;
   gap: 15px;
   font-family: Arial, sans-serif;
+  margin-top: 20px;
 }
 
-/* Estilo del interruptor */
 .switch {
   position: relative;
   display: inline-block;
@@ -131,7 +127,6 @@ body {
   height: 0;
 }
 
-/* Slider del botón (el fondo y animación) */
 .slider {
   position: absolute;
   cursor: pointer;
@@ -142,7 +137,6 @@ body {
   border-radius: 28px;
 }
 
-/* Bolita del interruptor */
 .slider:before {
   position: absolute;
   content: "";
@@ -155,7 +149,6 @@ body {
   border-radius: 50%;
 }
 
-/* Activado: cambia de color y desliza la bolita */
 input:checked + .slider {
   background-color: #3A6274;
 }
@@ -164,7 +157,35 @@ input:checked + .slider:before {
   transform: translateX(24px);
 }
 
-/* Texto de estado */
 .status-label {
   font-size: 16px;
+}
+
+
+/* ================================== */
+/* MODIFICATIONS FOR RESPONSIVE VIEW  */
+/* ================================== */
+@media (max-width: 600px) {
+
+  .panel-wrapper {
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 20px;
+    border-radius: 0;
+    box-sizing: border-box;
+  }
+  
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+    margin-left: 30%;
+  }
 }

@@ -4,29 +4,31 @@
     <h2 class="title">Control Panel</h2>
 
     <div class="info">
-      <p><strong>Name:</strong> <span class="value">Undefined</span></p>
-      <p><strong>Position:</strong> <span class="value">Undefined</span></p>
-      <p><strong>State:</strong> <span class="value">Undefined</span></p>
-      <p><strong>Battery status:</strong> <span class="value">Undefined</span></p>
+      <p>
+        <strong>Name:</strong> 
+        <span class="value">Undefined</span>
+      </p>
+      <p>
+        <strong>Position:</strong> 
+        <span class="value">Undefined</span>
+      </p>
+      <div class="toggle-container">
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="isConnected" (change)="toggleStatus()" />
+          <span class="slider"></span>
+        </label>
+        <span class="status-label" [ngStyle]="{ color: isConnected ? '#00000' : '#00000' }">
+          {{ isConnected ? 'Conectado' : 'Desconectado' }}
+        </span>
+      </div>
+      <button class="energy-button" (click)="toggleEnergy()">
+        {{ showEnergy ? 'Hide Energy Consumption ▲'
+                      : 'Show Energy Consumption ▼' }}
+      </button>
     </div>
-  <div class="toggle-container">
-  <label class="switch">
-    <input type="checkbox" [(ngModel)]="isConnected" (change)="toggleStatus()" />
-    <span class="slider"></span>
-  </label>
-  <span class="status-label" [ngStyle]="{ color: isConnected ? '#3A6274' : '#888888' }">
-    {{ isConnected ? 'Conectado' : 'Desconectado' }}
-  </span>
-</div>
 
 
-    <!-- Botón: cambia texto dinámicamente -->
-    <button class="energy-button" (click)="toggleEnergy()">
-      {{ showEnergy ? 'Hide Energy Consumption ▲'
-                    : 'Show Energy Consumption ▼' }}
-    </button>
 
-    <!-- Bloque de métricas -->
     <div id="energySection"
          class="metrics energy-content"
          [class.hidden]="!showEnergy">
@@ -40,7 +42,6 @@
       <div class="metric-box">---,-- W/h</div>
     </div>
 
-    <!-- Cuadro adicional -->
     <div class="info-box" *ngIf="showEnergy">
       <h3>Energy Details</h3>
       <ul>
@@ -51,7 +52,9 @@
       </ul>
     </div>
 
-    <button class="back-button" routerLink="/dashboard/select-panel">Back</button>
-    <button class="save-button" routerLink="/dashboard/select-panel">Save</button>
+    <div class="button-group">
+      <button class="back-button" routerLink="/dashboard/select-panel">Back</button>
+      <button class="save-button" routerLink="/dashboard/select-panel">Save</button>
+    </div>
   </div>
 </div>

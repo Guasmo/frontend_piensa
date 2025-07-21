@@ -1,30 +1,20 @@
-:host {
-  display: block;
-  min-height: 100vh;
-  background: linear-gradient(to bottom, #ffffff, #3A6274);
-  font-family: 'Segoe UI', sans-serif;
-  color: #000;
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
-}
-
 /* Contenedor para centrar todo en pantalla */
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 98vh;
+  min-height: 100vh;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box; 
 }
 
 /* Panel centrado con estilo limpio */
 .panel {
   background-color: white;
-  padding: 40px 20px;
+  padding: 30px 16px;
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
   text-align: center;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -32,9 +22,9 @@
 
 /* Logo grande */
 .logo {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   user-select: none;
 }
 
@@ -42,46 +32,42 @@
 .title {
   font-style: italic;
   font-weight: 600;
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
+  margin-bottom: 16px;
+  font-size: 1.3rem;
   color: #333;
 }
 
-/* Botones circulares en 3 columnas */
+/* Botones circulares */
 .buttons {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  gap: 1.5rem;
   justify-items: center;
   margin-bottom: 20px;
 }
 
 /* Botón circular */
 .circle-btn {
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   background-color: #555;
   border: none;
   cursor: pointer;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
   transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.1s ease;
   
-  /* Optimización para móviles */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
-/* EFECTO PRESIONADO - Más pronunciado para móviles */
+/* EFECTO PRESIONADO */
 .circle-btn.pressed {
-  transform: scale(0.85);
-  box-shadow: inset 0 6px 12px rgba(0, 0, 0, 0.5), 
-              0 1px 3px rgba(0, 0, 0, 0.3);
-  transition: none; /* Sin transición al presionar para respuesta inmediata */
+  transform: scale(0.8);
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.6), 
+              0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: none;
 }
 
 /* Animación brillante */
@@ -90,20 +76,12 @@
 }
 
 @keyframes shine {
-  0% {
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.9), 
-                0 0 35px rgba(255, 255, 255, 0.7),
-                2px 2px 10px rgba(0, 0, 0, 0.3);
-  }
-  100% {
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-  }
+  0% { box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(255, 255, 255, 0.9), 0 0 35px rgba(255, 255, 255, 0.7), 2px 2px 8px rgba(0, 0, 0, 0.3); }
+  100% { box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); }
 }
 
-/* Botón oculto - sin efectos */
+/* Botón oculto */
 .circle-btn.button-hiden {
   background-color: white !important;
   border: none !important;
@@ -112,7 +90,6 @@
   transition: none !important;
   touch-action: none;
 }
-
 .circle-btn.button-hiden:hover,
 .circle-btn.button-hiden:focus,
 .circle-btn.button-hiden:active,
@@ -125,7 +102,7 @@
   filter: none !important;
 }
 
-/* Hover solo para dispositivos que lo soporten (no móviles) */
+/* Hover solo para dispositivos que lo soporten */
 @media (hover: hover) and (pointer: fine) {
   .circle-btn:hover:not(.button-hiden) {
     transform: scale(1.1);
@@ -134,30 +111,11 @@
 }
 
 /* Colores activos */
-.circle-btn.active.yellow {
-  background-color: #f9d71c;
-  box-shadow: 0 0 15px #f9d71caa;
-}
-
-.circle-btn.active.red {
-  background-color: #e74c3c;
-  box-shadow: 0 0 15px #e74c3caa;
-}
-
-.circle-btn.active.purple {
-  background-color: #8e44ad;
-  box-shadow: 0 0 15px #8e44adaa;
-}
-
-.circle-btn.active.limegreen {
-  background-color: #32cd32;
-  box-shadow: 0 0 15px #32cd32aa;
-}
-
-.circle-btn.active.blue {
-  background-color: #3498db;
-  box-shadow: 0 0 15px #3498dbaa;
-}
+.circle-btn.active.yellow { background-color: #f9d71c; box-shadow: 0 0 15px #f9d71caa; }
+.circle-btn.active.red { background-color: #e74c3c; box-shadow: 0 0 15px #e74c3caa; }
+.circle-btn.active.purple { background-color: #8e44ad; box-shadow: 0 0 15px #8e44adaa; }
+.circle-btn.active.limegreen { background-color: #32cd32; box-shadow: 0 0 15px #32cd32aa; }
+.circle-btn.active.blue { background-color: #3498db; box-shadow: 0 0 15px #3498dbaa; }
 
 /* Espacio entre filas */
 .spacer {
@@ -172,50 +130,69 @@
   background: black;
   color: white;
   font-style: italic;
-  border-radius: 1rem;
+  border-radius: 30px;
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-
 .back-button:hover {
   transform: scale(1.1);
   box-shadow: 0 0 20px #fff;
 }
 
-/* Responsive para móviles */
+/* ================================== */
+/* MODIFICATIONS FOR RESPONSIVE VIEW  */
+/* ================================== */
 @media (max-width: 600px) {
-  .circle-btn {
-    width: 55px;
-    height: 55px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  .container {
+    padding: 0;
   }
 
-  .circle-btn.pressed {
-    transform: scale(0.8);
-    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.6), 
-                0 1px 2px rgba(0, 0, 0, 0.3);
+  .panel-content{
+    display: flex;
+    flex-direction: column;
+    margin-top: 50%;
+  }
+  .panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    box-sizing: border-box;
+    background-color: transparent;
+    box-shadow: none;
+  }
+  
+  .logo {
+    color: #333;
   }
 
   .buttons {
-    gap: 1.5rem;
+    gap: 2rem 1.5rem;
   }
 
-  .panel {
-    padding: 30px 16px;
-    max-width: 350px;
+  /* Hide the spacer as it's not needed for the 2-column layout */
+  .spacer {
+    display: none;
+  }
+  
+  .back-button {
+    margin-top: auto; 
+    align-self: center;
+    border-radius: 30px;
+    width: 100%;
+    height: 100%;
+    max-width: 240px;
+    max-height: 50px;
   }
 
-  .logo {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
-  }
-
-  .title {
-    font-size: 1.3rem;
-    margin-bottom: 16px;
+  /* MODIFICATION: Make hidden button's background transparent on mobile */
+  .circle-btn.button-hiden {
+    background-color: transparent !important;
   }
 }
-

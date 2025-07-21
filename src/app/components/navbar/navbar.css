@@ -1,0 +1,90 @@
+/* Estilos base para la barra de navegación */
+.sara-navbar {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1c333d;
+  max-height: 130px;
+  gap: 1rem;
+  padding: 2rem;
+  color: #fff;
+  border-bottom: 2px solid #3A6274;
+  box-sizing: border-box;
+}
+
+.logo-section {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.logo-text {
+  font-size: 2rem;
+  color: #9fc1d4;
+  letter-spacing: 0.15rem;
+}
+
+.user-badge {
+  background-color: #3A6274;
+  padding: 0.8rem 2rem;
+  color: #fff;
+  font-size: 1rem;
+  text-align: center;
+  border-radius: 30px;
+  font-weight: 600;
+  margin-left: auto; 
+}
+
+/* Estilos para el botón de desconectar */
+.logout-btn {
+  background-color: transparent;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  padding: 0.8rem 2rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #3A6274;
+  color: white;
+  box-shadow: 0 0 20px rgba(58, 98, 116, 0.6);
+  transform: scale(1.05);
+}
+
+/* ================================== */
+/* MEDIA QUERY PARA VISTA MÓVIL       */
+/* ================================== */
+@media (max-width: 600px) {
+  /* Centra el contenido de la barra de navegación */
+  .sara-navbar {
+    justify-content: center;
+    padding: 1.5rem 1rem;
+  }
+  
+  /* Apila el logo y el nombre de usuario verticalmente */
+  .logo-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    width: auto;
+    margin-bottom: 0;
+  }
+  
+  /* Elimina el margen de la insignia de usuario */
+  .user-badge {
+    margin-left: 0;
+    padding: 0.5rem 1.5rem;
+  }
+  
+  /* Oculta el botón de desconectar de escritorio en la vista móvil */
+  .logout-btn-desktop {
+    display: none;
+  }
+}
