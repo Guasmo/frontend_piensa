@@ -1,31 +1,29 @@
-<!-- S.A.R.A. - Dashboard Home Layout Final -->
 <div class="sara-dashboard futuristic">
   <nav class="sara-navbar">
     <div class="logo-section">
       <app-logo></app-logo>
     </div>
+    <button class="logout-btn logout-btn-desktop" (click)="logout()">Disconnect</button>
     <span class="user-badge">{{ username }}</span>
   </nav>
 
   <main class="sara-content column-layout">
-    <div class="row">
-      <div class="widget-card big-card" routerLink="/dashboard/select-panel">
-        <div class="widget-icon">
-          <img class="icon" src="assets/icons/control-panel.svg" alt="Control Icon">
-        </div>
-        <div class="widget-label">Control Panel</div>
+    <div class="widget-card big-card" routerLink="/dashboard/select-panel">
+      <div class="widget-icon">
+        <img class="icon" src="assets/icons/control-panel.svg" alt="Control Icon">
       </div>
+      <div class="widget-label">Control Panel</div>
     </div>
 
-    <div class="row">
-      <div class="widget-card big-card" routerLink="/dashboard/history">
-        <div class="widget-icon">
-          <img class="icon" src="assets/icons/history.svg" alt="History" />
-        </div>
-        <div class="widget-label">History</div>
+    <div class="widget-card big-card" routerLink="/dashboard/history">
+      <div class="widget-icon">
+        <img class="icon" src="assets/icons/history.svg" alt="History" />
       </div>
+      <div class="widget-label">History</div>
     </div>
-    <button class="logout-btn" (click)="logout()">Disconnect</button>
   </main>
 
+  <footer class="sara-footer">
+    <button class="logout-btn logout-btn-mobile" (click)="logout()">Disconnect</button>
+  </footer>
 </div>

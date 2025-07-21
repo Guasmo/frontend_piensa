@@ -1,25 +1,13 @@
-:host {
-  display: block;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  background: linear-gradient(to bottom, #ffffff, #3A6274);
-  font-family: 'Segoe UI', sans-serif;
-  color: hsl(0, 0%, 0%);
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
-}
-
-/* NAVBAR */
 .sara-navbar {
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   background-color: #1c333d;
-  padding: 1rem 2rem;
+  max-height: 130px;
+  gap: 1rem;
+  padding: 2rem;
   color: #fff;
   border-bottom: 2px solid #3A6274;
   box-sizing: border-box;
@@ -27,9 +15,8 @@
 
 .logo-section {
   display: flex;
-  justify-content: center;
-  align-items: center;
   width: 100%;
+  align-items: center; /* Vertically align items in desktop view */
   margin-bottom: 0.5rem;
 }
 
@@ -41,28 +28,25 @@
 
 .user-badge {
   background-color: #3A6274;
-  padding: 0.5rem 1.2rem;
-  border-radius: 20px;
-  font-weight: bold;
+  padding: 0.8rem 2rem;
   color: #fff;
   font-size: 1rem;
   text-align: center;
+  border-radius: 30px;
+  font-weight: 600;
+  /* MODIFICATION: Added margin for desktop view */
+  margin-left: auto; 
 }
 
 /* CONTENT */
 .column-layout {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  margin-top: 8%;
   gap: 2rem;
   padding: 2rem;
   align-items: center;
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 2rem;
 }
 
 .widget-card {
@@ -70,8 +54,8 @@
   color: #fff;
   border-radius: 20px;
   box-shadow: 0 0 25px rgba(58, 98, 116, 0.4);
-  width: 260px;
-  min-height: 180px;
+  width: 350px;
+  min-height: 240px;
   padding: 1.8rem;
   display: flex;
   justify-content: center;
@@ -100,68 +84,13 @@
   margin-top: 0.5rem;
 }
 
-/* FLIP CARD */
-.flip-card {
-  perspective: 1000px;
-  width: 260px;
-  height: 180px;
-}
-
-.flip-inner {
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-  position: relative;
-}
-
-.flip-card.flipped .flip-inner {
-  transform: rotateY(180deg);
-}
-
-.flip-front,
-.flip-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
-  background-color: #1a2d36;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  text-align: center;
-  box-shadow: inset 0 0 10px #3A6274;
-  color: #ffffff;
-  backface-visibility: hidden;
-}
-
-.icon {
-  display: flex;
-  justify-content: center;
-}
-
-.flip-front img.info-icon {
-  width: 48px;
-  height: 48px;
-  filter: drop-shadow(0 0 5px #3A6274);
-}
-
-.flip-back {
-  transform: rotateY(180deg);
-  background-color: #22343d;
-}
-
 /* FOOTER Y BOTÓN LOGOUT */
 .sara-footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1.5rem;
   margin-top: auto;
   background-color: transparent;
-  width: 100%;
 }
 
 .logout-btn {
@@ -183,51 +112,70 @@
   transform: scale(1.05);
 }
 
+.logout-btn-mobile {
+  display: none;
+}
+
+
+
 /* MEDIA QUERY PARA MOBILE */
 @media (max-width: 600px) {
-  .column-layout {
-    padding: 1rem;
+  /* MODIFICATION: Center the content of the navbar (the logo section) */
+  .sara-navbar {
+    justify-content: center;
+    padding: 1.5rem 1rem;
+  }
+  
+  /* MODIFICATION: Stack logo and username vertically */
+  .logo-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem; /* Space between logo and username */
+    width: auto; /* Allow the section to fit its content */
+    margin-bottom: 0;
+  }
+  
+  /* MODIFICATION: Remove margin for the badge in mobile view */
+  .user-badge {
+    margin-left: 0;
+    padding: 0.5rem 1.5rem;
   }
 
-  .widget-card,
-  .flip-card {
-    width: 100%;
-    max-width: 320px;
+  .column-layout {
+    padding: 1rem;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .logout-btn {
+    display: flex;
+    left: 20px;
     width: 100%;
-    max-width: 300px;
+    max-width: 200px;
     font-size: 1rem;
-    padding: 0.8rem 1rem;
+    padding: 0.8rem 1rem;    
+  }
+  
+  .logout-btn-desktop {
+    display: flex;
+    display: none;
+  }
+  .logout-btn-mobile {
+    display: block;
   }
 
   .sara-footer {
     padding: 1rem;
+    margin-top: 1rem; 
+  }
+
+  .sara-content {
+    margin-left: 5px;
+    display: flex;
+  }
+
+  .widget-card {
+    max-width: 240px;
+    flex: 1 1 calc(50% - 2rem); /* Two cards per row with some spacing */
   }
 }
-.footer-buttons {
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.save-btn {
-  background-color: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  padding: 0.8rem 2rem;
-  border-radius: 30px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.save-btn:hover {
-  background-color: #3A6274;
-  color: white;
-  box-shadow: 0 0 20px rgba(58, 98, 116, 0.6);
-  transform: scale(1.05);
-}  
