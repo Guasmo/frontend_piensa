@@ -1,15 +1,36 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Logo } from '../../logo/logo';
+import { Component, OnInit, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-select-panel',
-  imports: [RouterLink, Logo],
+  imports: [RouterLink, Navbar],
   templateUrl: './select-panel.html',
   styleUrl: './select-panel.css'
 })
-export class SelectPanel {
+export class SelectPanel implements OnInit {
+  username: string = 'Username';
   private pressedButton: HTMLElement | null = null;
+  private router = inject(Router);
+
+  ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          this.username = payload.username || payload.name || 'User';
+        } catch (e) {
+          console.error('Invalid token', e);
+        }
+      }
+    }
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    this.router.navigate(['/auth/login']);
+  }
 
   // Método universal para mouse y touch usando PointerEvent
   onButtonDown(event: PointerEvent, color: string): void {

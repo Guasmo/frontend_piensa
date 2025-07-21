@@ -3,10 +3,12 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  /* MODIFICATION: Ensures the wrapper takes full screen height for vertical centering */
-  min-height: 100vh;
+  /* MODIFICATION: Ajustado para considerar el navbar */
+  min-height: calc(100vh - 130px); /* Resta la altura aproximada del navbar */
   padding: 20px;
   box-sizing: border-box;
+  /* Espacio superior para evitar superposición con el navbar */
+  padding-top: 2rem;
 }
 
 .panel-wrapper {
@@ -106,6 +108,7 @@
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
 .toggle-container {
   display: flex;
   align-items: center;
@@ -161,11 +164,16 @@ input:checked + .slider:before {
   font-size: 16px;
 }
 
-
 /* ================================== */
 /* MODIFICATIONS FOR RESPONSIVE VIEW  */
 /* ================================== */
 @media (max-width: 600px) {
+
+  .outer-wrapper {
+    /* Ajuste específico para mobile considerando el navbar */
+    min-height: calc(100vh - 150px);
+    padding-top: 1rem;
+  }
 
   .panel-wrapper {
     background: transparent;

@@ -2,12 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Logo } from '../../logo/logo';
+import { Navbar } from '../../components/navbar/navbar';
 
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, Logo],
+  imports: [CommonModule, RouterLink, Navbar],
   templateUrl: './dashboard-home.html',
   styleUrls: ['./dashboard-home.css'],
 })
@@ -35,5 +35,4 @@ export class DashboardHome implements OnInit {
     localStorage.removeItem('token');
     this.router.navigate(['/auth/login']);
   }
-
 }

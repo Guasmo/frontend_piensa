@@ -36,6 +36,7 @@
   border-radius: 30px;
   font-weight: 600;
   margin-left: auto; 
+  width: 120px;
 }
 
 /* Estilos para el botón de desconectar */
@@ -56,6 +57,14 @@
   color: white;
   box-shadow: 0 0 20px rgba(58, 98, 116, 0.6);
   transform: scale(1.05);
+}
+
+.logout-btn-desktop {
+  display: flex;
+}
+
+.logout-btn-mobile {
+  display: none;
 }
 
 /* ================================== */

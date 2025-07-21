@@ -1,11 +1,9 @@
 <div class="sara-dashboard futuristic">
-  <nav class="sara-navbar">
-    <div class="logo-section">
-      <app-logo></app-logo>
-    </div>
-    <button class="logout-btn logout-btn-desktop" (click)="logout()">Disconnect</button>
-    <span class="user-badge">{{ username }}</span>
-  </nav>
+  <app-navbar 
+    [username]="username" 
+    [showLogoutButton]="true"
+    (logoutClick)="logout()">
+  </app-navbar>
 
   <main class="sara-content column-layout">
     <div class="widget-card big-card" routerLink="/dashboard/select-panel">

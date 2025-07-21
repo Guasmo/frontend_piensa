@@ -1,6 +1,12 @@
+<!-- Agrega el navbar al inicio -->
+<app-navbar 
+  [username]="username"
+  [showLogoutButton]="showLogoutButton"
+  (logoutClick)="handleLogout()">
+</app-navbar>
+
 <div class="outer-wrapper">
   <div class="panel-wrapper">
-    <app-logo></app-logo>
     <h2 class="title">Control Panel</h2>
 
     <div class="info">
@@ -26,8 +32,6 @@
                       : 'Show Energy Consumption ▼' }}
       </button>
     </div>
-
-
 
     <div id="energySection"
          class="metrics energy-content"

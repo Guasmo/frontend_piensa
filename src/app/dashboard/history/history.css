@@ -5,7 +5,6 @@
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
-
 .history-wrapper {
   align-items: center;
   background: transparent;
@@ -14,10 +13,13 @@
   box-shadow: none;
   width: 100%;
   max-width: 500px;
+  max-height: 700px;
   display: flex;
   justify-content: center;
   flex-direction: column;
   animation: fadeSlide 0.7s ease;
+  /* Ajuste para que no se superponga con el navbar */
+  margin-top: 1rem;
 }
 
 @media (min-width: 768px) {
@@ -70,6 +72,10 @@
   width: 100%;
   margin-top: 1rem;
   border-color: black;
+  overflow-y: auto;
+  flex-grow: 1;
+  min-height: 0;
+  overflow-x: hidden;
 }
 
 .history-item {
@@ -134,7 +140,6 @@
 @media (max-width: 600px) {
   .history-wrapper {
     padding: 1.5rem;
-    
   }
 
   .title {
@@ -142,12 +147,20 @@
   }
 
   .history-item {
+    border-radius: 25px;
     padding: 0.9rem;
   }
 }
+
 .app-container {
   width: 100%;
   padding: 1rem;
   display: flex;
   justify-content: center;
+  align-items: center;
+  /* Ajuste para considerar el navbar */
+  min-height: calc(100vh - 130px); /* Resta la altura aproximada del navbar */
+  box-sizing: border-box;
+  /* Si necesitas más espacio superior para evitar superposición */
+  padding-top: 2rem;
 }

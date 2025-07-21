@@ -1,11 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Logo } from '../../logo/logo';
 
 @Component({
   selector: 'app-navbar',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, Logo],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css'
+  styleUrls: ['./navbar.css']
 })
 export class Navbar {
+  @Input() username: string = 'Username';
+  @Input() showLogoutButton: boolean = true;
+  @Output() logoutClick = new EventEmitter<void>();
 
+  onLogout(): void {
+    this.logoutClick.emit();
+  }
 }

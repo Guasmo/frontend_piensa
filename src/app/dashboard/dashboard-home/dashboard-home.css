@@ -1,43 +1,3 @@
-.sara-navbar {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #1c333d;
-  max-height: 130px;
-  gap: 1rem;
-  padding: 2rem;
-  color: #fff;
-  border-bottom: 2px solid #3A6274;
-  box-sizing: border-box;
-}
-
-.logo-section {
-  display: flex;
-  width: 100%;
-  align-items: center; /* Vertically align items in desktop view */
-  margin-bottom: 0.5rem;
-}
-
-.logo-text {
-  font-size: 2rem;
-  color: #9fc1d4;
-  letter-spacing: 0.15rem;
-}
-
-.user-badge {
-  background-color: #3A6274;
-  padding: 0.8rem 2rem;
-  color: #fff;
-  font-size: 1rem;
-  text-align: center;
-  border-radius: 30px;
-  font-weight: 600;
-  /* MODIFICATION: Added margin for desktop view */
-  margin-left: auto; 
-}
-
 /* CONTENT */
 .column-layout {
   display: flex;
@@ -116,31 +76,8 @@
   display: none;
 }
 
-
-
 /* MEDIA QUERY PARA MOBILE */
 @media (max-width: 600px) {
-  /* MODIFICATION: Center the content of the navbar (the logo section) */
-  .sara-navbar {
-    justify-content: center;
-    padding: 1.5rem 1rem;
-  }
-  
-  /* MODIFICATION: Stack logo and username vertically */
-  .logo-section {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.8rem; /* Space between logo and username */
-    width: auto; /* Allow the section to fit its content */
-    margin-bottom: 0;
-  }
-  
-  /* MODIFICATION: Remove margin for the badge in mobile view */
-  .user-badge {
-    margin-left: 0;
-    padding: 0.5rem 1.5rem;
-  }
-
   .column-layout {
     padding: 1rem;
     flex-direction: row;

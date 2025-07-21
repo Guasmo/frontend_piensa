@@ -1,8 +1,13 @@
+<!-- Agrega el navbar al inicio -->
+<app-navbar 
+  [username]="username"
+  [showLogoutButton]="showLogoutButton"
+  (logoutClick)="handleLogout()">
+</app-navbar>
+
 <div class="app-container">
   <div class="history-wrapper">
-    <app-logo />
     <h2 class="title">History</h2>
-
 
     <div class="history-list">
       <div class="history-item" *ngFor="let item of historyItems; let i = index" (click)="toggleItem(i)"
@@ -14,7 +19,6 @@
         </div>
         <div class="arrow">{{ expandedIndex === i ? '▲' : '▼' }}</div>
 
-
         <div class="details" *ngIf="expandedIndex === i">
           <p>Volume used: {{ item.volume }}%</p>
           <p>Battery consumed: {{ item.battery }}%</p>
@@ -22,6 +26,6 @@
       </div>
     </div>
 
-    <button routerLink="/dashboard" class="back-button">Back</button>
+    <button routerLink="/home" class="back-button">Back</button>
   </div>
 </div>

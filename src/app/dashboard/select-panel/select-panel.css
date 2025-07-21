@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  margin-top: 140px;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-sizing: border-box; 
@@ -150,16 +150,23 @@
     padding: 0;
   }
 
+
+  .title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+
+  
   .panel-content{
     display: flex;
     flex-direction: column;
-    margin-top: 50%;
+    align-items: center;
+    margin-top: 50px;
   }
   .panel {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 100vh;
     width: 100%;
     max-width: 100%;
     border-radius: 0;
@@ -182,13 +189,12 @@
   }
   
   .back-button {
-    margin-top: auto; 
+    margin-top: 60%; 
     align-self: center;
     border-radius: 30px;
     width: 100%;
-    height: 100%;
+    height: 60px;
     max-width: 240px;
-    max-height: 50px;
   }
 
   /* MODIFICATION: Make hidden button's background transparent on mobile */
