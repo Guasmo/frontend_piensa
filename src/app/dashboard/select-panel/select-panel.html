@@ -10,39 +10,55 @@
             <div class="panel-content">
                 <div class="title">Control Panel</div>
                 <div class="buttons">
+                    <!-- Parlante 1 - Amarillo -->
                     <button class="circle-btn" 
                         (pointerdown)="onButtonDown($event, 'yellow')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
-                        routerLink="/dashboard/control-panel">
+                        data-speaker-id="1"
+                        title="Parlante 1">
                     </button>
+                    
+                    <!-- Parlante 2 - Rojo -->
                     <button class="circle-btn" 
                         (pointerdown)="onButtonDown($event, 'red')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
-                        routerLink="/dashboard/control-panel">
+                        data-speaker-id="2"
+                        title="Parlante 2">
                     </button>
+                    
+                    <!-- Parlante 3 - Morado -->
                     <button class="circle-btn" 
                         (pointerdown)="onButtonDown($event, 'purple')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
-                        routerLink="/dashboard/control-panel">
+                        data-speaker-id="3"
+                        title="Parlante 3">
                     </button>
+                    
                     <div class="spacer"></div>
+                    
+                    <!-- Parlante 4 - Verde lima -->
                     <button class="circle-btn" 
                         (pointerdown)="onButtonDown($event, 'limegreen')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
-                        routerLink="/dashboard/control-panel">
+                        data-speaker-id="4"
+                        title="Parlante 4">
                     </button>
+                    
+                    <!-- Botón oculto/espaciador -->
                     <button class="circle-btn button-hiden">
-
                     </button>
+                    
+                    <!-- Parlante 5 - Azul -->
                     <button class="circle-btn move-right" 
                         (pointerdown)="onButtonDown($event, 'blue')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
-                        routerLink="/dashboard/control-panel">
+                        data-speaker-id="5"
+                        title="Parlante 5">
                     </button>
                 </div>
             </div>

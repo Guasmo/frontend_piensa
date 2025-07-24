@@ -35,9 +35,10 @@
           </span>
         </div>
 
-        <!-- Duración de la Sesión -->
+        <!-- Duración de la Sesión y Contador de Mediciones -->
         <div *ngIf="isConnected" style="margin-top: 10px;">
           <p><strong>Duración:</strong> <span class="value">{{ sessionDuration }}</span></p>
+          <p><strong>Mediciones:</strong> <span class="value">{{ getMeasurementCount() }}</span></p>
         </div>
 
         <!-- Botón para mostrar/ocultar energía -->
@@ -56,16 +57,19 @@
           <label>Voltaje Actual</label>
           <div class="metric-box">
             {{ formatNumber(latestMetrics.voltage_V, 2) }} V
+            <small *ngIf="currentStats">(Promedio: {{ getRealtimeAverageVoltage() }} V)</small>
           </div>
 
           <label>Corriente Actual</label>
           <div class="metric-box">
             {{ formatNumber(latestMetrics.current_mA, 1) }} mA
+            <small *ngIf="currentStats">(Promedio: {{ getRealtimeAverageCurrent() }} mA)</small>
           </div>
 
           <label>Potencia Actual</label>
           <div class="metric-box">
             {{ formatNumber(latestMetrics.power_mW, 1) }} mW
+            <small *ngIf="currentStats">(Promedio: {{ getRealtimeAveragePower() }} mW)</small>
           </div>
 
           <label>Batería Restante</label>
@@ -77,6 +81,7 @@
           <label>Consumo Total</label>
           <div class="metric-box">
             {{ formatNumber(latestMetrics.total_consumed_mAh, 1) }} mAh
+            <small *ngIf="currentStats">(Calculado: {{ getTotalConsumed() }} mAh)</small>
           </div>
 
           <label>Muestra #</label>
@@ -87,6 +92,7 @@
           <!-- Última actualización -->
           <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #666;">
             <p>Última actualización: {{ latestMetrics.timestamp }}s desde el inicio</p>
+            <p *ngIf="currentStats">Duración total: {{ currentStats.durationSeconds }}s</p>
           </div>
         </ng-container>
 
@@ -97,24 +103,40 @@
         </ng-template>
       </div>
 
-      <!-- Detalles de Energía Expandidos -->
-      <div class="info-box" *ngIf="showEnergy && latestMetrics">
+      <!-- Detalles de Energía Expandidos con Estadísticas en Tiempo Real -->
+      <div class="info-box" *ngIf="showEnergy && (latestMetrics || currentStats)">
         <h3>📊 Estadísticas de la Sesión</h3>
         <ul>
           <li><strong>Estado de Batería:</strong> {{ getBatteryStatus() }}</li>
-          <li><strong>Potencia Promedio:</strong> {{ formatNumber(averagePower, 1) }} mW</li>
-          <li><strong>Pico de Carga:</strong> {{ formatNumber(peakPower, 1) }} mW</li>
+          <li *ngIf="currentStats"><strong>Potencia Promedio:</strong> {{ getRealtimeAveragePower() }} mW</li>
+          <li *ngIf="peakPower > 0"><strong>Pico de Potencia:</strong> {{ formatNumber(peakPower, 1) }} mW</li>
           <li><strong>Duración de Sesión:</strong> {{ sessionDuration }}</li>
-          <li><strong>Consumo Total:</strong> {{ formatNumber(latestMetrics.total_consumed_mAh, 1) }} mAh</li>
+          <li *ngIf="currentStats"><strong>Consumo Total Calculado:</strong> {{ getTotalConsumed() }} mAh</li>
+          <li *ngIf="latestMetrics"><strong>Consumo Total ESP32:</strong> {{ formatNumber(latestMetrics.total_consumed_mAh, 1) }} mAh</li>
+          <li *ngIf="currentStats"><strong>Corriente Promedio:</strong> {{ getRealtimeAverageCurrent() }} mA</li>
+          <li *ngIf="currentStats"><strong>Voltaje Promedio:</strong> {{ getRealtimeAverageVoltage() }} V</li>
+          <li><strong>Total de Mediciones:</strong> {{ getMeasurementCount() }}</li>
         </ul>
       </div>
 
-      <!-- Información de Conectividad -->
+      <!-- Información de Conectividad Mejorada -->
       <div class="info-box" *ngIf="isConnected" style="border-color: #28a745; background: #d4edda;">
-        <h3 style="color: #155724;">✅ ESP32 Conectado</h3>
+        <h3 style="color: #155724;">✅ ESP32 Conectado - Datos en Tiempo Real</h3>
         <p style="color: #155724;">
-          Recibiendo datos cada 10 segundos. 
+          Recibiendo datos cada 10 segundos desde memoria del servidor. 
           <strong>ID de Sesión:</strong> {{ activeSessionId }}
+        </p>
+        <p style="color: #155724; font-size: 12px;">
+          Los datos se almacenan temporalmente y se guardarán al finalizar la sesión.
+        </p>
+      </div>
+
+      <!-- ✅ NUEVA: Información sobre el nuevo sistema -->
+      <div class="info-box" *ngIf="!isConnected" style="border-color: #17a2b8; background: #d1ecf1;">
+        <h3 style="color: #0c5460;">ℹ️ Sistema de Monitoreo en Tiempo Real</h3>
+        <p style="color: #0c5460;">
+          El sistema ahora procesa datos en tiempo real sin sobrecargar la base de datos. 
+          Los datos se guardarán como resumen al finalizar la sesión.
         </p>
       </div>
 

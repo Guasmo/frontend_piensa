@@ -13,6 +13,15 @@ export class SelectPanel implements OnInit {
   private pressedButton: HTMLElement | null = null;
   private router = inject(Router);
 
+  // ✅ CORRECCIÓN: Mapeo de colores a IDs de parlantes
+  private readonly speakerMapping = {
+    'yellow': 1,
+    'red': 2,
+    'purple': 3,
+    'limegreen': 4,
+    'blue': 5
+  };
+
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
@@ -52,7 +61,7 @@ export class SelectPanel implements OnInit {
     target.classList.add('shiny');
   }
 
-  // Método cuando se suelta el botón
+  // ✅ CORRECCIÓN: Método cuando se suelta el botón - navegar al control panel con ID específico
   onButtonUp(event: PointerEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -60,6 +69,31 @@ export class SelectPanel implements OnInit {
     if (this.pressedButton) {
       // Remover efecto presionado
       this.pressedButton.classList.remove('pressed');
+      
+      // Obtener el color del botón presionado
+      const computedStyle = window.getComputedStyle(this.pressedButton);
+      const backgroundColor = computedStyle.backgroundColor;
+      
+      // Determinar el color basado en el fondo actual
+      let speakerId = 1; // Default
+      const bgColor = this.pressedButton.style.backgroundColor.toLowerCase();
+      
+      if (bgColor.includes('yellow') || bgColor === 'yellow') {
+        speakerId = this.speakerMapping['yellow'];
+      } else if (bgColor.includes('red') || bgColor === 'red') {
+        speakerId = this.speakerMapping['red'];
+      } else if (bgColor.includes('purple') || bgColor === 'purple') {
+        speakerId = this.speakerMapping['purple'];
+      } else if (bgColor.includes('lime') || bgColor === 'limegreen') {
+        speakerId = this.speakerMapping['limegreen'];
+      } else if (bgColor.includes('blue') || bgColor === 'blue') {
+        speakerId = this.speakerMapping['blue'];
+      }
+      
+      console.log(`Navegando al panel de control del parlante ${speakerId}`);
+      
+      // Navegar al control panel con el ID específico
+      this.router.navigate(['/dashboard/control-panel', speakerId]);
       
       // Remover animación brillante después de un delay
       setTimeout(() => {
@@ -87,6 +121,13 @@ export class SelectPanel implements OnInit {
     if (this.pressedButton === target) {
       this.pressedButton = null;
     }
+  }
+
+  // ✅ CORRECCIÓN: Método para navegación directa (alternativo)
+  navigateToSpeaker(color: string): void {
+    const speakerId = this.speakerMapping[color as keyof typeof this.speakerMapping] || 1;
+    console.log(`Navegando directamente al parlante ${speakerId} (${color})`);
+    this.router.navigate(['/dashboard/control-panel', speakerId]);
   }
 
   // Método de respaldo para compatibilidad
