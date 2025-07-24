@@ -3,61 +3,17 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Navbar } from '../../components/navbar/navbar';
+// import { Navbar } from '../../components/navbar/navbar';
 import { Subscription, timer } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from '../../services/auth';
-
-// Interfaces para tipar los datos
-interface EnergyMetrics {
-  voltage_V: number;
-  current_mA: number;
-  power_mW: number;
-  battery_remaining_percent: number;
-  timestamp: number;
-  total_consumed_mAh: number;
-  sample_index: number;
-}
-
-// ✅ NUEVA: Interface para estadísticas en tiempo real
-interface RealtimeStats {
-  avgCurrent: number;
-  avgVoltage: number;
-  avgPower: number;
-  totalConsumed: number;
-  measurementCount: number;
-  durationSeconds: number;
-}
-
-// ✅ ACTUALIZADA: Interface para datos de sesión en tiempo real
-interface SessionData {
-  id: number;
-  speakerId: number;
-  userId: number;
-  startTime: string;
-  endTime?: string;
-  initialBatteryPercentage: number;
-  finalBatteryPercentage?: number;
-  measurements: EnergyMetrics[]; // ✅ Cambiado de energyMeasurements a measurements
-  currentStats: RealtimeStats;    // ✅ NUEVO: Estadísticas actuales
-  measurementCount: number;       // ✅ NUEVO: Contador de mediciones
-  speaker: {
-    id: number;
-    name: string;
-    position: string;
-  };
-  user: {
-    id: number;
-    username: string;
-    email: string;
-  };
-}
+import { EnergyMetrics, RealtimeStats, SessionData } from '../../interfaces/controlPanel';
 
 @Component({
   selector: 'app-control-panel',
   standalone: true,
-  imports: [CommonModule, RouterModule, Navbar, FormsModule, HttpClientModule],
+  imports: [CommonModule, RouterModule, FormsModule, HttpClientModule],
   templateUrl: './control-panel.html',
   styleUrls: ['./control-panel.css'],
 })
@@ -84,11 +40,10 @@ export class ControlPanel implements OnInit, OnDestroy {
   latestMetrics: EnergyMetrics | null = null;
   sessionStartTime: string | null = null;
   
-  // ✅ NUEVO: Estadísticas en tiempo real
+  // ✅ NUEVA: Propiedad para estadísticas en tiempo real
   currentStats: RealtimeStats | null = null;
-  measurementCount = 0;
   
-  // Estadísticas calculadas (mantenidas para compatibilidad)
+  // Estadísticas calculadas
   averagePower = 0;
   peakPower = 0;
   sessionDuration = '00:00:00';
@@ -97,8 +52,8 @@ export class ControlPanel implements OnInit, OnDestroy {
   username$ = this.authService.currentUser$;
   showLogoutButton: boolean = true;
   
-  // URL de la API
-  private readonly API_URL = 'http://192.168.18.142:3000/esp32-data';
+  // ✅ CORRECCIÓN: URL correcta que coincida con el ESP32
+  private readonly API_URL = 'http://10.10.13.8:3000/esp32-data';
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -158,15 +113,9 @@ export class ControlPanel implements OnInit, OnDestroy {
             this.speakerInfo.position = response.session.speaker.position;
             this.sessionStartTime = response.session.startTime;
             
-            // ✅ ACTUALIZADO: Procesar métricas y estadísticas nuevas
-            if (response.session.measurements?.length > 0) {
-              this.processMetrics(response.session.measurements);
-            }
-            
-            // ✅ NUEVO: Procesar estadísticas en tiempo real
-            if (response.session.currentStats) {
-              this.currentStats = response.session.currentStats;
-              this.measurementCount = response.session.measurementCount;
+            // Procesar métricas existentes
+            if (response.session.energyMeasurements?.length > 0) {
+              this.processMetrics(response.session.energyMeasurements);
             }
             
             if (this.activeSessionId !== null) {
@@ -195,8 +144,8 @@ export class ControlPanel implements OnInit, OnDestroy {
       return;
     }
     
-    // Usar endpoint de speakers en lugar de esp32-data
-    this.http.get<{ success: boolean; data: { name: string; position: string } }>(`http://192.168.18.142:3000/speakers/${this.speakerId}`)
+    // ✅ CORRECCIÓN: Usar endpoint de speakers en lugar de esp32-data
+    this.http.get<{ success: boolean; data: { name: string; position: string } }>(`http://10.10.13.8:3000/speakers/${this.speakerId}`)
       .subscribe({
         next: (res) => {
           console.log('Detalles del parlante obtenidos:', res);
@@ -285,65 +234,106 @@ export class ControlPanel implements OnInit, OnDestroy {
     });
   }
   
-  // ✅ ACTUALIZADO: Usar el nuevo endpoint de realtime-data
   startPolling(sessionId: number): void {
     this.stopPolling();
     
     console.log(`🔄 Iniciando polling para sesión ${sessionId}`);
     
     this.pollingSubscription = timer(0, 10000).pipe(
-      // ✅ CAMBIADO: Usar el nuevo endpoint realtime-data
-      switchMap(() => this.http.get<{ success: boolean; data: SessionData }>(`${this.API_URL}/realtime-data/${sessionId}`)),
+      switchMap(() => this.http.get<{ success: boolean; data: SessionData }>(`${this.API_URL}/current-session/${sessionId}`)),
       catchError(err => {
         console.error('Error en polling:', err);
-        this.errorMessage = 'Error obteniendo datos en tiempo real de la sesión.';
+        this.errorMessage = 'Error obteniendo datos de la sesión.';
         return of(null);
       })
     ).subscribe({
       next: (response) => {
-        if (response?.success && response.data) {
-          // ✅ ACTUALIZADO: Procesar las mediciones desde el nuevo formato
-          if (response.data.measurements) {
-            this.processMetrics(response.data.measurements);
-          }
-          
-          // ✅ NUEVO: Actualizar estadísticas en tiempo real
-          if (response.data.currentStats) {
-            this.currentStats = response.data.currentStats;
-            this.measurementCount = response.data.measurementCount;
-            
-            // Actualizar los valores calculados usando las estadísticas en tiempo real
-            this.averagePower = response.data.currentStats.avgPower;
-          }
-          
+        if (response?.success && response.data?.energyMeasurements) {
+          this.processMetrics(response.data.energyMeasurements);
           this.updateSessionDuration();
-          console.log('📊 Datos en tiempo real actualizados:', {
-            latestMetrics: this.latestMetrics,
-            currentStats: this.currentStats,
-            measurementCount: this.measurementCount
-          });
+          console.log('📊 Datos actualizados:', this.latestMetrics);
         }
       },
       error: (err) => {
         console.error('Error durante el polling:', err);
-        this.errorMessage = 'Se perdió la conexión con la sesión en tiempo real.';
+        this.errorMessage = 'Se perdió la conexión con la sesión.';
         this.stopPolling();
       }
     });
   }
 
   private processMetrics(measurements: EnergyMetrics[]): void {
-    if (!measurements || measurements.length === 0) return;
+    if (!measurements || measurements.length === 0) {
+      this.currentStats = null;
+      return;
+    }
 
     // Ordenar por timestamp descendente para obtener la más reciente
     const sortedMeasurements = measurements.sort((a, b) => b.timestamp - a.timestamp);
     this.latestMetrics = sortedMeasurements[0];
 
-    // Calcular estadísticas locales (para compatibilidad)
-    if (measurements.length > 0) {
-      const powers = measurements.map(m => m.power_mW);
-      this.peakPower = Math.max(...powers);
+    // Calcular estadísticas
+    const powers = measurements.map(m => m.power_mW);
+    const voltages = measurements.map(m => m.voltage_V);
+    const currents = measurements.map(m => m.current_mA);
+    
+    this.averagePower = powers.reduce((sum, p) => sum + p, 0) / powers.length;
+    this.peakPower = Math.max(...powers);
+
+    // ✅ NUEVA: Calcular estadísticas en tiempo real
+    this.currentStats = {
+      averageVoltage: voltages.reduce((sum, v) => sum + v, 0) / voltages.length,
+      averageCurrent: currents.reduce((sum, c) => sum + c, 0) / currents.length,
+      averagePower: this.averagePower,
+      totalConsumed: this.calculateTotalConsumed(measurements),
+      measurementCount: measurements.length,
+      durationSeconds: this.calculateDurationInSeconds()
+    };
+  }
+
+  // ✅ NUEVOS: Métodos que el template necesita
+  getMeasurementCount(): number {
+    return this.currentStats?.measurementCount || 0;
+  }
+
+  getRealtimeAverageVoltage(): string {
+    return this.currentStats ? this.currentStats.averageVoltage.toFixed(2) : '0.00';
+  }
+
+  getRealtimeAverageCurrent(): string {
+    return this.currentStats ? this.currentStats.averageCurrent.toFixed(1) : '0.0';
+  }
+
+  getRealtimeAveragePower(): string {
+    return this.currentStats ? this.currentStats.averagePower.toFixed(1) : '0.0';
+  }
+
+  getTotalConsumed(): string {
+    return this.currentStats ? this.currentStats.totalConsumed.toFixed(1) : '0.0';
+  }
+
+  // ✅ NUEVO: Método helper para calcular consumo total
+  private calculateTotalConsumed(measurements: EnergyMetrics[]): number {
+    if (!measurements || measurements.length === 0) return 0;
+    
+    // Calcular consumo basado en la integración de corriente x tiempo
+    let totalConsumed = 0;
+    for (let i = 1; i < measurements.length; i++) {
+      const timeDiff = (measurements[i].timestamp - measurements[i-1].timestamp) / 3600; // convertir a horas
+      const avgCurrent = (measurements[i].current_mA + measurements[i-1].current_mA) / 2;
+      totalConsumed += avgCurrent * timeDiff;
     }
+    
+    return totalConsumed;
+  }
+
+  // ✅ NUEVO: Método helper para calcular duración en segundos
+  private calculateDurationInSeconds(): number {
+    if (!this.sessionStartTime) return 0;
+    
+    const start = new Date(this.sessionStartTime);
+    const now = new Date();
+    return Math.floor((now.getTime() - start.getTime()) / 1000);
   }
 
   private updateSessionDuration(): void {
@@ -363,7 +353,6 @@ export class ControlPanel implements OnInit, OnDestroy {
   private resetMetrics(): void {
     this.latestMetrics = null;
     this.currentStats = null;
-    this.measurementCount = 0;
     this.averagePower = 0;
     this.peakPower = 0;
     this.sessionDuration = '00:00:00';
@@ -405,26 +394,5 @@ export class ControlPanel implements OnInit, OnDestroy {
     if (battery > 50) return '#28a745';
     if (battery > 20) return '#ffc107';
     return '#dc3545';
-  }
-
-  // ✅ NUEVOS: Métodos helper para las estadísticas en tiempo real
-  getRealtimeAveragePower(): string {
-    return this.currentStats ? this.formatNumber(this.currentStats.avgPower, 1) : '0.0';
-  }
-
-  getRealtimeAverageCurrent(): string {
-    return this.currentStats ? this.formatNumber(this.currentStats.avgCurrent, 1) : '0.0';
-  }
-
-  getRealtimeAverageVoltage(): string {
-    return this.currentStats ? this.formatNumber(this.currentStats.avgVoltage, 2) : '0.00';
-  }
-
-  getTotalConsumed(): string {
-    return this.currentStats ? this.formatNumber(this.currentStats.totalConsumed, 1) : '0.0';
-  }
-
-  getMeasurementCount(): number {
-    return this.measurementCount || 0;
   }
 }

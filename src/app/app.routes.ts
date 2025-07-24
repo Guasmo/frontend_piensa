@@ -18,7 +18,7 @@ export const routes: Routes = [
     { path: 'dashboard/control-panel/:id', component: ControlPanel, canActivate: [AuthGuard] },
     
     // Mantener la ruta sin parámetro para compatibilidad (redirige al select-panel)
-    { path: 'dashboard/control-panel', redirectTo: '/dashboard/select-panel', pathMatch: 'full' },
+    { path: 'dashboard/control-panel', redirectTo: '/dashboard/select-panel', pathMatch: 'full'},
     
     { path: 'dashboard/history', component: History, canActivate: [AuthGuard] },
     { path: 'dashboard/select-panel', component: SelectPanel, canActivate: [AuthGuard] },

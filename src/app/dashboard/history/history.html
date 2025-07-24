@@ -9,20 +9,124 @@
   <div class="history-wrapper">
     <h2 class="title">History</h2>
 
-    <div class="history-list">
-      <div class="history-item" *ngFor="let item of historyItems; let i = index" (click)="toggleItem(i)"
-        [class.expanded]="expandedIndex === i">
+    <!-- Botón de recarga -->
+    <div class="actions-bar">
+      <button class="refresh-button" (click)="refreshHistory()" [disabled]="loading">
+        {{ loading ? 'Cargando...' : 'Actualizar' }}
+      </button>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div class="error-message" *ngIf="error">
+      <p>{{ error }}</p>
+      <button (click)="refreshHistory()" class="retry-button">Reintentar</button>
+    </div>
+
+    <!-- Loading spinner -->
+    <div class="loading-spinner" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Cargando historial...</p>
+    </div>
+
+    <!-- Lista de historial -->
+    <div class="history-list" *ngIf="!loading">
+      <div class="history-item" 
+           *ngFor="let item of historyItems; let i = index" 
+           (click)="toggleItem(i)"
+           [class.expanded]="expandedIndex === i">
+        
         <div class="summary">
-          <p class="title">{{ item.name }}</p>
-          <p>{{ item.position }}</p>
-          <p>{{ item.timestamp }}</p>
+          <p class="title">{{ item.speakerName }}</p>
+          <p class="position">{{ item.speakerPosition }}</p>
+          <p class="timestamp">{{ item.startDate }} - {{ item.endDate }}</p>
+          <p class="user" *ngIf="item.username">
+            <strong>Usuario:</strong> {{ item.username }}
+          </p>
+          <p class="duration" *ngIf="item.durationMinutes">
+            <strong>Duración:</strong> {{ item.durationMinutes }}m
+          </p>
         </div>
+        
         <div class="arrow">{{ expandedIndex === i ? '▲' : '▼' }}</div>
 
         <div class="details" *ngIf="expandedIndex === i">
-          <p>Volume used: {{ item.volume }}%</p>
-          <p>Battery consumed: {{ item.battery }}%</p>
+          <!-- Información de batería -->
+          <div class="detail-section">
+            <h4>Información de Batería</h4>
+            <div class="detail-row">
+              <span class="detail-label">Batería inicial:</span>
+              <span class="detail-value">{{ item.initialBatteryPercentage }}%</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Batería final:</span>
+              <span class="detail-value">{{ item.finalBatteryPercentage }}%</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Batería consumida:</span>
+              <span class="detail-value">{{ item.batteryConsumed }}%</span>
+            </div>
+          </div>
+
+          <!-- Mediciones promedio -->
+          <div class="detail-section">
+            <h4>Promedios de Medición</h4>
+            <div class="detail-row">
+              <span class="detail-label">Corriente promedio:</span>
+              <span class="detail-value">{{ item.avgCurrent_mA.toFixed(2) }} mA</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Voltaje promedio:</span>
+              <span class="detail-value">{{ item.avgVoltage_V.toFixed(2) }} V</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Potencia promedio:</span>
+              <span class="detail-value">{{ item.avgPower_mW.toFixed(2) }} mW</span>
+            </div>
+          </div>
+
+          <!-- Totales -->
+          <div class="detail-section">
+            <h4>Consumo Total</h4>
+            <div class="detail-row">
+              <span class="detail-label">Corriente total:</span>
+              <span class="detail-value">{{ item.totalCurrent_mA.toFixed(2) }} mA</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Voltaje total:</span>
+              <span class="detail-value">{{ item.totalVoltage_V.toFixed(2) }} V</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Potencia total:</span>
+              <span class="detail-value">{{ item.totalPower_mW.toFixed(2) }} mW</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Consumo total:</span>
+              <span class="detail-value">{{ item.totalConsumed_mAh.toFixed(2) }} mAh</span>
+            </div>
+          </div>
+
+          <!-- Información de sesión -->
+          <div class="detail-section">
+            <h4>Información de Sesión</h4>
+            <div class="detail-row">
+              <span class="detail-label">ID de sesión:</span>
+              <span class="detail-value">#{{ item.usageSessionId }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">ID del speaker:</span>
+              <span class="detail-value">#{{ item.speakerId }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Fecha de registro:</span>
+              <span class="detail-value">{{ item.createdAt }}</span>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- Mensaje cuando no hay datos -->
+      <div class="no-data" *ngIf="historyItems.length === 0 && !loading">
+        <p>No hay historial disponible</p>
       </div>
     </div>
 

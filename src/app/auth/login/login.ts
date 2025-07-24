@@ -10,7 +10,7 @@ import { Logo } from '../../logo/logo';
   standalone: true,
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  imports: [CommonModule, FormsModule, HttpClientModule, RouterLink, Logo]
+  imports: [CommonModule, FormsModule, HttpClientModule, Logo]
 })
 export class Login {
   usernameOrEmail: string = '';
