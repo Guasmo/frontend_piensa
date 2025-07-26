@@ -3,46 +3,51 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root' // ← Esto es importante
 })
 export class ApiService {
-  private readonly baseURL = 'http://localhost:3000';
-  
-  private httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json'
-    })
-  };
+  private baseUrl = 'http://localhost:3000'; // Ajusta según tu API
+  private authToken: string | null = null;
 
   constructor(private http: HttpClient) {}
 
-  // Métodos GET
-  get<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(`${this.baseURL}${endpoint}`, this.httpOptions);
+  setAuthToken(token: string) {
+    this.authToken = token;
   }
 
-  // Métodos POST
-  post<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.post<T>(`${this.baseURL}${endpoint}`, data, this.httpOptions);
+  private getHeaders(): HttpHeaders {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    if (this.authToken) {
+      headers = headers.set('Authorization', `Bearer ${this.authToken}`);
+    }
+    
+    return headers;
   }
 
-  // Métodos PUT
-  put<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.put<T>(`${this.baseURL}${endpoint}`, data, this.httpOptions);
+  post(endpoint: string, data: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}${endpoint}`, data, {
+      headers: this.getHeaders()
+    });
   }
 
-  // Métodos DELETE
-  delete<T>(endpoint: string): Observable<T> {
-    return this.http.delete<T>(`${this.baseURL}${endpoint}`, this.httpOptions);
+  get(endpoint: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}${endpoint}`, {
+      headers: this.getHeaders()
+    });
   }
 
-  // Método para agregar token de autorización
-  setAuthToken(token: string): void {
-    this.httpOptions.headers = this.httpOptions.headers.set('Authorization', `Bearer ${token}`);
+  put(endpoint: string, data: any): Observable<any> {
+    return this.http.put(`${this.baseUrl}${endpoint}`, data, {
+      headers: this.getHeaders()
+    });
   }
 
-  // Método para remover token
-  removeAuthToken(): void {
-    this.httpOptions.headers = this.httpOptions.headers.delete('Authorization');
+  delete(endpoint: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}${endpoint}`, {
+      headers: this.getHeaders()
+    });
   }
 }
