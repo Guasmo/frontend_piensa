@@ -1,24 +1,48 @@
-import axios from "axios";
-import Cookies from "js-cookie";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-const api = axios.create({
-    // baseURL: "http://201.218.28.181:8087/",
-    headers: {
-        "Content-Type": "application/json",
-    },
-});
+@Injectable({
+  providedIn: 'root'
+})
+export class ApiService {
+  private readonly baseURL = 'http://localhost:3000';
+  
+  private httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json'
+    })
+  };
 
-api.interceptors.request.use(
-    (config) => {
-        const token = Cookies.get("accessToken"); // localStorage.getItem('accessToken');
-        if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+  constructor(private http: HttpClient) {}
 
-export default api;
+  // Métodos GET
+  get<T>(endpoint: string): Observable<T> {
+    return this.http.get<T>(`${this.baseURL}${endpoint}`, this.httpOptions);
+  }
+
+  // Métodos POST
+  post<T>(endpoint: string, data: any): Observable<T> {
+    return this.http.post<T>(`${this.baseURL}${endpoint}`, data, this.httpOptions);
+  }
+
+  // Métodos PUT
+  put<T>(endpoint: string, data: any): Observable<T> {
+    return this.http.put<T>(`${this.baseURL}${endpoint}`, data, this.httpOptions);
+  }
+
+  // Métodos DELETE
+  delete<T>(endpoint: string): Observable<T> {
+    return this.http.delete<T>(`${this.baseURL}${endpoint}`, this.httpOptions);
+  }
+
+  // Método para agregar token de autorización
+  setAuthToken(token: string): void {
+    this.httpOptions.headers = this.httpOptions.headers.set('Authorization', `Bearer ${token}`);
+  }
+
+  // Método para remover token
+  removeAuthToken(): void {
+    this.httpOptions.headers = this.httpOptions.headers.delete('Authorization');
+  }
+}

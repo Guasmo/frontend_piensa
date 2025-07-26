@@ -1,8 +1,5 @@
 <!-- Agrega el navbar al inicio -->
-<app-navbar 
-  [username]="username"
-  [showLogoutButton]="showLogoutButton"
-  (logoutClick)="handleLogout()">
+<app-navbar>
 </app-navbar>
 
 <div class="app-container">
@@ -14,6 +11,34 @@
       <button class="refresh-button" (click)="refreshHistory()" [disabled]="loading">
         {{ loading ? 'Cargando...' : 'Actualizar' }}
       </button>
+    </div>
+
+    <!-- Filtro por Speaker ID -->
+    <div class="filter-container">
+      <div class="filter-row">
+        <input 
+          type="number" 
+          class="filter-input" 
+          placeholder="Filtrar por ID de parlante..." 
+          [value]="speakerIdFilter || ''"
+          (input)="onFilterInput($event)"
+          min="1">
+        <button 
+          class="clear-filter-button" 
+          (click)="clearFilter()"
+          *ngIf="speakerIdFilter">
+          Limpiar
+        </button>
+      </div>
+      
+      <!-- Información del filtro -->
+      <div class="filter-info" *ngIf="speakerIdFilter">
+        Mostrando historial del parlante ID: {{ speakerIdFilter }}
+        ({{ filteredHistoryItems.length }} registro{{ filteredHistoryItems.length !== 1 ? 's' : '' }})
+      </div>
+      <div class="filter-info" *ngIf="!speakerIdFilter && !loading">
+        Mostrando todos los historiales ({{ filteredHistoryItems.length }} registro{{ filteredHistoryItems.length !== 1 ? 's' : '' }})
+      </div>
     </div>
 
     <!-- Mensaje de error -->
@@ -31,13 +56,16 @@
     <!-- Lista de historial -->
     <div class="history-list" *ngIf="!loading">
       <div class="history-item" 
-           *ngFor="let item of historyItems; let i = index" 
+           *ngFor="let item of filteredHistoryItems; let i = index" 
            (click)="toggleItem(i)"
            [class.expanded]="expandedIndex === i">
         
         <div class="summary">
           <p class="title">{{ item.speakerName }}</p>
           <p class="position">{{ item.speakerPosition }}</p>
+          <p class="speaker-id">
+            <strong>Speaker ID:</strong> #{{ item.speakerId }}
+          </p>
           <p class="timestamp">{{ item.startDate }} - {{ item.endDate }}</p>
           <p class="user" *ngIf="item.username">
             <strong>Usuario:</strong> {{ item.username }}
@@ -125,8 +153,9 @@
       </div>
 
       <!-- Mensaje cuando no hay datos -->
-      <div class="no-data" *ngIf="historyItems.length === 0 && !loading">
-        <p>No hay historial disponible</p>
+      <div class="no-data" *ngIf="filteredHistoryItems.length === 0 && !loading">
+        <p *ngIf="speakerIdFilter">No hay historial disponible para el speaker ID: {{ speakerIdFilter }}</p>
+        <p *ngIf="!speakerIdFilter">No hay historial disponible</p>
       </div>
     </div>
 

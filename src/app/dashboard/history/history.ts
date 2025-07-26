@@ -20,8 +20,10 @@ export class History implements OnInit {
   username: string = 'John Doe';
   showLogoutButton: boolean = true;
   historyItems: DisplayHistoryItem[] = [];
+  filteredHistoryItems: DisplayHistoryItem[] = [];
   loading = true;
   error: string | null = null;
+  speakerIdFilter: number | null = null;
 
   constructor(
     private router: Router,
@@ -39,13 +41,13 @@ export class History implements OnInit {
     this.speakersService.getAllSpeakersHistory().subscribe({
       next: (histories: HistoryItem[]) => {
         this.historyItems = this.transformHistoryData(histories);
+        this.applyFilter();
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading history:', error);
         this.error = 'Error al cargar el historial. Por favor, intenta de nuevo.';
         this.loading = false;
-        this.loadExampleData();
       }
     });
   }
@@ -57,6 +59,7 @@ export class History implements OnInit {
     this.speakersService.getSpeakerHistory(speakerId, 20, 1).subscribe({
       next: (response) => {
         this.historyItems = this.transformHistoryData(response.data.histories);
+        this.applyFilter();
         this.loading = false;
       },
       error: (error) => {
@@ -125,42 +128,38 @@ export class History implements OnInit {
     }
   }
 
-  private loadExampleData(): void {
-    // Datos de ejemplo basados en el schema
-    this.historyItems = [
-      {
-        id: 1,
-        usageSessionId: 1,
-        speakerId: 1,
-        speakerName: "Speaker Principal",
-        speakerPosition: "Sala de estar",
-        userId: 1,
-        username: "Admin User",
-        startDate: this.formatTimestamp(new Date()),
-        endDate: this.formatTimestamp(new Date()),
-        durationMinutes: 45,
-        avgCurrent_mA: 150.25,
-        avgVoltage_V: 3.7,
-        avgPower_mW: 555.92,
-        totalCurrent_mA: 6761.25,
-        totalVoltage_V: 166.5,
-        totalPower_mW: 25016.4,
-        totalConsumed_mAh: 112.69,
-        initialBatteryPercentage: 85.0,
-        finalBatteryPercentage: 73.5,
-        batteryConsumed: 11.5,
-        createdAt: this.formatTimestamp(new Date())
-      }
-    ];
+  private applyFilter(): void {
+    if (!this.speakerIdFilter) {
+      // Si no hay filtro, mostrar todos los historiales
+      this.filteredHistoryItems = [...this.historyItems];
+    } else {
+      // Filtrar por speaker ID
+      this.filteredHistoryItems = this.historyItems.filter(
+        item => item.speakerId === this.speakerIdFilter
+      );
+    }
+    
+    // Resetear el índice expandido cuando se aplica un filtro
+    this.expandedIndex = null;
+  }
+
+  onFilterInput(event: any): void {
+    const value = event.target.value;
+    if (!value || value === '' || Number(value) <= 0) {
+      this.speakerIdFilter = null;
+    } else {
+      this.speakerIdFilter = Number(value);
+    }
+    this.applyFilter();
+  }
+
+  clearFilter(): void {
+    this.speakerIdFilter = null;
+    this.applyFilter();
   }
 
   toggleItem(index: number): void {
     this.expandedIndex = this.expandedIndex === index ? null : index;
-  }
-
-  handleLogout(): void {
-    console.log('Logout clicked');
-    this.router.navigate(['/login']);
   }
 
   refreshHistory(): void {

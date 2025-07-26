@@ -9,19 +9,19 @@ import { SelectPanel } from './dashboard/select-panel/select-panel';
 import { AuthGuard } from './auth/guards/auth-guard';
 
 export const routes: Routes = [
+    // Rutas públicas (no requieren autenticación)
     { path: '', component: SplashScreen },
-    { path: 'auth/register', component: Register },
     { path: 'auth/login', component: Login },
+    
+    // Rutas protegidas (requieren autenticación)
+    { path: 'auth/register', component: Register, canActivate: [AuthGuard]},
     { path: 'home', component: DashboardHome, canActivate: [AuthGuard] },
-    
-    // ✅ CORRECCIÓN: Ruta con parámetro para el control panel
     { path: 'dashboard/control-panel/:id', component: ControlPanel, canActivate: [AuthGuard] },
-    
-    // Mantener la ruta sin parámetro para compatibilidad (redirige al select-panel)
-    { path: 'dashboard/control-panel', redirectTo: '/dashboard/select-panel', pathMatch: 'full'},
-    
     { path: 'dashboard/history', component: History, canActivate: [AuthGuard] },
     { path: 'dashboard/select-panel', component: SelectPanel, canActivate: [AuthGuard] },
+    
+    // Redirección para compatibilidad
+    { path: 'dashboard/control-panel', redirectTo: '/dashboard/select-panel', pathMatch: 'full'},
     
     // Ruta wildcard - debe ir al final
     { path: '**', redirectTo: '/' }

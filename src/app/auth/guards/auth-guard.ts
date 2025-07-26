@@ -12,13 +12,15 @@ export class AuthGuard implements CanActivate {
   canActivate(): boolean {
     // Verificar que estamos en el navegador
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
+      // Buscar primero el accessToken
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
         return true;
       }
+      
     }
 
-    // Si no hay token o estamos en SSR, redirigir
+    // Si no hay token o estamos en SSR, redirigir al login
     this.router.navigate(['/auth/login']);
     return false;
   }

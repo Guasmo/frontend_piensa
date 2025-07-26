@@ -55,7 +55,9 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  gap: 1rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .refresh-button {
@@ -78,6 +80,75 @@
 .refresh-button:disabled {
   background: #6c757d;
   cursor: not-allowed;
+}
+
+/* Estilos para el filtro */
+.filter-container {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filter-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-input {
+  padding: 0.7rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background: white;
+  min-width: 200px;
+  flex: 1;
+  max-width: 250px;
+}
+
+.filter-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.filter-input::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.clear-filter-button {
+  padding: 0.7rem 1.2rem;
+  border-radius: 15px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.clear-filter-button:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.filter-info {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #007bff;
 }
 
 /* Estilos para mensajes de error */
@@ -188,6 +259,13 @@
 .summary .duration {
   color: #28a745;
   font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.summary .speaker-id {
+  color: #dc3545;
+  font-size: 0.9rem;
+  font-weight: 600;
   margin-top: 0.2rem;
 }
 
@@ -339,5 +417,23 @@
 
   .detail-section h4 {
     font-size: 0.9rem;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-input {
+    min-width: auto;
+    max-width: none;
+  }
+
+  .actions-bar {
+    justify-content: stretch;
+  }
+
+  .refresh-button {
+    flex: 1;
   }
 }
