@@ -1,4 +1,4 @@
-/* CSS base mantenido + mejoras para datos en tiempo real */
+/* CSS base mantenido + mejoras para TIEMPO REAL */
 
 .outer-wrapper {
   display: flex;
@@ -95,14 +95,25 @@
   position: relative;
 }
 
-/* Animación para actualizaciones de datos */
+/* ⚡ Animación mejorada para actualizaciones en TIEMPO REAL */
 .metric-box.updated {
-  animation: dataUpdate 0.5s ease;
+  animation: realtimeUpdate 0.6s ease;
 }
 
-@keyframes dataUpdate {
-  0% { background-color: #007bff; color: white; }
-  100% { background-color: #e0e0e0; color: black; }
+@keyframes realtimeUpdate {
+  0% { 
+    background-color: #007bff; 
+    color: white; 
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% { 
+    background-color: #e0e0e0; 
+    color: black;
+    transform: scale(1);
+  }
 }
 
 .info-box {
@@ -195,29 +206,33 @@ input:checked + .slider:before {
   font-weight: bold;
 }
 
-/* Indicador de tiempo real */
+/* ⚡ Indicador de tiempo real mejorado */
 .real-time-indicator {
   display: inline-block;
   width: 8px;
   height: 8px;
-  background-color: #28a745;
+  background-color: #007bff;
   border-radius: 50%;
   margin-left: 5px;
-  animation: pulse 2s infinite;
+  animation: realtimePulse 1.5s infinite;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.6);
 }
 
-@keyframes pulse {
+@keyframes realtimePulse {
   0% {
     transform: scale(1);
     opacity: 1;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.6);
   }
   50% {
-    transform: scale(1.2);
+    transform: scale(1.3);
     opacity: 0.7;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.8);
   }
   100% {
     transform: scale(1);
     opacity: 1;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.6);
   }
 }
 
@@ -227,21 +242,77 @@ input:checked + .slider:before {
 .battery-low { background-color: #ffc107 !important; }
 .battery-critical { background-color: #dc3545 !important; }
 
-/* Loading spinner */
+/* ⚡ Loading spinner mejorado para tiempo real */
 .loading-spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
   border-radius: 50%;
   width: 20px;
   height: 20px;
-  animation: spin 1s linear infinite;
+  animation: realtimeSpin 1s linear infinite;
   display: inline-block;
   margin-right: 10px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+@keyframes realtimeSpin {
+  0% { 
+    transform: rotate(0deg);
+    border-top-color: #007bff;
+  }
+  50% {
+    border-top-color: #0056b3;
+  }
+  100% { 
+    transform: rotate(360deg);
+    border-top-color: #007bff;
+  }
+}
+
+/* Badge de tiempo real */
+.realtime-badge {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; }
+}
+
+/* Efecto de actualización de datos */
+.energy-content {
+  position: relative;
+}
+
+.energy-content::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #007bff, #17a2b8, #007bff);
+  border-radius: 5px;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.energy-content.updating::before {
+  opacity: 0.3;
+  animation: borderFlow 2s linear infinite;
+}
+
+@keyframes borderFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
 /* Responsive */
@@ -280,5 +351,15 @@ input:checked + .slider:before {
   .metric-box {
     padding: 10px;
     font-size: 14px;
+  }
+  
+  .real-time-indicator {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
   }
 }

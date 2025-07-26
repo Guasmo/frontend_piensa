@@ -10,6 +10,7 @@ export interface EnergyMetrics {
 }
 
 export interface SessionData {
+  durationMinutes: any;
   id: number;
   speakerId: number;
   userId: number;

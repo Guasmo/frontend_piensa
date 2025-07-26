@@ -16,6 +16,16 @@
       </div>
       <div class="widget-label">History</div>
     </div>
+
+    <!-- Card condicional para SUPERADMIN -->
+    <div class="widget-card big-card" 
+         routerLink="/dashboard/admin-panel" 
+         *ngIf="isSuperAdmin()">
+      <div class="widget-icon">
+        <img class="icon" src="assets/icons/admin.svg" alt="Admin Panel" />
+      </div>
+      <div class="widget-label">Admin Panel</div>
+    </div>
   </main>
 
   <footer class="sara-footer">
