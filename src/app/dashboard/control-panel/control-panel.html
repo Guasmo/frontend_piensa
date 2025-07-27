@@ -4,26 +4,27 @@
       <h3>🔄 Cargando...</h3>
       <p>Verificando estado del parlante...</p>
     </div>
-    
+
     <div *ngIf="errorMessage" class="info-box" style="border-color: #dc3545; background: #f8d7da;">
       <h3 style="color: #721c24;">❌ Error</h3>
       <p style="color: #721c24;">{{ errorMessage }}</p>
+      <p style="color: #666; font-size: 12px;">Estado: {{ getConnectionStatus() }}</p>
     </div>
 
     <div *ngIf="!isLoading">
-      <h2 class="title">Control Panel</h2>
+      <h2 class="title">Control Panel - Modo Ultra Optimizado ⚡</h2>
 
       <!-- Información del Parlante -->
       <div class="info">
         <p>
-          <strong>Nombre:</strong> 
+          <strong>Nombre:</strong>
           <span class="value">{{ speakerInfo.name }}</span>
         </p>
         <p>
-          <strong>Posición:</strong> 
+          <strong>Posición:</strong>
           <span class="value">{{ speakerInfo.position }}</span>
         </p>
-        
+
         <!-- Estado de la Sesión -->
         <div class="toggle-container">
           <label class="switch">
@@ -31,120 +32,469 @@
             <span class="slider"></span>
           </label>
           <span class="status-label" [ngStyle]="{ color: isConnected ? '#28a745' : '#dc3545' }">
-            {{ isConnected ? 'Sesión Activa' : 'Sesión Inactiva' }}
+            {{ isConnected ? 'Sesión Activa (Ultra Optimizada)' : 'Sesión Inactiva' }}
+            <span *ngIf="isConnected" class="realtime-indicator"></span>
           </span>
         </div>
 
         <!-- Duración de la Sesión y Contador de Mediciones -->
         <div *ngIf="isConnected" style="margin-top: 10px;">
           <p><strong>Duración:</strong> <span class="value">{{ sessionDuration }}</span></p>
-          <p><strong>Mediciones:</strong> <span class="value">{{ getMeasurementCount() }}</span></p>
+          <p>
+            <strong>Mediciones:</strong> 
+            <span class="value">{{ getMeasurementCount() }}</span>
+            <span style="font-size: 12px; color: #007bff;"> (cada 2s desde endpoint único)</span>
+          </p>
+          <p>
+            <strong>Estado de datos:</strong>
+            <span [style.color]="hasRealtimeData() ? '#28a745' : '#ffc107'">
+              {{ hasRealtimeData() ? '✅ Datos en tiempo real activos' : '⏳ Esperando datos del ESP32...' }}
+            </span>
+          </p>
+          <p style="font-size: 12px; color: #666;">
+            <strong>Frescura de datos:</strong> {{ getDataFreshness() }}
+          </p>
         </div>
 
         <!-- Botón para mostrar/ocultar energía -->
         <button class="energy-button" (click)="toggleEnergy()">
           {{ showEnergy ? 'Ocultar Consumo de Energía ▲'
-                        : 'Mostrar Consumo de Energía ▼' }}
+          : 'Mostrar Consumo de Energía ▼' }}
         </button>
       </div>
 
-      <!-- Sección de Energía -->
-      <div id="energySection"
-           class="metrics energy-content"
-           [class.hidden]="!showEnergy">
+      <!-- Sección de Energía con indicador ultra optimizado -->
+      <div id="energySection" class="metrics energy-content" [class.hidden]="!showEnergy">
         
-        <ng-container *ngIf="latestMetrics; else noMetrics">
+        <!-- Indicador de modo ultra optimizado -->
+        <div *ngIf="isConnected" style="text-align: center; margin-bottom: 10px;">
+          <span class="realtime-badge">
+            ⚡ MODO ULTRA OPTIMIZADO - Fetching cada 2s desde endpoint único
+          </span>
+        </div>
+
+        <ng-container *ngIf="realtimeData && hasRealtimeData(); else noRealtimeData">
           <label>Voltaje Actual</label>
           <div class="metric-box">
-            {{ formatNumber(latestMetrics.voltage_V, 2) }} V
-            <small *ngIf="currentStats">(Promedio: {{ getRealtimeAverageVoltage() }} V)</small>
+            {{ getLatestVoltage() }} V
+            <small>(Promedio: {{ getAverageVoltage() }} V)</small>
           </div>
 
           <label>Corriente Actual</label>
           <div class="metric-box">
-            {{ formatNumber(latestMetrics.current_mA, 1) }} mA
-            <small *ngIf="currentStats">(Promedio: {{ getRealtimeAverageCurrent() }} mA)</small>
+            {{ getLatestCurrent() }} mA
+            <small>(Promedio: {{ getAverageCurrent() }} mA)</small>
           </div>
 
           <label>Potencia Actual</label>
           <div class="metric-box">
-            {{ formatNumber(latestMetrics.power_mW, 1) }} mW
-            <small *ngIf="currentStats">(Promedio: {{ getRealtimeAveragePower() }} mW)</small>
+            {{ getLatestPower() }} mW
+            <small>(Promedio: {{ getAveragePower() }} mW)</small>
           </div>
 
           <label>Batería Restante</label>
           <div class="metric-box" [ngStyle]="{ 'background-color': getBatteryColor(), 'color': 'white' }">
-            {{ formatNumber(latestMetrics.battery_remaining_percent, 1) }}% 
+            {{ getLatestBattery() }}%
             ({{ getBatteryStatus() }})
           </div>
 
           <label>Consumo Total</label>
           <div class="metric-box">
-            {{ formatNumber(latestMetrics.total_consumed_mAh, 1) }} mAh
-            <small *ngIf="currentStats">(Calculado: {{ getTotalConsumed() }} mAh)</small>
+            {{ getTotalConsumed() }} mAh
+            <small>(Calculado en ESP32)</small>
           </div>
 
           <label>Muestra #</label>
           <div class="metric-box">
-            {{ latestMetrics.sample_index }}
+            {{ getCurrentSampleIndex() }}
+            <span class="realtime-indicator" style="margin-left: 10px;"></span>
           </div>
 
-          <!-- Última actualización -->
-          <div style="text-align: center; margin-top: 10px; font-size: 12px; color: #666;">
-            <p>Última actualización: {{ latestMetrics.timestamp }}s desde el inicio</p>
-            <p *ngIf="currentStats">Duración total: {{ currentStats.durationSeconds }}s</p>
+          <!-- Información de tiempo detallada -->
+          <div style="text-align: center; margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+              <span class="loading-spinner"></span>
+              <strong>Información de tiempo:</strong>
+            </div>
+            <p style="margin: 2px 0; font-size: 11px;">
+              Timestamp ESP32: {{ getTimestamp() }}s desde el inicio
+            </p>
+            <p style="margin: 2px 0; font-size: 11px;">
+              Duración calculada: {{ getDurationSeconds() }}s
+            </p>
+            <p style="margin: 2px 0; font-size: 11px; color: #28a745;">
+              ⚡ Ultra Optimizado: Endpoint único cada 2s
+            </p>
+            <p style="margin: 2px 0; font-size: 11px;">
+              Última actualización: {{ realtimeData.lastUpdated | date:'HH:mm:ss' }}
+            </p>
           </div>
         </ng-container>
 
-        <ng-template #noMetrics>
+        <ng-template #noRealtimeData>
           <div class="info-box" style="text-align: center;">
-            {{ isConnected ? '⏳ Esperando primeros datos del ESP32...' : '🔌 Inicia una sesión para ver los datos.' }}
+            <div *ngIf="isConnected; else notConnected">
+              <h4>⏳ Esperando datos del ESP32</h4>
+              <p>El sistema está conectado pero aún no ha recibido datos del Arduino.</p>
+              <p style="font-size: 12px; color: #666;">
+                Estado: {{ getConnectionStatus() }}
+              </p>
+              <div *ngIf="realtimeData && !realtimeData.hasRealtimeData" style="margin-top: 10px;">
+                <p style="color: #ffc107;">
+                  ⚠️ Sesión detectada pero sin datos de sensores
+                </p>
+                <p style="font-size: 12px;">
+                  ID de sesión: {{ realtimeData.sessionId }}<br>
+                  Verificar conexión del ESP32 y sensores
+                </p>
+              </div>
+            </div>
+            <ng-template #notConnected>
+              <h4>🔌 Inicia una sesión</h4>
+              <p>Presiona el botón del parlante o activa el switch arriba para comenzar a monitorear el consumo de energía en tiempo real.</p>
+            </ng-template>
           </div>
         </ng-template>
       </div>
 
-      <!-- Detalles de Energía Expandidos con Estadísticas en Tiempo Real -->
-      <div class="info-box" *ngIf="showEnergy && (latestMetrics || currentStats)">
-        <h3>📊 Estadísticas de la Sesión</h3>
-        <ul>
-          <li><strong>Estado de Batería:</strong> {{ getBatteryStatus() }}</li>
-          <li *ngIf="currentStats"><strong>Potencia Promedio:</strong> {{ getRealtimeAveragePower() }} mW</li>
-          <li *ngIf="peakPower > 0"><strong>Pico de Potencia:</strong> {{ formatNumber(peakPower, 1) }} mW</li>
-          <li><strong>Duración de Sesión:</strong> {{ sessionDuration }}</li>
-          <li *ngIf="currentStats"><strong>Consumo Total Calculado:</strong> {{ getTotalConsumed() }} mAh</li>
-          <li *ngIf="latestMetrics"><strong>Consumo Total ESP32:</strong> {{ formatNumber(latestMetrics.total_consumed_mAh, 1) }} mAh</li>
-          <li *ngIf="currentStats"><strong>Corriente Promedio:</strong> {{ getRealtimeAverageCurrent() }} mA</li>
-          <li *ngIf="currentStats"><strong>Voltaje Promedio:</strong> {{ getRealtimeAverageVoltage() }} V</li>
-          <li><strong>Total de Mediciones:</strong> {{ getMeasurementCount() }}</li>
+      <!-- Detalles de Energía Expandidos con Estadísticas Ultra Optimizadas -->
+      <div class="info-box" *ngIf="showEnergy && realtimeData && hasRealtimeData()">
+        <h3>📊 Estadísticas de la Sesión - Ultra Optimizado</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <strong>Estado de Batería:</strong> {{ getBatteryStatus() }}
+          </div>
+          <div class="stat-item">
+            <strong>Potencia Promedio:</strong> {{ getAveragePower() }} mW
+          </div>
+          <div class="stat-item">
+            <strong>Pico de Potencia:</strong> {{ getPeakPower() }} mW
+          </div>
+          <div class="stat-item">
+            <strong>Duración de Sesión:</strong> {{ sessionDuration }}
+          </div>
+          <div class="stat-item">
+            <strong>Consumo Total (ESP32):</strong> {{ getTotalConsumed() }} mAh
+          </div>
+          <div class="stat-item">
+            <strong>Corriente Promedio:</strong> {{ getAverageCurrent() }} mA
+          </div>
+          <div class="stat-item">
+            <strong>Voltaje Promedio:</strong> {{ getAverageVoltage() }} V
+          </div>
+          <div class="stat-item">
+            <strong>Total de Mediciones:</strong> 
+            {{ getMeasurementCount() }}
+            <span class="realtime-indicator" style="margin-left: 5px;"></span>
+          </div>
+          <div class="stat-item">
+            <strong>Última actualización:</strong> {{ realtimeData.lastUpdated | date:'HH:mm:ss' }}
+          </div>
+          <div class="stat-item">
+            <strong>Frescura de datos:</strong> 
+            <span [style.color]="getDataFreshness() === 'Datos frescos' ? '#28a745' : '#ffc107'">
+              {{ getDataFreshness() }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de Conectividad Ultra Optimizada -->
+      <div class="info-box" *ngIf="isConnected" style="border-color: #28a745; background: #d4edda;">
+        <h3 style="color: #155724;">⚡ SISTEMA ULTRA OPTIMIZADO ACTIVO</h3>
+        <div class="connection-stats">
+          <p style="color: #155724;">
+            <strong>Frontend:</strong> Fetching cada 2 segundos desde endpoint único
+          </p>
+          <p style="color: #155724;">
+            <strong>ESP32:</strong> Envío cada 2s para frontend + batería cada 30s para BD
+          </p>
+          <p style="color: #155724;">
+            <strong>Backend:</strong> Caché temporal en memoria + BD para historial
+          </p>
+          <p style="color: #155724;">
+            <strong>ID de Sesión:</strong> {{ activeSessionId }}
+          </p>
+          <div *ngIf="realtimeData" style="margin-top: 10px; padding: 8px; background: rgba(21, 87, 36, 0.1); border-radius: 5px;">
+            <p style="color: #155724; font-size: 12px; margin: 2px 0;">
+              <strong>Estado de datos:</strong> {{ getConnectionStatus() }}
+            </p>
+            <p style="color: #155724; font-size: 12px; margin: 2px 0;">
+              <strong>Mediciones recibidas:</strong> {{ getMeasurementCount() }}
+            </p>
+            <p style="color: #155724; font-size: 12px; margin: 2px 0;">
+              <strong>Tiempo de actividad:</strong> {{ sessionDuration }}
+            </p>
+          </div>
+        </div>
+        <p style="color: #155724; font-size: 12px; margin-top: 10px; border-top: 1px solid #c3e6cb; padding-top: 8px;">
+          <strong>Ventajas:</strong> Un solo endpoint, datos más fluidos, menor latencia, historial completo al finalizar
+        </p>
+      </div>
+
+      <!-- Información sobre el modo ultra optimizado cuando está desconectado -->
+      <div class="info-box" *ngIf="!isConnected" style="border-color: #17a2b8; background: #d1ecf1;">
+        <h3 style="color: #0c5460;">⚡ Sistema en Modo Ultra Optimizado</h3>
+        <p style="color: #0c5460;">
+          El sistema está configurado para máximo rendimiento con un solo endpoint.
+        </p>
+        <p style="color: #0c5460; font-size: 12px;">
+          <strong>Características:</strong>
+        </p>
+        <ul style="color: #0c5460; font-size: 12px; margin: 10px 0;">
+          <li>Frontend hace fetching cada 2 segundos desde un endpoint único</li>
+          <li>ESP32 envía datos para frontend cada 2s + batería cada 30s</li>
+          <li>Backend mantiene caché temporal en memoria</li>
+          <li>Historial completo guardado solo al finalizar sesión</li>
+          <li>Menor latencia y mayor fluidez de datos</li>
+          <li>Detección automática de pérdida de conexión</li>
         </ul>
       </div>
 
-      <!-- Información de Conectividad Mejorada -->
-      <div class="info-box" *ngIf="isConnected" style="border-color: #28a745; background: #d4edda;">
-        <h3 style="color: #155724;">✅ ESP32 Conectado - Datos en Tiempo Real</h3>
-        <p style="color: #155724;">
-          Recibiendo datos cada 10 segundos desde memoria del servidor. 
-          <strong>ID de Sesión:</strong> {{ activeSessionId }}
-        </p>
-        <p style="color: #155724; font-size: 12px;">
-          Los datos se almacenan temporalmente y se guardarán al finalizar la sesión.
-        </p>
-      </div>
-
-      <!-- ✅ NUEVA: Información sobre el nuevo sistema -->
-      <div class="info-box" *ngIf="!isConnected" style="border-color: #17a2b8; background: #d1ecf1;">
-        <h3 style="color: #0c5460;">ℹ️ Sistema de Monitoreo en Tiempo Real</h3>
-        <p style="color: #0c5460;">
-          El sistema ahora procesa datos en tiempo real sin sobrecargar la base de datos. 
-          Los datos se guardarán como resumen al finalizar la sesión.
-        </p>
+      <!-- Información de debugging (solo si hay problemas) -->
+      <div class="info-box" *ngIf="isConnected && realtimeData && !hasRealtimeData()" style="border-color: #ffc107; background: #fff3cd;">
+        <h3 style="color: #856404;">🔍 Información de Debug</h3>
+        <div style="color: #856404; font-size: 12px;">
+          <p><strong>Estado de sesión:</strong> {{ realtimeData.status }}</p>
+          <p><strong>ID de sesión:</strong> {{ realtimeData.sessionId }}</p>
+          <p><strong>Datos en tiempo real:</strong> {{ realtimeData.hasRealtimeData ? 'Sí' : 'No' }}</p>
+          <p><strong>Última actualización:</strong> {{ realtimeData.lastUpdated | date:'HH:mm:ss.SSS' }}</p>
+          <p><strong>Posibles causas:</strong></p>
+          <ul style="margin: 5px 0; padding-left: 20px;">
+            <li>ESP32 no está enviando datos</li>
+            <li>Problema con sensores INA219</li>
+            <li>Conectividad WiFi intermitente</li>
+            <li>Backend no actualiza el caché</li>
+          </ul>
+        </div>
       </div>
 
       <!-- Botones de Acción -->
       <div class="button-group">
         <button class="back-button" routerLink="/dashboard/select-panel">Atrás</button>
-        <button class="save-button" routerLink="/dashboard/select-panel">Guardar</button>
+        <button class="save-button ultra-optimized-save-button" (click)="saveSessionData()" 
+                [disabled]="!isConnected || !realtimeData || !hasRealtimeData()" 
+                [ngStyle]="{ 
+                  'background-color': (!isConnected || !realtimeData || !hasRealtimeData()) ? '#666' : '#28a745',
+                  'cursor': (!isConnected || !realtimeData || !hasRealtimeData()) ? 'not-allowed' : 'pointer'
+                }">
+          {{ isConnected ? 'Guardar Historial y Finalizar ⚡' : 'Guardar' }}
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+/* Estilos adicionales para el modo ultra optimizado */
+.realtime-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #28a745;
+  border-radius: 50%;
+  margin-left: 5px;
+  animation: ultraOptimizedPulse 1s infinite;
+  box-shadow: 0 0 4px rgba(40, 167, 69, 0.6);
+}
+
+.realtime-badge {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 25px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  animation: badgePulse 2s infinite;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.metric-box {
+  border-left: 4px solid #28a745;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.metric-box.updated {
+  animation: ultraDataUpdate 0.5s ease;
+}
+
+.ultra-optimized-save-button {
+  background: linear-gradient(45deg, #28a745, #20c997, #17a2b8);
+  border: none;
+  color: white;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  animation: saveButtonGlow 3s infinite;
+}
+
+.ultra-optimized-save-button:hover:not(:disabled) {
+  background: linear-gradient(45deg, #218838, #1e7e34, #138496);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+}
+
+.loading-spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #28a745;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: ultraSpin 1s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.energy-content {
+  position: relative;
+}
+
+.energy-content::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #28a745, #17a2b8, #20c997);
+  border-radius: 5px;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.energy-content.updating::before {
+  opacity: 0.2;
+  animation: ultraBorderFlow 1.5s linear infinite;
+}
+
+/* Grid para estadísticas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.stat-item {
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.connection-stats p {
+  margin: 6px 0;
+}
+
+@keyframes ultraOptimizedPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(40, 167, 69, 0.6);
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.7;
+    box-shadow: 0 0 12px rgba(40, 167, 69, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(40, 167, 69, 0.6);
+  }
+}
+
+@keyframes ultraDataUpdate {
+  0% { 
+    background-color: #28a745; 
+    color: white; 
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 16px rgba(40, 167, 69, 0.7);
+  }
+  100% { 
+    background-color: #e0e0e0; 
+    color: black;
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+@keyframes saveButtonGlow {
+  0%, 100% { 
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3); 
+  }
+  50% { 
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.5); 
+  }
+}
+
+@keyframes ultraSpin {
+  0% { 
+    transform: rotate(0deg);
+    border-top-color: #28a745;
+  }
+  25% {
+    border-top-color: #20c997;
+  }
+  50% {
+    border-top-color: #17a2b8;
+  }
+  75% {
+    border-top-color: #28a745;
+  }
+  100% { 
+    transform: rotate(360deg);
+    border-top-color: #28a745;
+  }
+}
+
+@keyframes ultraBorderFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Responsive mejorado */
+@media (max-width: 600px) {
+  .realtime-badge {
+    font-size: 10px;
+    padding: 4px 12px;
+  }
+  
+  .realtime-indicator {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .loading-spinner {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .ultra-optimized-save-button {
+    font-size: 14px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  
+  .stat-item {
+    font-size: 12px;
+    padding: 4px;
+  }
+}
+</style>
