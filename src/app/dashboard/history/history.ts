@@ -34,73 +34,87 @@ export class History implements OnInit {
     this.loadHistory();
   }
 
+  // 🔥 MÉTODO CORREGIDO: Cargar historial completo o filtrado
   loadHistory(): void {
     this.loading = true;
     this.error = null;
 
-    this.speakersService.getAllSpeakersHistory().subscribe({
-      next: (histories: HistoryItem[]) => {
-        this.historyItems = this.transformHistoryData(histories);
-        this.applyFilter();
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading history:', error);
-        this.error = 'Error al cargar el historial. Por favor, intenta de nuevo.';
-        this.loading = false;
-      }
-    });
+    if (this.speakerIdFilter) {
+      // Si hay filtro, cargar solo el historial de ese parlante
+      this.loadSpeakerHistory(this.speakerIdFilter);
+    } else {
+      // Si no hay filtro, cargar todo el historial
+      this.speakersService.getAllSpeakersHistory().subscribe({
+        next: (histories: HistoryItem[]) => {
+          console.log('📊 Historial recibido:', histories);
+          this.historyItems = this.transformHistoryData(histories);
+          this.applyFilter();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('❌ Error loading history:', error);
+          this.error = 'Error al cargar el historial. Por favor, intenta de nuevo.';
+          this.loading = false;
+        }
+      });
+    }
   }
 
+  // 🔥 MÉTODO CORREGIDO: Cargar historial de un parlante específico
   loadSpeakerHistory(speakerId: number): void {
     this.loading = true;
     this.error = null;
 
-    this.speakersService.getSpeakerHistory(speakerId, 20, 1).subscribe({
+    this.speakersService.getSpeakerHistory(speakerId, 50, 1).subscribe({
       next: (response) => {
+        console.log('📊 Historial del parlante recibido:', response);
         this.historyItems = this.transformHistoryData(response.data.histories);
         this.applyFilter();
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading speaker history:', error);
-        this.error = 'Error al cargar el historial del speaker.';
+        console.error('❌ Error loading speaker history:', error);
+        this.error = `Error al cargar el historial del parlante ID: ${speakerId}`;
         this.loading = false;
       }
     });
   }
 
+  // 🔥 MÉTODO MEJORADO: Transformar datos del historial
   private transformHistoryData(histories: HistoryItem[]): DisplayHistoryItem[] {
-    return histories.map(history => ({
-      id: history.id,
-      usageSessionId: history.usageSessionId,
-      speakerId: history.speakerId,
-      speakerName: history.speakerName,
-      speakerPosition: history.speakerPosition,
-      userId: history.userId,
-      username: history.user?.username || 'Usuario desconocido',
-      startDate: this.formatTimestamp(history.startDate),
-      endDate: this.formatTimestamp(history.endDate),
-      durationMinutes: history.durationMinutes,
+    return histories.map(history => {
+      console.log('🔄 Transformando historial:', history);
       
-      // Promedios (convertir Decimal a number)
-      avgCurrent_mA: Number(history.avgCurrent_mA),
-      avgVoltage_V: Number(history.avgVoltage_V),
-      avgPower_mW: Number(history.avgPower_mW),
-      
-      // Totales
-      totalCurrent_mA: Number(history.totalCurrent_mA),
-      totalVoltage_V: Number(history.totalVoltage_V),
-      totalPower_mW: Number(history.totalPower_mW),
-      totalConsumed_mAh: Number(history.totalConsumed_mAh),
-      
-      // Información de batería
-      initialBatteryPercentage: Number(history.initialBatteryPercentage),
-      finalBatteryPercentage: Number(history.finalBatteryPercentage),
-      batteryConsumed: Number(history.batteryConsumed),
-      
-      createdAt: this.formatTimestamp(history.createdAt)
-    }));
+      return {
+        id: history.id,
+        usageSessionId: history.usageSessionId,
+        speakerId: history.speakerId,
+        speakerName: history.speakerName,
+        speakerPosition: history.speakerPosition,
+        userId: history.userId,
+        username: history.user?.username || 'Usuario desconocido',
+        startDate: this.formatTimestamp(history.startDate),
+        endDate: this.formatTimestamp(history.endDate),
+        durationMinutes: history.durationMinutes,
+        
+        // Usar los valores ya transformados del service
+        avgCurrent_mA: history.avgCurrent_mA,
+        avgVoltage_V: history.avgVoltage_V,
+        avgPower_mW: history.avgPower_mW,
+        
+        totalCurrent_mA: history.totalCurrent_mA,
+        totalVoltage_V: history.totalVoltage_V,
+        totalPower_mW: history.totalPower_mW,
+        totalConsumed_mAh: history.totalConsumed_mAh,
+        
+        // Información de batería
+        initialBatteryPercentage: history.initialBatteryPercentage,
+        finalBatteryPercentage: history.finalBatteryPercentage,
+        batteryConsumed: history.batteryConsumed,
+        
+        createdAt: this.formatTimestamp(history.createdAt)
+      };
+    });
   }
 
   private formatTimestamp(date: Date | string): string {
@@ -128,6 +142,7 @@ export class History implements OnInit {
     }
   }
 
+  // 🔥 MÉTODO MEJORADO: Aplicar filtro
   private applyFilter(): void {
     if (!this.speakerIdFilter) {
       // Si no hay filtro, mostrar todos los historiales
@@ -141,32 +156,50 @@ export class History implements OnInit {
     
     // Resetear el índice expandido cuando se aplica un filtro
     this.expandedIndex = null;
+    
+    console.log('🔍 Filtro aplicado:', {
+      speakerIdFilter: this.speakerIdFilter,
+      totalItems: this.historyItems.length,
+      filteredItems: this.filteredHistoryItems.length
+    });
   }
 
+  // 🔥 MÉTODO MEJORADO: Manejar input del filtro
   onFilterInput(event: any): void {
     const value = event.target.value;
+    console.log('🔍 Valor del filtro:', value);
+    
     if (!value || value === '' || Number(value) <= 0) {
       this.speakerIdFilter = null;
+      // Recargar todo el historial cuando se limpia el filtro
+      this.loadHistory();
     } else {
-      this.speakerIdFilter = Number(value);
+      const speakerId = Number(value);
+      this.speakerIdFilter = speakerId;
+      // Cargar historial específico del parlante
+      this.loadSpeakerHistory(speakerId);
     }
-    this.applyFilter();
   }
 
+  // 🔥 MÉTODO MEJORADO: Limpiar filtro
   clearFilter(): void {
     this.speakerIdFilter = null;
-    this.applyFilter();
+    // Recargar todo el historial
+    this.loadHistory();
   }
 
   toggleItem(index: number): void {
     this.expandedIndex = this.expandedIndex === index ? null : index;
   }
 
+  // 🔥 MÉTODO MEJORADO: Refrescar historial
   refreshHistory(): void {
+    console.log('🔄 Refrescando historial...');
     this.loadHistory();
   }
 
   loadMore(): void {
     console.log('Loading more data...');
+    // TODO: Implementar paginación
   }
 }
