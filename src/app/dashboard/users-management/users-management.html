@@ -1,0 +1,173 @@
+<div class="user-management-container">
+  <header class="page-header">
+    <div class="header-left">
+      <button class="back-btn" routerLink="/dashboard/adminpanel">
+        ← Back
+      </button>
+      <h1>👥 User Management</h1>
+    </div>
+    <div class="header-right">
+      <button class="logout-btn" (click)="logout()">Disconnect</button>
+        <button class="create-btn" (click)="openCreateModal()">+ Create User</button>
+      
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading users...</p>
+  </div>
+
+  <div *ngIf="!loading" class="users-container">
+    <div class="users-header">
+      <h2>System Users ({{ users.length }})</h2>
+    </div>
+
+    <div class="users-grid" *ngIf="users.length > 0">
+      <div class="user-card" *ngFor="let user of users">
+        <div class="user-avatar">{{ getUserAvatar(user) }}</div>
+        
+        <div class="user-info">
+          <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+          <div class="user-username">{{ user.username }}</div>
+          <div class="user-email">{{ user.email }}</div>
+          <div class="user-role">{{ user.role }}</div>
+          <div class="user-created">Created: {{ user.createdAt | date:'short' }}</div>
+        </div>
+
+        <div class="user-status">
+          <span class="status-badge" [class.active]="user.isActive">
+            {{ user.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+
+        <div class="user-actions">
+          <button class="action-btn edit-btn" (click)="editUser(user)" title="Edit user">✏️</button>
+          <button class="action-btn toggle-btn" (click)="toggleUser(user)" [title]="user.isActive ? 'Deactivate user' : 'Activate user'">{{ user.isActive ? '🔒' : '🔓' }}</button>
+          <button class="action-btn delete-btn" (click)="deleteUser(user)" title="Delete user">🗑️</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="users.length === 0" class="empty-state">
+      <div class="empty-icon">👥</div>
+      <h3>No users found</h3>
+      <p>Create the first user to get started</p>
+      <button class="create-btn" (click)="openCreateModal()">+ Create User</button>
+    </div>
+  </div>
+
+  <!-- Create User Modal -->
+  <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Create New User</h2>
+        <button class="close-btn" (click)="closeCreateModal()">×</button>
+      </div>
+      
+      <form class="user-form" (ngSubmit)="createUser()" #createUserForm="ngForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="username">Username *</label>
+            <input type="text" id="username" name="username" [(ngModel)]="createForm.username" required placeholder="Enter username">
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" [(ngModel)]="createForm.email" required placeholder="Enter email">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" [(ngModel)]="createForm.password" required placeholder="Enter password">
+          </div>
+          
+          <div class="form-group">
+            <label for="role">Role *</label>
+            <select id="role" name="role" [(ngModel)]="createForm.role" required>
+              <option value="">Select role</option>
+              <option value="Administrator">Administrator</option>
+              <option value="User">User</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="!createUserForm.form.valid">Create User</button>
+          <button type="button" class="btn-secondary" (click)="closeCreateModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div *ngIf="showEditModal" class="modal-overlay" (click)="closeEditModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Edit User</h2>
+        <button class="close-btn" (click)="closeEditModal()">×</button>
+      </div>
+      
+      <form class="user-form" (ngSubmit)="updateUser()" #editUserForm="ngForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editUsername">Username *</label>
+            <input type="text" id="editUsername" name="editUsername" [(ngModel)]="editForm.username" required placeholder="Enter username">
+          </div>
+          
+          <div class="form-group">
+            <label for="editEmail">Email *</label>
+            <input type="email" id="editEmail" name="editEmail" [(ngModel)]="editForm.email" required placeholder="Enter email">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editRole">Role *</label>
+            <select id="editRole" name="editRole" [(ngModel)]="editForm.role" required>
+              <option value="">Select role</option>
+              <option value="Administrator">Administrator</option>
+              <option value="User">User</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="isActive">Status</label>
+            <select id="isActive" name="isActive" [(ngModel)]="editForm.isActive">
+              <option [value]="true">Active</option>
+              <option [value]="false">Inactive</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="!editUserForm.form.valid">Update User</button>
+          <button type="button" class="btn-secondary" (click)="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete User Modal -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal-content small-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Delete User</h2>
+        <button class="close-btn" (click)="closeDeleteModal()">×</button>
+      </div>
+      
+      <div class="delete-content">
+        <div class="warning-icon">⚠️</div>
+        <p *ngIf="selectedUser">Are you sure you want to delete user <strong>{{ selectedUser.username }}</strong>?</p>
+        <p class="warning-text">This action cannot be undone.</p>
+        
+        <div class="form-actions">
+          <button class="btn-danger" (click)="confirmDelete()">Delete</button>
+          <button class="btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -11,7 +11,7 @@ import { ApiService } from '../../services/api';
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
   imports: [CommonModule, FormsModule, Logo],
-  providers: [ApiService]
+  // providers: [ApiService] ← Remueve esta línea
 })
 export class Login {
   usernameOrEmail: string = '';
