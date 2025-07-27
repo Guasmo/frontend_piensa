@@ -1,0 +1,88 @@
+<div class="admin-dashboard-container">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="header-left">
+      <button class="back-btn" routerLink="/home">
+        ← Back
+      </button>
+      <h1>Advanced Settings</h1>
+      <span class="current-time">{{ currentTime }}</span>
+    </div>
+    <div class="header-right">
+
+      <button class="logout-btn" (click)="logout()">
+        Disconnect
+      </button>
+            <button class="refresh-btn" (click)="refreshData()" [disabled]="loading">
+        <span class="refresh-icon">🔄</span>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard-content">
+    
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card users-card" routerLink="/dashboard/users-management">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ dashboardData.stats.totalUsers }}</div>
+          <div class="stat-label">Total Users</div>
+          <div class="stat-subtitle">{{ dashboardData.stats.activeUsers }} active</div>
+        </div>
+        <div class="stat-arrow">→</div>
+      </div>
+
+      <div class="stat-card speakers-card " routerLink="/dashboard/speakers-management">
+        <div class="stat-icon">🔊</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ dashboardData.stats.totalSpeakers }}</div>
+          <div class="stat-label">Total Speakers</div>
+          <div class="stat-subtitle">{{ dashboardData.stats.activeSpeakers }} active</div>
+        </div>
+        <div class="stat-arrow">→</div>
+      </div>
+
+      <div class="stat-card sessions-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ dashboardData.stats.totalSessions }}</div>
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-subtitle">{{ dashboardData.stats.todaySessions }} today</div>
+        </div>
+         <div class="stat-arrow"></div>
+      </div>
+    </div>
+
+    <!-- Recent Users and Alerts -->
+    <div class="bottom-grid">
+      
+      <!-- Recent Users -->
+      <div class="recent-users-section">
+        <h2>Recent Users</h2>
+        <div class="users-list">
+          <div class="user-item" *ngFor="let user of dashboardData.recentUsers">
+            <div class="user-avatar">
+              {{ (user.profile.firstName || user.username).charAt(0).toUpperCase() }}
+            </div>
+            <div class="user-info">
+              <div class="user-name">
+                {{ user.profile.firstName }} {{ user.profile.lastName || user.username }}
+              </div>
+              <div class="user-email">{{ user.email }}</div>
+              <div class="user-role">{{ user.roleName }}</div>
+            </div>
+            <div class="user-status" [class.active]="user.isActive">
+              {{ user.isActive ? 'Active' : 'Inactive' }}
+            </div>
+          </div>
+        </div>
+        <button class="view-all-btn" routerLink="/dashboard/users-management">
+          View all users →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

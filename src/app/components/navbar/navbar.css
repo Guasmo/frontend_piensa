@@ -5,13 +5,15 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  background-color: #1c333d;
+  background: rgba(26, 35, 50, 0.95);
+  backdrop-filter: blur(10px);
   max-height: 130px;
   gap: 1rem;
   padding: 2rem;
-  color: #fff;
-  border-bottom: 2px solid #3A6274;
+  color: #e1e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
 .logo-section {
@@ -23,41 +25,51 @@
 
 .logo-text {
   font-size: 2rem;
-  color: #9fc1d4;
+  color: #e1e8f0;
   letter-spacing: 0.15rem;
+  font-weight: 300;
 }
 
 .user-badge {
-  background-color: #3A6274;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
   padding: 0.8rem 2rem;
-  color: #fff;
+  color: #e1e8f0;
   font-size: 1rem;
   text-align: center;
   border-radius: 30px;
-  font-weight: 600;
+  font-weight: 500;
   margin-left: auto; 
   width: 120px;
+  transition: all 0.3s ease;
+}
+
+.user-badge:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-1px);
 }
 
 /* Estilos para el botón de desconectar */
 .logout-btn {
-  background-color: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  padding: 0.8rem 2rem;
-  border-radius: 30px;
-  font-weight: 600;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+ padding: 0.8rem 1rem;
   font-size: 1rem;
-  cursor: pointer;
+  text-align: center;
+  border-radius: 30px;
+  font-weight: 500; 
+  width: 120x;
   transition: all 0.3s ease;
 }
 
 .logout-btn:hover {
-  background-color: #3A6274;
-  color: white;
-  box-shadow: 0 0 20px rgba(58, 98, 116, 0.6);
-  transform: scale(1.05);
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: translateY(-1px);
 }
+
 
 .logout-btn-desktop {
   display: flex;
@@ -75,6 +87,7 @@
   .sara-navbar {
     justify-content: center;
     padding: 1.5rem 1rem;
+    background: rgba(26, 35, 50, 0.98);
   }
   
   /* Apila el logo y el nombre de usuario verticalmente */
