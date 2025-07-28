@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build -- --no-optimization",
+  "functions": {
+    "app/**": {
+      "maxDuration": 60
+    }
+  }
+}
