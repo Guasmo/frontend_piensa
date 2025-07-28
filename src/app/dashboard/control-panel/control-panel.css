@@ -881,6 +881,24 @@ input:checked + .slider:before {
   }
 }
 
+@keyframes realtimePulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(16, 185, 129, 0.6);
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 4px rgba(16, 185, 129, 0.6);
+  }
+}
+
 @keyframes metricUpdate {
   0% {
     opacity: 0;
@@ -962,8 +980,9 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 480px) {
+  /* Keep the same dark theme colors on mobile instead of changing to light */
   .control-panel-container {
-    background: linear-gradient(to bottom, #ffffff, #3A6274);
+    background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
   }
   
   .main-layout {
@@ -971,12 +990,17 @@ input:checked + .slider:before {
   }
   
   .panel-card {
+    background: rgba(26, 35, 50, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #e1e8f0;
     padding: 15px;
     border-radius: 16px;
   }
   
   .panel-title {
     font-size: 24px;
+    color: #e1e8f0;
   }
   
   .title-icon {
@@ -985,6 +1009,7 @@ input:checked + .slider:before {
   
   .card-title {
     font-size: 16px;
+    color: #e1e8f0;
   }
   
   .card-icon {
@@ -998,10 +1023,12 @@ input:checked + .slider:before {
   
   .metric-value {
     font-size: 18px;
+    color: #e1e8f0;
   }
   
   .volume-value {
     font-size: 28px;
+    color: #e1e8f0;
   }
   
   .volume-controls {
@@ -1025,42 +1052,34 @@ input:checked + .slider:before {
     text-align: center;
   }
   
-  /* Mantener colores originales en mobile */
-  .panel-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    color: #000;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-  }
-  
-  .card-title,
-  .panel-title {
-    color: #000;
-  }
-  
+  /* Keep original dark theme colors on mobile */
   .detail-label,
   .system-label,
   .time-label {
-    color: #666;
+    color: #8b95a6;
   }
   
   .detail-value,
   .system-value,
   .time-value {
-    color: #000;
-    background: rgba(0, 0, 0, 0.1);
+    color: #e1e8f0;
+    background: rgba(255, 255, 255, 0.1);
   }
   
   .metric-label {
-    color: #666;
-  }
-  
-  .metric-value {
-    color: #000;
+    color: #8b95a6;
   }
   
   .status-label {
-    color: #000;
+    color: #e1e8f0;
+  }
+  
+  .status-active { 
+    color: #10b981; 
+  }
+  
+  .status-inactive { 
+    color: #ef4444; 
   }
 }
 
