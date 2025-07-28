@@ -4,7 +4,7 @@
 :host {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center; /* Mantener siempre centrado */
   min-height: 100vh;
   width: 100%;
   padding: clamp(0.5rem, 2vw, 2rem);
@@ -333,16 +333,20 @@
 
 /* ========== RESPONSIVE OPTIMIZADO CON CONTAINER QUERIES ========== */
 
-/* Pantallas muy pequeñas */
+/* Pantallas muy pequeñas - MANTENER CENTRADO */
 @media (max-width: 320px) {
   :host {
-    align-items: flex-start;
-    padding-top: max(2vh, 1rem);
+    /* Mantener centrado vertical y horizontal */
+    justify-content: center;
+    align-items: center;
+    padding: clamp(0.5rem, 2vw, 1rem);
   }
   
   .container {
     margin: 0;
     border-radius: 8px;
+    /* Reducir padding interno para pantallas muy pequeñas */
+    padding: clamp(1rem, 4vw, 1.5rem) clamp(0.75rem, 3vw, 1.25rem);
   }
   
   .logo {
@@ -350,15 +354,17 @@
   }
 }
 
-/* Móviles pequeños */
+/* Móviles pequeños - MANTENER CENTRADO */
 @media (max-width: 480px) {
   :host {
-    align-items: flex-start;
-    padding-top: max(3vh, 1rem);
+    /* Mantener centrado en todas las dimensiones */
+    justify-content: center;
+    align-items: center;
+    padding: clamp(0.5rem, 2vw, 1rem);
   }
   
   .container {
-    margin-top: 0;
+    margin: 0;
   }
 }
 
@@ -383,20 +389,25 @@
   }
 }
 
-/* ========== ORIENTACIÓN Y ALTURA ========== */
+/* ========== ORIENTACIÓN Y ALTURA - CENTRADO MEJORADO ========== */
 
-/* Landscape en móviles y tablets */
+/* Landscape en móviles y tablets - MANTENER CENTRADO */
 @media (orientation: landscape) and (max-height: 600px) {
   :host {
-    align-items: flex-start;
-    padding-top: 2vh;
-    padding-bottom: 2vh;
+    /* Mantener centrado incluso en landscape */
+    justify-content: center;
+    align-items: center;
+    padding: clamp(0.5rem, 2vh, 1rem);
+    /* Solo usar scroll si es absolutamente necesario */
     overflow-y: auto;
   }
   
   .container {
-    margin: 1rem 0;
+    margin: 0;
     padding: clamp(1rem, 3vh, 1.5rem) clamp(1.5rem, 4vw, 2rem);
+    /* Asegurar que no se desborde */
+    max-height: 90vh;
+    overflow-y: auto;
   }
   
   .logo {
@@ -419,15 +430,20 @@
   }
 }
 
-/* Alturas muy pequeñas */
+/* Alturas muy pequeñas - CENTRADO CON SCROLL INTERNO */
 @media (max-height: 500px) {
   :host {
-    align-items: flex-start;
-    padding: 1vh 1rem;
+    /* Mantener centrado */
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
   }
   
   .container {
     padding: 1rem 1.5rem;
+    /* Permitir scroll interno si es necesario */
+    max-height: 90vh;
+    overflow-y: auto;
   }
   
   .logo {
