@@ -68,6 +68,14 @@ export class ControlPanel implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
 
+  // ============= PROPIEDADES PARA CONTROL DE VOLUMEN =============
+  currentVolume = 25;           // Volumen actual
+  minVolume = 5;               // Volumen mínimo
+  maxVolume = 30;              // Volumen máximo  
+  defaultVolume = 25;          // Volumen por defecto
+  volumeStatus: 'idle' | 'updating' | 'error' = 'idle';
+  lastVolumeUpdate: Date | null = null;
+
   // Estado del componente
   showEnergy = false;
   isConnected = false;
@@ -232,7 +240,8 @@ export class ControlPanel implements OnInit, OnDestroy {
       speakerId: this.speakerId,
       userId: this.userId,
       initialBatteryPercentage: 100,
-      mode: "ultra_optimized"
+      mode: "ultra_optimized",
+      initialVolume: this.currentVolume // Agregar volumen inicial
     };
 
     this.http.post<{ 
@@ -251,13 +260,13 @@ export class ControlPanel implements OnInit, OnDestroy {
             this.resetData();
             this.startOptimizedPolling(this.activeSessionId);
             console.log(`⚡ MODO ULTRA OPTIMIZADO activado - Sesión ID: ${this.activeSessionId}`);
+            console.log(`🔊 Volumen inicial: ${this.currentVolume}/30`);
             console.log('🖥️ Frontend: Fetching cada 2s desde endpoint único');
           }
         },
         error: (err) => {
           console.error('❌ Error al encender parlante:', err);
           this.errorMessage = err.error?.message || "No se pudo encender el parlante.";
-          this.isConnected = false;
         }
       });
   }
@@ -449,6 +458,9 @@ export class ControlPanel implements OnInit, OnDestroy {
   private resetData(): void {
     this.realtimeData = null;
     this.sessionDuration = '00:00:00';
+    // Resetear estado del volumen pero mantener el valor
+    this.volumeStatus = 'idle';
+    this.lastVolumeUpdate = null;
   }
 
   stopPolling(): void {
@@ -573,4 +585,393 @@ export class ControlPanel implements OnInit, OnDestroy {
   getDurationSeconds(): number {
     return this.realtimeData?.statistics.durationSeconds || 0;
   }
+
+  // ============= MÉTODOS DE CONTROL DE VOLUMEN =============
+
+  onVolumeChange(event: any): void {
+    const volume = parseInt(event.target.value);
+    if (volume >= this.minVolume && volume <= this.maxVolume) {
+      this.setVolume(volume);
+    }
+  }
+
+  increaseVolume(): void {
+    if (this.currentVolume < this.maxVolume) {
+      this.setVolume(this.currentVolume + 1);
+    }
+  }
+
+  decreaseVolume(): void {
+    if (this.currentVolume > this.minVolume) {
+      this.setVolume(this.currentVolume - 1);
+    }
+  }
+
+  setVolumePreset(volume: number): void {
+    this.setVolume(volume);
+  }
+
+  private setVolume(volume: number): void {
+    if (!this.isConnected || !this.activeSessionId) {
+      console.warn('⚠️ No se puede ajustar el volumen: sin sesión activa');
+      this.errorMessage = 'No se puede ajustar el volumen sin una sesión activa';
+      setTimeout(() => {
+        if (this.errorMessage?.includes('volumen')) {
+          this.errorMessage = null;
+        }
+      }, 3000);
+      return;
+    }
+
+    if (volume < this.minVolume || volume > this.maxVolume) {
+      console.error(`❌ Volumen fuera de rango: ${volume}. Rango válido: ${this.minVolume}-${this.maxVolume}`);
+      return;
+    }
+
+    this.volumeStatus = 'updating';
+    this.animateVolumeControl();
+
+    console.log(`🔊 Ajustando volumen de ${this.currentVolume} a ${volume}`);
+
+    // Actualizar inmediatamente la UI para mejor experiencia
+    const previousVolume = this.currentVolume;
+    this.currentVolume = volume;
+
+    // Enviar comando al backend para que lo reenvíe al ESP32
+    const payload = {
+      volume: volume,
+      speakerId: this.speakerId,
+      sessionId: this.activeSessionId,
+      timestamp: new Date().toISOString()
+    };
+
+    this.http.post<{ 
+      success: boolean; 
+      data?: any;
+      message?: string;
+    }>(`${this.ESP32_API_URL}/volume/${this.speakerId}`, payload)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.volumeStatus = 'idle';
+            this.lastVolumeUpdate = new Date();
+            console.log(`✅ Volumen ajustado exitosamente a ${volume}/30 (${this.getVolumePercent()}%)`);
+            
+            // Opcional: mostrar notificación temporal
+            this.showVolumeNotification(volume);
+          } else {
+            console.error('❌ Error en respuesta del servidor:', response.message);
+            this.volumeStatus = 'error';
+            // Revertir volumen en caso de error
+            this.currentVolume = previousVolume;
+            this.errorMessage = response.message || 'Error al ajustar el volumen';
+            setTimeout(() => {
+              if (this.errorMessage?.includes('volumen')) {
+                this.errorMessage = null;
+              }
+            }, 3000);
+          }
+        },
+        error: (err) => {
+          console.error('❌ Error enviando comando de volumen:', err);
+          this.volumeStatus = 'error';
+          // Revertir volumen en caso de error
+          this.currentVolume = previousVolume;
+          
+          // Mostrar error al usuario
+          this.errorMessage = 'Error al ajustar el volumen. Verifica la conexión.';
+          
+          // Limpiar error después de unos segundos
+          setTimeout(() => {
+            if (this.errorMessage?.includes('volumen')) {
+              this.errorMessage = null;
+            }
+          }, 3000);
+        }
+      });
+  }
+
+  // ============= MÉTODOS HELPER PARA EL TEMPLATE =============
+
+  getVolumePercent(): number {
+    return Math.round((this.currentVolume / this.maxVolume) * 100);
+  }
+
+  getVolumeStatusText(): string {
+    switch (this.volumeStatus) {
+      case 'updating':
+        return 'Ajustando volumen...';
+      case 'error':
+        return 'Error al ajustar volumen';
+      case 'idle':
+      default:
+        if (this.lastVolumeUpdate) {
+          const timeDiff = Math.floor((new Date().getTime() - this.lastVolumeUpdate.getTime()) / 1000);
+          if (timeDiff < 5) {
+            return `Volumen ajustado hace ${timeDiff}s`;
+          }
+        }
+        return `Nivel: ${this.getVolumeDescription()}`;
+    }
+  }
+
+  private getVolumeDescription(): string {
+    const percent = this.getVolumePercent();
+    if (percent <= 20) return 'Muy Bajo';
+    if (percent <= 40) return 'Bajo';  
+    if (percent <= 60) return 'Medio';
+    if (percent <= 80) return 'Alto';
+    return 'Máximo';
+  }
+
+  // ============= MÉTODOS DE ANIMACIÓN Y FEEDBACK =============
+
+  private animateVolumeControl(): void {
+    const volumeControl = document.querySelector('.volume-control');
+    if (volumeControl) {
+      volumeControl.classList.add('updating');
+      setTimeout(() => {
+        volumeControl.classList.remove('updating');
+      }, 600);
+    }
+  }
+
+  private showVolumeNotification(volume: number): void {
+    // Crear notificación temporal (opcional)
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: slideInFromRight 0.3s ease;
+    `;
+    notification.innerHTML = `🔊 Volumen: ${volume}/30 (${this.getVolumePercent()}%)`;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.animation = 'slideOutToRight 0.3s ease';
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 2000);
+  }
+
+  // ============= MÉTODOS ADICIONALES DE COMPATIBILIDAD =============
+
+  /**
+   * Método para sincronizar el volumen con el ESP32 al iniciar sesión
+   */
+  private syncVolumeWithESP32(): void {
+    if (this.isConnected && this.activeSessionId) {
+      console.log(`🔄 Sincronizando volumen inicial: ${this.currentVolume}/30`);
+      
+      // Enviar volumen actual al ESP32
+      const payload = {
+        volume: this.currentVolume,
+        speakerId: this.speakerId,
+        sessionId: this.activeSessionId,
+        action: 'sync',
+        timestamp: new Date().toISOString()
+      };
+
+      this.http.post<{ success: boolean; }>(`${this.ESP32_API_URL}/volume/${this.speakerId}`, payload)
+        .subscribe({
+          next: (response) => {
+            if (response.success) {
+              console.log(`✅ Volumen sincronizado exitosamente: ${this.currentVolume}/30`);
+            } else {
+              console.warn('⚠️ No se pudo sincronizar el volumen con el ESP32');
+            }
+          },
+          error: (err) => {
+            console.error('❌ Error sincronizando volumen:', err);
+          }
+        });
+    }
+  }
+
+  /**
+   * Método para validar que el volumen esté en el rango correcto
+   */
+  private validateVolumeRange(): void {
+    if (this.currentVolume < this.minVolume) {
+      console.warn(`⚠️ Volumen ${this.currentVolume} está por debajo del mínimo. Ajustando a ${this.minVolume}`);
+      this.currentVolume = this.minVolume;
+    } else if (this.currentVolume > this.maxVolume) {
+      console.warn(`⚠️ Volumen ${this.currentVolume} está por encima del máximo. Ajustando a ${this.maxVolume}`);
+      this.currentVolume = this.maxVolume;
+    }
+  }
+
+  /**
+   * Método para obtener información detallada del estado del sistema
+   */
+  getSystemStatus(): { [key: string]: any } {
+    return {
+      isConnected: this.isConnected,
+      activeSessionId: this.activeSessionId,
+      speakerId: this.speakerId,
+      currentVolume: this.currentVolume,
+      volumeStatus: this.volumeStatus,
+      hasRealtimeData: this.hasRealtimeData(),
+      sessionDuration: this.sessionDuration,
+      measurementCount: this.getMeasurementCount(),
+      batteryLevel: this.getLatestBattery(),
+      connectionStatus: this.getConnectionStatus(),
+      dataFreshness: this.getDataFreshness()
+    };
+  }
+
+  /**
+   * Método para debugging - imprimir estado completo en consola
+   */
+  debugSystemState(): void {
+    console.log('🔍 === ESTADO COMPLETO DEL SISTEMA ===');
+    console.table(this.getSystemStatus());
+    
+    if (this.realtimeData) {
+      console.log('📊 Datos en tiempo real:', this.realtimeData);
+    }
+    
+    console.log('🔊 Estado del volumen:');
+    console.log(`  - Actual: ${this.currentVolume}/30 (${this.getVolumePercent()}%)`);
+    console.log(`  - Rango: ${this.minVolume}-${this.maxVolume}`);
+    console.log(`  - Estado: ${this.volumeStatus}`);
+    console.log(`  - Descripción: ${this.getVolumeDescription()}`);
+    
+    if (this.lastVolumeUpdate) {
+      console.log(`  - Última actualización: ${this.lastVolumeUpdate.toLocaleTimeString()}`);
+    }
+    
+    console.log('=======================================');
+  }
+
+  /**
+   * Método para reiniciar el sistema en caso de error
+   */
+  resetSystem(): void {
+    console.log('🔄 Reiniciando sistema...');
+    
+    // Detener polling
+    this.stopPolling();
+    
+    // Resetear datos
+    this.resetData();
+    
+    // Resetear estado de conexión
+    this.isConnected = false;
+    this.activeSessionId = null;
+    this.errorMessage = null;
+    
+    // Validar y resetear volumen si es necesario
+    this.validateVolumeRange();
+    this.volumeStatus = 'idle';
+    this.lastVolumeUpdate = null;
+    
+    // Verificar estado inicial nuevamente
+    setTimeout(() => {
+      this.checkInitialStatus();
+    }, 1000);
+    
+    console.log('✅ Sistema reiniciado');
+  }
+
+  /**
+   * Método para manejar errores de red de forma elegante
+   */
+  private handleNetworkError(error: any, operation: string): void {
+    console.error(`❌ Error de red en ${operation}:`, error);
+    
+    // Si es un error de timeout o conexión
+    if (error.status === 0 || error.status === 504 || error.name === 'TimeoutError') {
+      this.errorMessage = `Sin conexión al servidor (${operation}). Verificando conexión...`;
+      
+      // Intentar reconectar después de un tiempo
+      setTimeout(() => {
+        if (this.errorMessage?.includes('Sin conexión')) {
+          this.checkInitialStatus();
+        }
+      }, 5000);
+    } else {
+      this.errorMessage = error.error?.message || `Error en ${operation}`;
+    }
+  }
+
+  /**
+   * Método para obtener el estado de la batería con más detalle
+   */
+  getDetailedBatteryInfo(): { level: number; status: string; color: string; icon: string } {
+    const batteryLevel = parseFloat(this.getLatestBattery());
+    let status = '';
+    let color = '';
+    let icon = '';
+
+    if (batteryLevel > 80) {
+      status = 'Excelente';
+      color = '#28a745';
+      icon = '🔋';
+    } else if (batteryLevel > 60) {
+      status = 'Bueno';
+      color = '#28a745';
+      icon = '🔋';
+    } else if (batteryLevel > 40) {
+      status = 'Aceptable';
+      color = '#ffc107';
+      icon = '🔋';
+    } else if (batteryLevel > 20) {
+      status = 'Bajo';
+      color = '#fd7e14';
+      icon = '🪫';
+    } else if (batteryLevel > 10) {
+      status = 'Crítico';
+      color = '#dc3545';
+      icon = '🪫';
+    } else {
+      status = 'Muy Crítico';
+      color = '#dc3545';
+      icon = '⚠️';
+    }
+
+    return { level: batteryLevel, status, color, icon };
+  }
+
+  /**
+   * Método para verificar la salud del sistema periódicamente
+   */
+  private performHealthCheck(): void {
+    if (!this.isConnected) return;
+
+    const now = new Date();
+    const lastUpdate = this.realtimeData?.lastUpdated ? new Date(this.realtimeData.lastUpdated) : null;
+    
+    if (lastUpdate) {
+      const timeDiff = (now.getTime() - lastUpdate.getTime()) / 1000;
+      
+      // Si no hay actualizaciones en más de 10 segundos, algo puede estar mal
+      if (timeDiff > 10) {
+        console.warn('⚠️ No se han recibido datos frescos en más de 10 segundos');
+        
+        // Si no hay datos en más de 30 segundos, considerar reconexión
+        if (timeDiff > 30) {
+          console.error('❌ Datos muy antiguos, intentando reconectar...');
+          this.checkInitialStatus();
+        }
+      }
+    }
+  }
+
+  /**
+   * Override del método turnOnSpeaker para incluir sincronización de volumen
+   */
+
 }

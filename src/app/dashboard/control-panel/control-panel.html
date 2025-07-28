@@ -11,6 +11,8 @@
       <p style="color: #666; font-size: 12px;">Estado: {{ getConnectionStatus() }}</p>
     </div>
 
+    
+
     <div *ngIf="!isLoading">
       <h2 class="title">Control Panel - Modo Ultra Optimizado ⚡</h2>
 
@@ -36,6 +38,8 @@
             <span *ngIf="isConnected" class="realtime-indicator"></span>
           </span>
         </div>
+
+        
 
         <!-- Duración de la Sesión y Contador de Mediciones -->
         <div *ngIf="isConnected" style="margin-top: 10px;">

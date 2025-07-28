@@ -8,11 +8,11 @@ import { HistoryItem } from '../interfaces/speakerInterface';
   providedIn: 'root'
 })
 export class SpeakersService {
-  private readonly API_URL = 'http://192.168.18.143:3000/api';
+  private readonly API_URL = 'http://192.168.18.143:3000';
 
   constructor(private http: HttpClient) {}
 
-  // 📊 MÉTODO CORREGIDO: Obtener historial con transformación correcta
+  // 📊 MÉTODO CORREGIDO: Obtener historial de todos los parlantes
   getAllSpeakersHistory(): Observable<HistoryItem[]> {
     return this.http.get<{
       success: boolean;
@@ -48,9 +48,12 @@ export class SpeakersService {
       success: boolean;
       data: {
         histories: any[];
-        total: number;
-        page: number;
-        limit: number;
+        pagination: {
+          total: number;
+          page: number;
+          limit: number;
+          totalPages: number;
+        }
       }
     }>(`${this.API_URL}/speakers/${speakerId}/history?limit=${limit}&page=${page}`)
     .pipe(
@@ -62,16 +65,16 @@ export class SpeakersService {
         return {
           data: {
             histories: response.data.histories.map(item => this.transformHistoryItem(item)),
-            total: response.data.total,
-            page: response.data.page,
-            limit: response.data.limit
+            total: response.data.pagination.total,
+            page: response.data.pagination.page,
+            limit: response.data.pagination.limit
           }
         };
       })
     );
   }
 
-  // 🧮 MÉTODO CORREGIDO: Transformar datos del historial para evitar NaN
+  // 🧮 MÉTODO CORREGIDO: Transformar datos del historial con nombres de campos correctos
   private transformHistoryItem(item: any): HistoryItem {
     console.log('🔍 Transformando item del historial:', item);
 
@@ -82,7 +85,7 @@ export class SpeakersService {
       }
       
       // Si es objeto Decimal de Prisma
-      if (typeof value === 'object' && value.constructor.name === 'Decimal') {
+      if (typeof value === 'object' && value.constructor && value.constructor.name === 'Decimal') {
         const num = Number(value.toString());
         return isNaN(num) ? defaultValue : num;
       }
@@ -104,7 +107,7 @@ export class SpeakersService {
       endDate: new Date(item.endDate),
       durationMinutes: item.durationMinutes || 0,
       
-      // 🔥 PROMEDIOS CONVERTIDOS CORRECTAMENTE
+      // 🔥 RETORNAR NÚMEROS DIRECTAMENTE (NO STRING | NUMBER)
       avgCurrent_mA: safeDecimalToNumber(item.avgAmpereHours, 0),
       avgVoltage_V: safeDecimalToNumber(item.avgVoltageHours, 0),
       avgPower_mW: safeDecimalToNumber(item.avgWattsHours, 0),
@@ -114,8 +117,8 @@ export class SpeakersService {
       totalVoltage_V: safeDecimalToNumber(item.totalVoltageHours, 0),
       totalPower_mW: safeDecimalToNumber(item.totalWattsHours, 0),
       
-      // 🔥 NUEVO: Calcular consumo total desde los datos del ESP32
-      totalConsumed_mAh: this.calculateTotalConsumedFromESP32(item),
+      // 🔥 CALCULAR CONSUMO TOTAL
+      totalConsumed_mAh: this.calculateTotalConsumedFromData(item),
       
       // Información de batería
       initialBatteryPercentage: safeDecimalToNumber(item.initialBatteryPercentage, 100),
@@ -140,32 +143,25 @@ export class SpeakersService {
     return transformedItem;
   }
 
-  // 🔥 NUEVO: Calcular consumo total desde datos del ESP32
-  private calculateTotalConsumedFromESP32(item: any): number {
-    // Priorizar datos del ESP32 si están disponibles
-    if (item.esp32Data && typeof item.esp32Data === 'object') {
-      const esp32Data = item.esp32Data;
-      
-      // Usar totalConsumed_mAh del ESP32 si está disponible
-      if (esp32Data.totalConsumed_mAh && !isNaN(esp32Data.totalConsumed_mAh)) {
-        console.log('📊 Usando totalConsumed_mAh del ESP32:', esp32Data.totalConsumed_mAh);
-        return esp32Data.totalConsumed_mAh;
-      }
-      
-      // Calcular desde avgCurrent_mA y duración si está disponible
-      if (esp32Data.avgCurrent_mA && item.durationMinutes) {
-        const totalConsumed = (esp32Data.avgCurrent_mA * item.durationMinutes) / 60;
-        console.log('📊 Calculado desde ESP32 avgCurrent:', totalConsumed);
-        return totalConsumed;
-      }
-    }
-    
-    // Fallback: usar totalAmpereHours si está disponible
+  // 🔥 CALCULAR CONSUMO TOTAL DESDE LOS DATOS DISPONIBLES
+  private calculateTotalConsumedFromData(item: any): number {
+    // Priorizar totalAmpereHours si está disponible
     if (item.totalAmpereHours) {
       const num = Number(item.totalAmpereHours);
       if (!isNaN(num)) {
-        console.log('📊 Usando totalAmpereHours como fallback:', num);
+        console.log('📊 Usando totalAmpereHours:', num);
         return num;
+      }
+    }
+    
+    // Calcular desde avgAmpereHours y duración si está disponible
+    if (item.avgAmpereHours && item.durationMinutes) {
+      const avgCurrent = Number(item.avgAmpereHours);
+      const duration = Number(item.durationMinutes);
+      if (!isNaN(avgCurrent) && !isNaN(duration)) {
+        const totalConsumed = (avgCurrent * duration) / 60;
+        console.log('📊 Calculado desde promedio y duración:', totalConsumed);
+        return totalConsumed;
       }
     }
     
