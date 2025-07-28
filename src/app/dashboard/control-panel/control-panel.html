@@ -1,504 +1,373 @@
-<div class="outer-wrapper">
-  <div class="panel-wrapper">
-    <div *ngIf="isLoading" class="info-box">
-      <h3>🔄 Cargando...</h3>
-      <p>Verificando estado del parlante...</p>
-    </div>
-
-    <div *ngIf="errorMessage" class="info-box" style="border-color: #dc3545; background: #f8d7da;">
-      <h3 style="color: #721c24;">❌ Error</h3>
-      <p style="color: #721c24;">{{ errorMessage }}</p>
-      <p style="color: #666; font-size: 12px;">Estado: {{ getConnectionStatus() }}</p>
-    </div>
-
-    
-
-    <div *ngIf="!isLoading">
-      <h2 class="title">Control Panel - Modo Ultra Optimizado ⚡</h2>
-
-      <!-- Información del Parlante -->
-      <div class="info">
-        <p>
-          <strong>Nombre:</strong>
-          <span class="value">{{ speakerInfo.name }}</span>
-        </p>
-        <p>
-          <strong>Posición:</strong>
-          <span class="value">{{ speakerInfo.position }}</span>
-        </p>
-
-        <!-- Estado de la Sesión -->
-        <div class="toggle-container">
-          <label class="switch">
-            <input type="checkbox" [(ngModel)]="isConnected" (change)="toggleStatus()" />
-            <span class="slider"></span>
-          </label>
-          <span class="status-label" [ngStyle]="{ color: isConnected ? '#28a745' : '#dc3545' }">
-            {{ isConnected ? 'Sesión Activa (Ultra Optimizada)' : 'Sesión Inactiva' }}
-            <span *ngIf="isConnected" class="realtime-indicator"></span>
-          </span>
-        </div>
-
-        
-
-        <!-- Duración de la Sesión y Contador de Mediciones -->
-        <div *ngIf="isConnected" style="margin-top: 10px;">
-          <p><strong>Duración:</strong> <span class="value">{{ sessionDuration }}</span></p>
-          <p>
-            <strong>Mediciones:</strong> 
-            <span class="value">{{ getMeasurementCount() }}</span>
-            <span style="font-size: 12px; color: #007bff;"> (cada 2s desde endpoint único)</span>
-          </p>
-          <p>
-            <strong>Estado de datos:</strong>
-            <span [style.color]="hasRealtimeData() ? '#28a745' : '#ffc107'">
-              {{ hasRealtimeData() ? '✅ Datos en tiempo real activos' : '⏳ Esperando datos del ESP32...' }}
-            </span>
-          </p>
-          <p style="font-size: 12px; color: #666;">
-            <strong>Frescura de datos:</strong> {{ getDataFreshness() }}
-          </p>
-        </div>
-
-        <!-- Botón para mostrar/ocultar energía -->
-        <button class="energy-button" (click)="toggleEnergy()">
-          {{ showEnergy ? 'Ocultar Consumo de Energía ▲'
-          : 'Mostrar Consumo de Energía ▼' }}
-        </button>
+<div class="control-panel-container">
+  
+  <!-- Estados del sistema (loading/error) -->
+  <div *ngIf="isLoading" class="status-overlay">
+    <div class="status-card loading">
+      <div class="status-header">
+        <div class="loading-spinner"></div>
+        <h3>Verificando estado del parlante...</h3>
       </div>
+    </div>
+  </div>
 
-      <!-- Sección de Energía con indicador ultra optimizado -->
-      <div id="energySection" class="metrics energy-content" [class.hidden]="!showEnergy">
+  <div *ngIf="errorMessage" class="status-overlay">
+    <div class="status-card error">
+      <div class="status-header">
+        <span class="status-icon">❌</span>
+        <h3>Error de conexión</h3>
+      </div>
+      <p>{{ errorMessage }}</p>
+      <small>Estado: {{ getConnectionStatus() }}</small>
+    </div>
+  </div>
+
+  <!-- Layout principal desktop/mobile -->
+  <div *ngIf="!isLoading" class="main-layout">
+    
+    <!-- Desktop Layout -->
+    <div class="desktop-grid">
+      
+      <!-- Columna Izquierda -->
+      <div class="left-column">
         
-        <!-- Indicador de modo ultra optimizado -->
-        <div *ngIf="isConnected" style="text-align: center; margin-bottom: 10px;">
-          <span class="realtime-badge">
-            ⚡ MODO ULTRA OPTIMIZADO - Fetching cada 2s desde endpoint único
-          </span>
+        <!-- Header con título -->
+        <div class="panel-card header-card">
+          <div class="card-header">
+            <h1 class="panel-title">
+              <span class="title-icon">🎛️</span>
+              Control Panel
+            </h1>
+            <div class="mode-badges">
+              <span class="badge ultra-optimized">⚡ ULTRA OPTIMIZADO</span>
+              <span class="badge realtime" *ngIf="isConnected">📡 TIEMPO REAL</span>
+            </div>
+          </div>
         </div>
 
-        <ng-container *ngIf="realtimeData && hasRealtimeData(); else noRealtimeData">
-          <label>Voltaje Actual</label>
-          <div class="metric-box">
-            {{ getLatestVoltage() }} V
-            <small>(Promedio: {{ getAverageVoltage() }} V)</small>
+        <!-- Información del Parlante -->
+        <div class="panel-card speaker-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-icon">🔊</span>
+              Información del Parlante
+            </h2>
           </div>
-
-          <label>Corriente Actual</label>
-          <div class="metric-box">
-            {{ getLatestCurrent() }} mA
-            <small>(Promedio: {{ getAverageCurrent() }} mA)</small>
-          </div>
-
-          <label>Potencia Actual</label>
-          <div class="metric-box">
-            {{ getLatestPower() }} mW
-            <small>(Promedio: {{ getAveragePower() }} mW)</small>
-          </div>
-
-          <label>Batería Restante</label>
-          <div class="metric-box" [ngStyle]="{ 'background-color': getBatteryColor(), 'color': 'white' }">
-            {{ getLatestBattery() }}%
-            ({{ getBatteryStatus() }})
-          </div>
-
-          <label>Consumo Total</label>
-          <div class="metric-box">
-            {{ getTotalConsumed() }} mAh
-            <small>(Calculado en ESP32)</small>
-          </div>
-
-          <label>Muestra #</label>
-          <div class="metric-box">
-            {{ getCurrentSampleIndex() }}
-            <span class="realtime-indicator" style="margin-left: 10px;"></span>
-          </div>
-
-          <!-- Información de tiempo detallada -->
-          <div style="text-align: center; margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-              <span class="loading-spinner"></span>
-              <strong>Información de tiempo:</strong>
-            </div>
-            <p style="margin: 2px 0; font-size: 11px;">
-              Timestamp ESP32: {{ getTimestamp() }}s desde el inicio
-            </p>
-            <p style="margin: 2px 0; font-size: 11px;">
-              Duración calculada: {{ getDurationSeconds() }}s
-            </p>
-            <p style="margin: 2px 0; font-size: 11px; color: #28a745;">
-              ⚡ Ultra Optimizado: Endpoint único cada 2s
-            </p>
-            <p style="margin: 2px 0; font-size: 11px;">
-              Última actualización: {{ realtimeData.lastUpdated | date:'HH:mm:ss' }}
-            </p>
-          </div>
-        </ng-container>
-
-        <ng-template #noRealtimeData>
-          <div class="info-box" style="text-align: center;">
-            <div *ngIf="isConnected; else notConnected">
-              <h4>⏳ Esperando datos del ESP32</h4>
-              <p>El sistema está conectado pero aún no ha recibido datos del Arduino.</p>
-              <p style="font-size: 12px; color: #666;">
-                Estado: {{ getConnectionStatus() }}
-              </p>
-              <div *ngIf="realtimeData && !realtimeData.hasRealtimeData" style="margin-top: 10px;">
-                <p style="color: #ffc107;">
-                  ⚠️ Sesión detectada pero sin datos de sensores
-                </p>
-                <p style="font-size: 12px;">
-                  ID de sesión: {{ realtimeData.sessionId }}<br>
-                  Verificar conexión del ESP32 y sensores
-                </p>
+          <div class="card-content">
+            <div class="speaker-details">
+              <div class="detail-row">
+                <span class="detail-label">Nombre:</span>
+                <span class="detail-value">{{ speakerInfo.name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Posición:</span>
+                <span class="detail-value">{{ speakerInfo.position }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">ID:</span>
+                <span class="detail-value">#{{ speakerId }}</span>
               </div>
             </div>
-            <ng-template #notConnected>
-              <h4>🔌 Inicia una sesión</h4>
-              <p>Presiona el botón del parlante o activa el switch arriba para comenzar a monitorear el consumo de energía en tiempo real.</p>
+          </div>
+        </div>
+
+        <!-- Control de Sesión -->
+        <div class="panel-card session-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-icon">⚡</span>
+              Control de Sesión
+            </h2>
+          </div>
+          <div class="card-content">
+            <div class="session-toggle">
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="isConnected" (change)="toggleStatus()" />
+                <span class="slider"></span>
+              </label>
+              <div class="status-info">
+                <span class="status-label" [class]="isConnected ? 'status-active' : 'status-inactive'">
+                  {{ isConnected ? 'Sesión Activa' : 'Sesión Inactiva' }}
+                </span>
+                <div *ngIf="isConnected" class="realtime-indicator"></div>
+              </div>
+            </div>
+            
+            <!-- Stats de sesión activa -->
+            <div *ngIf="isConnected" class="session-stats">
+              <div class="stat-grid">
+                <div class="stat-item">
+                  <span class="stat-icon">⏱️</span>
+                  <div class="stat-content">
+                    <span class="stat-label">Duración</span>
+                    <span class="stat-value">{{ sessionDuration }}</span>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-icon">📊</span>
+                  <div class="stat-content">
+                    <span class="stat-label">Mediciones</span>
+                    <span class="stat-value">{{ getMeasurementCount() }}</span>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-icon">🔋</span>
+                  <div class="stat-content">
+                    <span class="stat-label">Batería</span>
+                    <span class="stat-value">{{ getLatestBattery() }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Control de Volumen -->
+        <div class="panel-card volume-card" *ngIf="isConnected">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-icon">🔊</span>
+              Control de Volumen
+            </h2>
+          </div>
+          <div class="card-content">
+            <div class="volume-interface">
+              <div class="volume-display">
+                <span class="volume-value">{{ currentVolume }}</span>
+                <span class="volume-unit">/30</span>
+                <span class="volume-percent">({{ getVolumePercent() }}%)</span>
+              </div>
+              
+              <div class="volume-slider-container">
+                <input 
+                  type="range" 
+                  class="volume-slider" 
+                  [min]="minVolume" 
+                  [max]="maxVolume" 
+                  [(ngModel)]="currentVolume"
+                  (change)="onVolumeChange($event)"
+                />
+                <div class="slider-marks">
+                  <span>{{ minVolume }}</span>
+                  <span>{{ maxVolume }}</span>
+                </div>
+              </div>
+
+              <div class="volume-controls">
+                <button class="volume-btn" (click)="decreaseVolume()" [disabled]="currentVolume <= minVolume">
+                  -
+                </button>
+                <div class="volume-presets">
+                  <button class="preset-btn" (click)="setVolumePreset(10)" [class.active]="currentVolume === 10">10</button>
+                  <button class="preset-btn" (click)="setVolumePreset(15)" [class.active]="currentVolume === 15">15</button>
+                  <button class="preset-btn" (click)="setVolumePreset(25)" [class.active]="currentVolume === 25">25</button>
+                </div>
+                <button class="volume-btn" (click)="increaseVolume()" [disabled]="currentVolume >= maxVolume">
+                  +
+                </button>
+              </div>
+
+              <div class="volume-status">
+                <span [class]="'status-' + volumeStatus">{{ getVolumeStatusText() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Derecha -->
+      <div class="right-column">
+        
+        <!-- Métricas de Energía -->
+        <div class="panel-card energy-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-icon">⚡</span>
+              Métricas de Energía
+            </h2>
+            <button class="toggle-btn" (click)="toggleEnergy()">
+              {{ showEnergy ? 'Ocultar' : 'Mostrar' }}
+            </button>
+          </div>
+          <div class="card-content" [class.collapsed]="!showEnergy">
+            
+            <!-- Indicador de optimización -->
+            <div *ngIf="isConnected && showEnergy" class="optimization-info">
+              <span class="optimization-badge">📡 Endpoint único cada 2s</span>
+              <span class="data-freshness">{{ getDataFreshness() }}</span>
+            </div>
+
+            <!-- Grid de métricas -->
+            <div *ngIf="realtimeData && hasRealtimeData() && showEnergy; else noEnergyData" class="metrics-grid">
+              
+              <div class="metric-card voltage">
+                <div class="metric-header">
+                  <span class="metric-icon">⚡</span>
+                  <span class="metric-label">Voltaje</span>
+                </div>
+                <div class="metric-value">{{ getLatestVoltage() }} V</div>
+                <div class="metric-avg">Prom: {{ getAverageVoltage() }} V</div>
+              </div>
+
+              <div class="metric-card current">
+                <div class="metric-header">
+                  <span class="metric-icon">🔌</span>
+                  <span class="metric-label">Corriente</span>
+                </div>
+                <div class="metric-value">{{ getLatestCurrent() }} mA</div>
+                <div class="metric-avg">Prom: {{ getAverageCurrent() }} mA</div>
+              </div>
+
+              <div class="metric-card power">
+                <div class="metric-header">
+                  <span class="metric-icon">💡</span>
+                  <span class="metric-label">Potencia</span>
+                </div>
+                <div class="metric-value">{{ getLatestPower() }} mW</div>
+                <div class="metric-avg">Prom: {{ getAveragePower() }} mW</div>
+              </div>
+
+              <div class="metric-card consumption">
+                <div class="metric-header">
+                  <span class="metric-icon">📊</span>
+                  <span class="metric-label">Consumo Total</span>
+                </div>
+                <div class="metric-value">{{ getTotalConsumed() }} mAh</div>
+                <div class="metric-note">Calculado en ESP32</div>
+              </div>
+
+              <div class="metric-card battery" [style.background]="getBatteryColor()">
+                <div class="metric-header">
+                  <span class="metric-icon">🔋</span>
+                  <span class="metric-label white-text">Batería</span>
+                </div>
+                <div class="metric-value white-text">{{ getLatestBattery() }}%</div>
+                <div class="metric-status white-text">{{ getBatteryStatus() }}</div>
+              </div>
+
+              <div class="metric-card sample">
+                <div class="metric-header">
+                  <span class="metric-icon">📈</span>
+                  <span class="metric-label">Muestra Actual</span>
+                </div>
+                <div class="metric-value">#{{ getCurrentSampleIndex() }}</div>
+                <div class="metric-indicator">
+                  <div class="realtime-pulse"></div>
+                  <span>Tiempo real</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado sin datos de energía -->
+            <ng-template #noEnergyData>
+              <div class="no-energy-data" *ngIf="showEnergy">
+                <div *ngIf="isConnected; else notConnectedEnergy" class="waiting-energy">
+                  <div class="state-icon">⏳</div>
+                  <h4>Esperando datos del ESP32</h4>
+                  <p>El sistema está conectado pero aún no ha recibido datos de energía.</p>
+                </div>
+                <ng-template #notConnectedEnergy>
+                  <div class="disconnected-energy">
+                    <div class="state-icon">🔌</div>
+                    <h4>Inicia una sesión</h4>
+                    <p>Activa el control de sesión para ver las métricas de energía.</p>
+                  </div>
+                </ng-template>
+              </div>
             </ng-template>
           </div>
-        </ng-template>
-      </div>
+        </div>
 
-      <!-- Detalles de Energía Expandidos con Estadísticas Ultra Optimizadas -->
-      <div class="info-box" *ngIf="showEnergy && realtimeData && hasRealtimeData()">
-        <h3>📊 Estadísticas de la Sesión - Ultra Optimizado</h3>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <strong>Estado de Batería:</strong> {{ getBatteryStatus() }}
+        <!-- Información del Sistema -->
+        <div class="panel-card system-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-icon">⚙️</span>
+              {{ isConnected ? 'Sistema Activo' : 'Sistema Inactivo' }}
+            </h2>
           </div>
-          <div class="stat-item">
-            <strong>Potencia Promedio:</strong> {{ getAveragePower() }} mW
+          <div class="card-content">
+            <div class="system-details">
+              <div class="system-item">
+                <span class="system-label">Frontend:</span>
+                <span class="system-value">Fetching cada 2s</span>
+              </div>
+              <div class="system-item">
+                <span class="system-label">ESP32:</span>
+                <span class="system-value">Datos cada 2s + batería 30s</span>
+              </div>
+              <div class="system-item">
+                <span class="system-label">Backend:</span>
+                <span class="system-value">Caché temporal + BD historial</span>
+              </div>
+              <div class="system-item" *ngIf="activeSessionId">
+                <span class="system-label">Sesión ID:</span>
+                <span class="system-value">#{{ activeSessionId }}</span>
+              </div>
+              <div class="system-item">
+                <span class="system-label">Estado:</span>
+                <span class="system-value" [class]="isConnected ? 'status-active' : 'status-inactive'">
+                  {{ getConnectionStatus() }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Características del modo optimizado -->
+            <div *ngIf="!isConnected" class="system-features">
+              <h4>Características del Modo Ultra Optimizado:</h4>
+              <ul class="feature-list">
+                <li>Fetching optimizado cada 2 segundos</li>
+                <li>Caché temporal en memoria</li>
+                <li>Historial completo al finalizar</li>
+                <li>Menor latencia y mayor fluidez</li>
+              </ul>
+            </div>
           </div>
-          <div class="stat-item">
-            <strong>Pico de Potencia:</strong> {{ getPeakPower() }} mW
+        </div>
+
+        <!-- Información Temporal -->
+        <div class="panel-card time-card" *ngIf="realtimeData && hasRealtimeData()">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="card-icon">🕐</span>
+              Información Temporal
+            </h2>
           </div>
-          <div class="stat-item">
-            <strong>Duración de Sesión:</strong> {{ sessionDuration }}
-          </div>
-          <div class="stat-item">
-            <strong>Consumo Total (ESP32):</strong> {{ getTotalConsumed() }} mAh
-          </div>
-          <div class="stat-item">
-            <strong>Corriente Promedio:</strong> {{ getAverageCurrent() }} mA
-          </div>
-          <div class="stat-item">
-            <strong>Voltaje Promedio:</strong> {{ getAverageVoltage() }} V
-          </div>
-          <div class="stat-item">
-            <strong>Total de Mediciones:</strong> 
-            {{ getMeasurementCount() }}
-            <span class="realtime-indicator" style="margin-left: 5px;"></span>
-          </div>
-          <div class="stat-item">
-            <strong>Última actualización:</strong> {{ realtimeData.lastUpdated | date:'HH:mm:ss' }}
-          </div>
-          <div class="stat-item">
-            <strong>Frescura de datos:</strong> 
-            <span [style.color]="getDataFreshness() === 'Datos frescos' ? '#28a745' : '#ffc107'">
-              {{ getDataFreshness() }}
-            </span>
+          <div class="card-content">
+            <div class="time-details">
+              <div class="time-item">
+                <span class="time-label">Timestamp ESP32:</span>
+                <span class="time-value">{{ getTimestamp() }}s</span>
+              </div>
+              <div class="time-item">
+                <span class="time-label">Duración total:</span>
+                <span class="time-value">{{ getDurationSeconds() }}s</span>
+              </div>
+              <div class="time-item">
+                <span class="time-label">Última actualización:</span>
+                <span class="time-value">{{ realtimeData.lastUpdated | date:'HH:mm:ss' }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Información de Conectividad Ultra Optimizada -->
-      <div class="info-box" *ngIf="isConnected" style="border-color: #28a745; background: #d4edda;">
-        <h3 style="color: #155724;">⚡ SISTEMA ULTRA OPTIMIZADO ACTIVO</h3>
-        <div class="connection-stats">
-          <p style="color: #155724;">
-            <strong>Frontend:</strong> Fetching cada 2 segundos desde endpoint único
-          </p>
-          <p style="color: #155724;">
-            <strong>ESP32:</strong> Envío cada 2s para frontend + batería cada 30s para BD
-          </p>
-          <p style="color: #155724;">
-            <strong>Backend:</strong> Caché temporal en memoria + BD para historial
-          </p>
-          <p style="color: #155724;">
-            <strong>ID de Sesión:</strong> {{ activeSessionId }}
-          </p>
-          <div *ngIf="realtimeData" style="margin-top: 10px; padding: 8px; background: rgba(21, 87, 36, 0.1); border-radius: 5px;">
-            <p style="color: #155724; font-size: 12px; margin: 2px 0;">
-              <strong>Estado de datos:</strong> {{ getConnectionStatus() }}
-            </p>
-            <p style="color: #155724; font-size: 12px; margin: 2px 0;">
-              <strong>Mediciones recibidas:</strong> {{ getMeasurementCount() }}
-            </p>
-            <p style="color: #155724; font-size: 12px; margin: 2px 0;">
-              <strong>Tiempo de actividad:</strong> {{ sessionDuration }}
-            </p>
-          </div>
-        </div>
-        <p style="color: #155724; font-size: 12px; margin-top: 10px; border-top: 1px solid #c3e6cb; padding-top: 8px;">
-          <strong>Ventajas:</strong> Un solo endpoint, datos más fluidos, menor latencia, historial completo al finalizar
-        </p>
-      </div>
-
-      <!-- Información sobre el modo ultra optimizado cuando está desconectado -->
-      <div class="info-box" *ngIf="!isConnected" style="border-color: #17a2b8; background: #d1ecf1;">
-        <h3 style="color: #0c5460;">⚡ Sistema en Modo Ultra Optimizado</h3>
-        <p style="color: #0c5460;">
-          El sistema está configurado para máximo rendimiento con un solo endpoint.
-        </p>
-        <p style="color: #0c5460; font-size: 12px;">
-          <strong>Características:</strong>
-        </p>
-        <ul style="color: #0c5460; font-size: 12px; margin: 10px 0;">
-          <li>Frontend hace fetching cada 2 segundos desde un endpoint único</li>
-          <li>ESP32 envía datos para frontend cada 2s + batería cada 30s</li>
-          <li>Backend mantiene caché temporal en memoria</li>
-          <li>Historial completo guardado solo al finalizar sesión</li>
-          <li>Menor latencia y mayor fluidez de datos</li>
-          <li>Detección automática de pérdida de conexión</li>
-        </ul>
-      </div>
-
-      <!-- Información de debugging (solo si hay problemas) -->
-      <div class="info-box" *ngIf="isConnected && realtimeData && !hasRealtimeData()" style="border-color: #ffc107; background: #fff3cd;">
-        <h3 style="color: #856404;">🔍 Información de Debug</h3>
-        <div style="color: #856404; font-size: 12px;">
-          <p><strong>Estado de sesión:</strong> {{ realtimeData.status }}</p>
-          <p><strong>ID de sesión:</strong> {{ realtimeData.sessionId }}</p>
-          <p><strong>Datos en tiempo real:</strong> {{ realtimeData.hasRealtimeData ? 'Sí' : 'No' }}</p>
-          <p><strong>Última actualización:</strong> {{ realtimeData.lastUpdated | date:'HH:mm:ss.SSS' }}</p>
-          <p><strong>Posibles causas:</strong></p>
-          <ul style="margin: 5px 0; padding-left: 20px;">
-            <li>ESP32 no está enviando datos</li>
-            <li>Problema con sensores INA219</li>
-            <li>Conectividad WiFi intermitente</li>
-            <li>Backend no actualiza el caché</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Botones de Acción -->
-      <div class="button-group">
-        <button class="back-button" routerLink="/dashboard/select-panel">Atrás</button>
-        <button class="save-button ultra-optimized-save-button" (click)="saveSessionData()" 
-                [disabled]="!isConnected || !realtimeData || !hasRealtimeData()" 
-                [ngStyle]="{ 
-                  'background-color': (!isConnected || !realtimeData || !hasRealtimeData()) ? '#666' : '#28a745',
-                  'cursor': (!isConnected || !realtimeData || !hasRealtimeData()) ? 'not-allowed' : 'pointer'
-                }">
-          {{ isConnected ? 'Guardar Historial y Finalizar ⚡' : 'Guardar' }}
+    <!-- Botones de acción (footer) -->
+    <div class="action-footer">
+      <div class="action-buttons">
+        <button class="btn btn-secondary" routerLink="/dashboard/select-panel">
+          <span class="btn-icon">←</span>
+          Atrás
+        </button>
+        <button 
+          class="btn btn-primary"
+          (click)="saveSessionData()" 
+          [disabled]="!canSaveSession()"
+          [class.btn-disabled]="!canSaveSession()">
+          <span class="btn-icon">💾</span>
+          {{ isConnected ? 'Finalizar y Guardar' : 'Guardar' }}
         </button>
       </div>
     </div>
   </div>
 </div>
-
-<style>
-/* Estilos adicionales para el modo ultra optimizado */
-.realtime-indicator {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background-color: #28a745;
-  border-radius: 50%;
-  margin-left: 5px;
-  animation: ultraOptimizedPulse 1s infinite;
-  box-shadow: 0 0 4px rgba(40, 167, 69, 0.6);
-}
-
-.realtime-badge {
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
-  padding: 6px 16px;
-  border-radius: 25px;
-  font-size: 11px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  animation: badgePulse 2s infinite;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-}
-
-.metric-box {
-  border-left: 4px solid #28a745;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.metric-box.updated {
-  animation: ultraDataUpdate 0.5s ease;
-}
-
-.ultra-optimized-save-button {
-  background: linear-gradient(45deg, #28a745, #20c997, #17a2b8);
-  border: none;
-  color: white;
-  font-weight: bold;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
-  animation: saveButtonGlow 3s infinite;
-}
-
-.ultra-optimized-save-button:hover:not(:disabled) {
-  background: linear-gradient(45deg, #218838, #1e7e34, #138496);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
-}
-
-.loading-spinner {
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #28a745;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  animation: ultraSpin 1s linear infinite;
-  display: inline-block;
-  margin-right: 8px;
-}
-
-.energy-content {
-  position: relative;
-}
-
-.energy-content::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, #28a745, #17a2b8, #20c997);
-  border-radius: 5px;
-  opacity: 0;
-  z-index: -1;
-  transition: opacity 0.3s ease;
-}
-
-.energy-content.updating::before {
-  opacity: 0.2;
-  animation: ultraBorderFlow 1.5s linear infinite;
-}
-
-/* Grid para estadísticas */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 10px 0;
-}
-
-.stat-item {
-  padding: 6px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-.connection-stats p {
-  margin: 6px 0;
-}
-
-@keyframes ultraOptimizedPulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-    box-shadow: 0 0 4px rgba(40, 167, 69, 0.6);
-  }
-  50% {
-    transform: scale(1.4);
-    opacity: 0.7;
-    box-shadow: 0 0 12px rgba(40, 167, 69, 0.9);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-    box-shadow: 0 0 4px rgba(40, 167, 69, 0.6);
-  }
-}
-
-@keyframes ultraDataUpdate {
-  0% { 
-    background-color: #28a745; 
-    color: white; 
-    transform: scale(1);
-    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
-  }
-  50% {
-    transform: scale(1.03);
-    box-shadow: 0 0 16px rgba(40, 167, 69, 0.7);
-  }
-  100% { 
-    background-color: #e0e0e0; 
-    color: black;
-    transform: scale(1);
-    box-shadow: none;
-  }
-}
-
-@keyframes badgePulse {
-  0%, 100% { opacity: 0.9; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.02); }
-}
-
-@keyframes saveButtonGlow {
-  0%, 100% { 
-    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3); 
-  }
-  50% { 
-    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.5); 
-  }
-}
-
-@keyframes ultraSpin {
-  0% { 
-    transform: rotate(0deg);
-    border-top-color: #28a745;
-  }
-  25% {
-    border-top-color: #20c997;
-  }
-  50% {
-    border-top-color: #17a2b8;
-  }
-  75% {
-    border-top-color: #28a745;
-  }
-  100% { 
-    transform: rotate(360deg);
-    border-top-color: #28a745;
-  }
-}
-
-@keyframes ultraBorderFlow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-
-/* Responsive mejorado */
-@media (max-width: 600px) {
-  .realtime-badge {
-    font-size: 10px;
-    padding: 4px 12px;
-  }
-  
-  .realtime-indicator {
-    width: 6px;
-    height: 6px;
-  }
-  
-  .loading-spinner {
-    width: 14px;
-    height: 14px;
-  }
-  
-  .ultra-optimized-save-button {
-    font-size: 14px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-  
-  .stat-item {
-    font-size: 12px;
-    padding: 4px;
-  }
-}
-</style>

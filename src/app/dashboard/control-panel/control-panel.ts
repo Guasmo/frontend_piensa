@@ -8,7 +8,7 @@ import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from '../../services/auth';
 
-// Interfaces optimizadas para el nuevo sistema
+// ===== INTERFACES OPTIMIZADAS =====
 interface RealtimeSessionData {
   sessionId: number;
   speakerId: number;
@@ -54,168 +54,139 @@ interface SessionData {
   };
 }
 
+interface SpeakerInfo {
+  name: string;
+  position: string;
+}
+
 @Component({
   selector: 'app-control-panel',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, HttpClientModule],
-  templateUrl: './control-panel.html',  
-  styleUrls: ['./control-panel.css'],
+  templateUrl: './control-panel.html',
+  styleUrls: ['./control-panel.css']
 })
-export class ControlPanel implements OnInit, OnDestroy {
-  // Inyección de dependencias moderna
+export class ControlPanelComponent implements OnInit, OnDestroy {
+  
+  // ===== INYECCIÓN DE DEPENDENCIAS =====
   private http = inject(HttpClient);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
 
-  // ============= PROPIEDADES PARA CONTROL DE VOLUMEN =============
-  currentVolume = 25;           // Volumen actual
-  minVolume = 5;               // Volumen mínimo
-  maxVolume = 30;              // Volumen máximo  
-  defaultVolume = 25;          // Volumen por defecto
-  volumeStatus: 'idle' | 'updating' | 'error' = 'idle';
-  lastVolumeUpdate: Date | null = null;
-
-  // Estado del componente
-  showEnergy = false;
-  isConnected = false;
-  isLoading = true;
-  errorMessage: string | null = null;
-  
-  // ⚡ MODO OPTIMIZADO - Fetching cada 2 segundos
-  optimizedMode = true;
-  
-  // Datos del parlante y sesión
-  private speakerId!: number;
-  private userId = 1;
-  activeSessionId: number | null = null;
-  private pollingSubscription?: Subscription;
-  
-  // Datos para mostrar en la UI
-  speakerInfo = { name: 'Cargando...', position: 'Cargando...' };
-  realtimeData: RealtimeSessionData | null = null;
-  sessionStartTime: string | null = null;
-  
-  // Estadísticas calculadas para mostrar
-  sessionDuration = '00:00:00';
-  
-  // Propiedades para el navbar
-  username$ = this.authService.currentUser$;
-  showLogoutButton: boolean = true;
-  
-  // URLs del backend
+  // ===== CONFIGURACIÓN =====
   private readonly ESP32_API_URL = 'http://192.168.18.143:3000/api/energy';
   private readonly SPEAKERS_API_URL = 'http://192.168.18.143:3000/api/speakers';
-  
-  // ⚡ CONFIGURACIÓN OPTIMIZADA - Fetching cada 2 segundos
   private readonly POLLING_INTERVAL = 2000; // 2 segundos
+  private readonly userId = 1;
 
+  // ===== ESTADO PRINCIPAL =====
+  speakerId!: number;
+  isLoading = true;
+  isConnected = false;
+  showEnergy = false;
+  errorMessage: string | null = null;
+  activeSessionId: number | null = null;
+  
+  // ===== DATOS =====
+  speakerInfo: SpeakerInfo = { name: 'Cargando...', position: 'Cargando...' };
+  realtimeData: RealtimeSessionData | null = null;
+  sessionStartTime: string | null = null;
+  sessionDuration = '00:00:00';
+  
+  // ===== CONTROL DE VOLUMEN =====
+  currentVolume = 25;
+  minVolume = 5;
+  maxVolume = 30;
+  volumeStatus: 'idle' | 'updating' | 'error' = 'idle';
+  lastVolumeUpdate: Date | null = null;
+  
+  // ===== SUBSCRIPCIONES =====
+  private pollingSubscription?: Subscription;
+  
+  // ===== PROPIEDADES COMPUTADAS =====
+  username$ = this.authService.currentUser$;
+
+  // ===== LIFECYCLE HOOKS =====
   ngOnInit(): void {
     console.log('⚡ Iniciando Control Panel ULTRA OPTIMIZADO');
-    console.log('🖥️ Frontend: Fetching cada 2 segundos desde endpoint único');
-    console.log('🔋 Backend: Caché temporal en memoria + BD cada 30s');
-    console.log('💾 Arduino: Datos cada 2s para frontend + batería cada 30s');
-    
-    const id = this.route.snapshot.paramMap.get('id');
-    console.log('ID obtenido de la URL:', id);
-    
-    if (!id) {
-      this.errorMessage = "No se encontró el ID del parlante en la URL.";
-      this.isLoading = false;
-      return;
-    }
-    
-    const parsedId = parseInt(id, 10);
-    console.log('ID parseado:', parsedId);
-    
-    if (isNaN(parsedId) || parsedId < 1) {
-      this.errorMessage = `ID de parlante inválido: ${id}. Debe ser un número entero mayor que 0.`;
-      this.isLoading = false;
-      return;
-    }
-    
-    this.speakerId = parsedId;
-    console.log('SpeakerId establecido:', this.speakerId);
-    this.checkInitialStatus();
+    this.initializeComponent();
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
   }
 
-  checkInitialStatus(): void {
-    this.isLoading = true;
-    console.log('Verificando estado inicial para speakerId:', this.speakerId);
+  // ===== INICIALIZACIÓN =====
+  private initializeComponent(): void {
+    const id = this.route.snapshot.paramMap.get('id');
     
-    if (!this.speakerId || this.speakerId < 1) {
-      this.errorMessage = "ID de parlante inválido para verificar estado.";
+    if (!id || isNaN(Number(id)) || Number(id) < 1) {
+      this.errorMessage = `ID de parlante inválido: ${id || 'null'}`;
       this.isLoading = false;
       return;
     }
+    
+    this.speakerId = Number(id);
+    this.checkInitialStatus();
+  }
+
+  // ===== VERIFICACIÓN DE ESTADO =====
+  private checkInitialStatus(): void {
+    this.isLoading = true;
+    console.log('🔍 Verificando estado inicial para speaker:', this.speakerId);
     
     this.http.get<{ 
       success: boolean; 
       hasActiveSession: boolean; 
       session: SessionData | null;
-      timestamp?: string;
     }>(`${this.ESP32_API_URL}/active-session/speaker/${this.speakerId}`)
       .pipe(
         catchError(err => {
-          console.error('Error checking status:', err);
+          console.error('❌ Error checking status:', err);
           return of({ success: false, hasActiveSession: false, session: null });
         })
       )
       .subscribe({
         next: (response) => {
-          console.log('✅ Respuesta del servidor (estado inicial):', response);
-          
-          if (response.success && response.hasActiveSession && response.session) {
-            this.isConnected = true;
-            this.activeSessionId = response.session.id;
-            this.speakerInfo.name = response.session.speaker?.name || 'Desconocido';
-            this.speakerInfo.position = response.session.speaker?.position || 'Desconocida';
-            this.sessionStartTime = response.session.startTime;
-            
-            console.log(`🔄 Sesión activa encontrada (ID: ${this.activeSessionId})`);
-            console.log(`📊 Iniciando fetching ULTRA OPTIMIZADO cada ${this.POLLING_INTERVAL/1000} segundos`);
-            
-            if (this.activeSessionId !== null) {
-              this.startOptimizedPolling(this.activeSessionId);
-            }
-          } else {
-            this.isConnected = false;
-            this.getSpeakerDetails();
-          }
-          this.isLoading = false;
+          this.handleInitialStatusResponse(response);
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || "Error al verificar el estado del parlante.";
-          console.error('❌ Error en checkInitialStatus:', err);
-          this.isLoading = false;
+          this.handleError('Error al verificar el estado del parlante', err);
         }
       });
   }
-  
-  getSpeakerDetails(): void {
-    console.log('Obteniendo detalles del parlante para speakerId:', this.speakerId);
-    
-    if (!this.speakerId || this.speakerId < 1) {
-      this.speakerInfo = { name: 'ID Inválido', position: 'ID Inválido' };
-      return;
+
+  private handleInitialStatusResponse(response: any): void {
+    if (response.success && response.hasActiveSession && response.session) {
+      this.setupActiveSession(response.session);
+    } else {
+      this.isConnected = false;
+      this.getSpeakerDetails();
     }
+    this.isLoading = false;
+  }
+
+  private setupActiveSession(session: SessionData): void {
+    this.isConnected = true;
+    this.activeSessionId = session.id;
+    this.speakerInfo.name = session.speaker?.name || 'Desconocido';
+    this.speakerInfo.position = session.speaker?.position || 'Desconocida';
+    this.sessionStartTime = session.startTime;
     
+    console.log(`✅ Sesión activa encontrada (ID: ${this.activeSessionId})`);
+    this.startOptimizedPolling(this.activeSessionId);
+  }
+
+  private getSpeakerDetails(): void {
     this.http.get<{ 
       success: boolean; 
-      data: { name: string; position: string } 
+      data: SpeakerInfo;
     }>(`${this.SPEAKERS_API_URL}/${this.speakerId}`)
       .subscribe({
         next: (res) => {
-          console.log('✅ Detalles del parlante obtenidos:', res);
           if (res.success && res.data) {
-            this.speakerInfo = {
-              name: res.data.name,
-              position: res.data.position
-            };
+            this.speakerInfo = res.data;
           }
         },
         error: (err) => {
@@ -225,6 +196,7 @@ export class ControlPanel implements OnInit, OnDestroy {
       });
   }
 
+  // ===== CONTROL DE SESIÓN =====
   toggleStatus(): void {
     if (this.isConnected) {
       this.turnOffSpeaker();
@@ -233,15 +205,15 @@ export class ControlPanel implements OnInit, OnDestroy {
     }
   }
 
-  turnOnSpeaker(): void {
-    console.log('⚡ Encendiendo parlante en MODO ULTRA OPTIMIZADO:', this.speakerId);
+  private turnOnSpeaker(): void {
+    console.log('⚡ Encendiendo parlante - Modo Ultra Optimizado');
     
     const payload = {
       speakerId: this.speakerId,
       userId: this.userId,
       initialBatteryPercentage: 100,
       mode: "ultra_optimized",
-      initialVolume: this.currentVolume // Agregar volumen inicial
+      initialVolume: this.currentVolume
     };
 
     this.http.post<{ 
@@ -251,42 +223,33 @@ export class ControlPanel implements OnInit, OnDestroy {
     }>(`${this.ESP32_API_URL}/start-session`, payload)
       .subscribe({
         next: (response) => {
-          console.log('✅ Parlante encendido exitosamente en modo ultra optimizado:', response);
           if (response.success && response.data) {
-            this.isConnected = true;
-            this.activeSessionId = response.data.id;
-            this.errorMessage = null;
-            this.sessionStartTime = response.data.startTime;
-            this.resetData();
-            this.startOptimizedPolling(this.activeSessionId);
-            console.log(`⚡ MODO ULTRA OPTIMIZADO activado - Sesión ID: ${this.activeSessionId}`);
-            console.log(`🔊 Volumen inicial: ${this.currentVolume}/30`);
-            console.log('🖥️ Frontend: Fetching cada 2s desde endpoint único');
+            this.handleSuccessfulStart(response.data);
           }
         },
         error: (err) => {
-          console.error('❌ Error al encender parlante:', err);
-          this.errorMessage = err.error?.message || "No se pudo encender el parlante.";
+          this.handleError('No se pudo encender el parlante', err);
         }
       });
   }
 
-  turnOffSpeaker(): void {
+  private handleSuccessfulStart(data: { id: number; startTime: string }): void {
+    this.isConnected = true;
+    this.activeSessionId = data.id;
+    this.errorMessage = null;
+    this.sessionStartTime = data.startTime;
+    this.resetData();
+    this.startOptimizedPolling(this.activeSessionId);
+    
+    console.log(`⚡ Modo Ultra Optimizado activado - Sesión: ${this.activeSessionId}`);
+  }
+
+  private turnOffSpeaker(): void {
     if (!this.activeSessionId || !this.realtimeData) return;
 
-    console.log('🔇 Apagando parlante y guardando historial:', this.speakerId);
+    console.log('🔇 Finalizando sesión y guardando historial');
 
-    const payload = {
-      finalBatteryPercentage: this.realtimeData.latestData.battery_remaining_percent,
-      totalMeasurementsSent: this.realtimeData.statistics.measurementCount,
-      totalConsumed_mAh: this.realtimeData.statistics.totalConsumed_mAh,
-      sessionDurationSeconds: this.realtimeData.statistics.durationSeconds,
-      avgCurrent_mA: this.realtimeData.statistics.avgCurrent_mA,
-      avgVoltage_V: this.realtimeData.statistics.avgVoltage_V,
-      avgPower_mW: this.realtimeData.statistics.avgPower_mW,
-      peakPower_mW: this.realtimeData.statistics.peakPower_mW,
-      mode: "ultra_optimized"
-    };
+    const payload = this.createEndSessionPayload();
 
     this.http.post<{ 
       success: boolean; 
@@ -295,102 +258,21 @@ export class ControlPanel implements OnInit, OnDestroy {
     }>(`${this.ESP32_API_URL}/end-session/${this.activeSessionId}`, payload)
       .subscribe({
         next: (response) => {
-          console.log('✅ Parlante apagado y historial guardado:', response);
           if (response.success) {
-            this.isConnected = false;
-            this.activeSessionId = null;
-            this.errorMessage = null;
-            this.resetData();
-            this.stopPolling();
-            console.log('✅ Sesión finalizada - Historial guardado en BD');
+            this.handleSuccessfulEnd();
           }
         },
         error: (err) => {
-          console.error('❌ Error al apagar parlante:', err);
-          this.errorMessage = err.error?.message || "No se pudo apagar el parlante.";
-          this.isConnected = true;
+          this.handleError('No se pudo apagar el parlante', err);
+          this.isConnected = true; // Revertir estado
         }
       });
   }
-  
-  // ⚡ Polling optimizado cada 2 segundos usando UN SOLO ENDPOINT
-  startOptimizedPolling(sessionId: number): void {
-    this.stopPolling();
-    
-    console.log(`⚡ Iniciando fetching ULTRA OPTIMIZADO para sesión ${sessionId}`);
-    console.log(`📊 Endpoint único cada ${this.POLLING_INTERVAL/1000} segundos`);
-    
-    this.pollingSubscription = timer(500, this.POLLING_INTERVAL).pipe(
-      switchMap(() => this.http.get<{ 
-        success: boolean; 
-        data: RealtimeSessionData;
-        timestamp?: string;
-      }>(`${this.ESP32_API_URL}/realtime-data/${sessionId}`)),
-      catchError(err => {
-        console.error('❌ Error en fetching ultra optimizado:', err);
-        // No mostrar error inmediatamente, permitir reconexión
-        return of(null);
-      })
-    ).subscribe({
-      next: (response) => {
-        if (response?.success && response.data) {
-          // Limpiar error previo si los datos llegan correctamente
-          this.errorMessage = null;
-          
-          console.log('⚡ Datos ULTRA OPTIMIZADOS recibidos:', {
-            sessionId: response.data.sessionId,
-            hasRealtimeData: response.data.hasRealtimeData,
-            mediciones: response.data.statistics.measurementCount,
-            bateria: response.data.latestData.battery_remaining_percent,
-            potencia: response.data.latestData.power_mW,
-            voltaje: response.data.latestData.voltage_V,
-            corriente: response.data.latestData.current_mA
-          });
-          
-          this.realtimeData = response.data;
-          this.updateSessionDuration();
-          this.animateDataUpdate();
-        } else if (response?.success === false) {
-          console.warn('⚠️ Backend responde pero sin datos válidos');
-        }
-      },
-      error: (err) => {
-        console.error('❌ Error durante el fetching ultra optimizado:', err);
-        this.errorMessage = 'Se perdió la conexión con el servidor. Reintentando...';
-        // No detener el polling, permitir reconexión automática
-      }
-    });
-  }
 
-  // ⚡ Animación visual para actualizaciones
-  private animateDataUpdate(): void {
-    if (!this.realtimeData?.hasRealtimeData) return;
+  private createEndSessionPayload() {
+    if (!this.realtimeData) throw new Error('No realtime data available');
     
-    const metricBoxes = document.querySelectorAll('.metric-box');
-    metricBoxes.forEach(box => {
-      box.classList.add('updated');
-      setTimeout(() => box.classList.remove('updated'), 600);
-    });
-    
-    // Animar contenedor de energía
-    const energyContent = document.querySelector('.energy-content');
-    if (energyContent) {
-      energyContent.classList.add('updating');
-      setTimeout(() => energyContent.classList.remove('updating'), 1000);
-    }
-  }
-
-  // ✅ Guardar datos de sesión con historial completo
-  saveSessionData(): void {
-    if (!this.activeSessionId || !this.realtimeData) {
-      console.error('❌ No hay datos suficientes para guardar');
-      this.errorMessage = 'No hay datos suficientes para guardar la sesión.';
-      return;
-    }
-
-    console.log('⚡ Guardando sesión ULTRA OPTIMIZADA con historial completo...');
-
-    const payload = {
+    return {
       finalBatteryPercentage: this.realtimeData.latestData.battery_remaining_percent,
       totalMeasurementsSent: this.realtimeData.statistics.measurementCount,
       totalConsumed_mAh: this.realtimeData.statistics.totalConsumed_mAh,
@@ -401,6 +283,152 @@ export class ControlPanel implements OnInit, OnDestroy {
       peakPower_mW: this.realtimeData.statistics.peakPower_mW,
       mode: "ultra_optimized"
     };
+  }
+
+  private handleSuccessfulEnd(): void {
+    this.isConnected = false;
+    this.activeSessionId = null;
+    this.errorMessage = null;
+    this.resetData();
+    this.stopPolling();
+    console.log('✅ Sesión finalizada - Historial guardado');
+  }
+
+  // ===== POLLING OPTIMIZADO =====
+  private startOptimizedPolling(sessionId: number): void {
+    this.stopPolling();
+    
+    console.log(`📊 Iniciando fetching cada ${this.POLLING_INTERVAL/1000}s`);
+    
+    this.pollingSubscription = timer(500, this.POLLING_INTERVAL).pipe(
+      switchMap(() => this.http.get<{ 
+        success: boolean; 
+        data: RealtimeSessionData;
+      }>(`${this.ESP32_API_URL}/realtime-data/${sessionId}`)),
+      catchError(err => {
+        console.error('❌ Error en fetching:', err);
+        return of(null);
+      })
+    ).subscribe({
+      next: (response) => {
+        this.handlePollingResponse(response);
+      },
+      error: (err) => {
+        console.error('❌ Error durante polling:', err);
+        this.errorMessage = 'Se perdió la conexión. Reintentando...';
+      }
+    });
+  }
+
+  private handlePollingResponse(response: any): void {
+    if (response?.success && response.data) {
+      this.errorMessage = null;
+      this.realtimeData = response.data;
+      this.updateSessionDuration();
+      this.animateDataUpdate();
+    }
+  }
+
+  private stopPolling(): void {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+      this.pollingSubscription = undefined;
+      console.log('⏹️ Polling detenido');
+    }
+  }
+
+  // ===== CONTROL DE VOLUMEN =====
+  onVolumeChange(event: any): void {
+    const volume = parseInt(event.target.value);
+    if (volume >= this.minVolume && volume <= this.maxVolume) {
+      this.setVolume(volume);
+    }
+  }
+
+  increaseVolume(): void {
+    if (this.currentVolume < this.maxVolume) {
+      this.setVolume(this.currentVolume + 1);
+    }
+  }
+
+  decreaseVolume(): void {
+    if (this.currentVolume > this.minVolume) {
+      this.setVolume(this.currentVolume - 1);
+    }
+  }
+
+  setVolumePreset(volume: number): void {
+    this.setVolume(volume);
+  }
+
+  private setVolume(volume: number): void {
+    if (!this.validateVolumeRequest(volume)) return;
+
+    this.volumeStatus = 'updating';
+    const previousVolume = this.currentVolume;
+    this.currentVolume = volume;
+
+    const payload = {
+      volume: volume,
+      speakerId: this.speakerId,
+      sessionId: this.activeSessionId,
+      timestamp: new Date().toISOString()
+    };
+
+    this.http.post<{ success: boolean; message?: string; }>
+      (`${this.ESP32_API_URL}/volume/${this.speakerId}`, payload)
+      .subscribe({
+        next: (response) => {
+          this.handleVolumeResponse(response, volume);
+        },
+        error: (err) => {
+          this.handleVolumeError(err, previousVolume);
+        }
+      });
+  }
+
+  private validateVolumeRequest(volume: number): boolean {
+    if (!this.isConnected || !this.activeSessionId) {
+      this.showTemporaryError('No se puede ajustar el volumen sin sesión activa');
+      return false;
+    }
+
+    if (volume < this.minVolume || volume > this.maxVolume) {
+      console.error(`❌ Volumen fuera de rango: ${volume}`);
+      return false;
+    }
+
+    return true;
+  }
+
+  private handleVolumeResponse(response: any, volume: number): void {
+    if (response.success) {
+      this.volumeStatus = 'idle';
+      this.lastVolumeUpdate = new Date();
+      console.log(`✅ Volumen ajustado a ${volume}/30`);
+    } else {
+      this.volumeStatus = 'error';
+      this.showTemporaryError(response.message || 'Error al ajustar el volumen');
+    }
+  }
+
+  private handleVolumeError(err: any, previousVolume: number): void {
+    console.error('❌ Error enviando comando de volumen:', err);
+    this.volumeStatus = 'error';
+    this.currentVolume = previousVolume;
+    this.showTemporaryError('Error al ajustar el volumen. Verifica la conexión.');
+  }
+
+  // ===== GUARDADO DE SESIÓN =====
+  saveSessionData(): void {
+    if (!this.canSaveSession()) {
+      this.errorMessage = 'No hay datos suficientes para guardar la sesión.';
+      return;
+    }
+
+    console.log('💾 Guardando sesión ultra optimizada...');
+
+    const payload = this.createEndSessionPayload();
 
     this.http.post<{ 
       success: boolean; 
@@ -409,38 +437,46 @@ export class ControlPanel implements OnInit, OnDestroy {
     }>(`${this.ESP32_API_URL}/end-session/${this.activeSessionId}`, payload)
       .subscribe({
         next: (response) => {
-          console.log('✅ Sesión ULTRA OPTIMIZADA guardada exitosamente:', response);
-          if (response.success) {
-            this.isConnected = false;
-            this.activeSessionId = null;
-            this.errorMessage = null;
-            this.resetData();
-            this.stopPolling();
-            
-            const measurementCount = this.realtimeData?.statistics.measurementCount || 0;
-            const totalConsumed = this.realtimeData?.statistics.totalConsumed_mAh || 0;
-            const duration = Math.floor((this.realtimeData?.statistics.durationSeconds || 0) / 60);
-            
-            alert(`✅ Sesión guardada exitosamente en modo ULTRA OPTIMIZADO
-
-📊 Estadísticas finales:
-• ${measurementCount} mediciones procesadas
-• ${totalConsumed.toFixed(1)} mAh consumidos
-• ${duration} minutos de duración
-💾 Historial completo guardado en BD`);
-            
-            this.router.navigate(['/dashboard/select-panel']);
-          } else {
-            this.errorMessage = response.message || 'Error desconocido al guardar la sesión';
-          }
+          this.handleSaveResponse(response);
         },
         error: (err) => {
-          console.error('❌ Error al guardar sesión ultra optimizada:', err);
-          this.errorMessage = err.error?.message || 'No se pudieron guardar los datos de la sesión';
+          this.handleError('No se pudieron guardar los datos de la sesión', err);
         }
       });
   }
 
+  private handleSaveResponse(response: any): void {
+    if (response.success) {
+      this.handleSuccessfulSave();
+    } else {
+      this.errorMessage = response.message || 'Error desconocido al guardar';
+    }
+  }
+
+  private handleSuccessfulSave(): void {
+    const stats = this.generateSaveStats();
+    
+    this.isConnected = false;
+    this.activeSessionId = null;
+    this.errorMessage = null;
+    this.resetData();
+    this.stopPolling();
+    
+    alert(`✅ Sesión guardada exitosamente\n\n${stats}`);
+    this.router.navigate(['/dashboard/select-panel']);
+  }
+
+  private generateSaveStats(): string {
+    if (!this.realtimeData) return '';
+    
+    const measurements = this.realtimeData.statistics.measurementCount;
+    const consumed = this.realtimeData.statistics.totalConsumed_mAh.toFixed(1);
+    const duration = Math.floor(this.realtimeData.statistics.durationSeconds / 60);
+    
+    return `📊 Estadísticas:\n• ${measurements} mediciones\n• ${consumed} mAh consumidos\n• ${duration} minutos`;
+  }
+
+  // ===== MÉTODOS DE UTILIDAD =====
   private updateSessionDuration(): void {
     if (!this.sessionStartTime) return;
 
@@ -458,28 +494,70 @@ export class ControlPanel implements OnInit, OnDestroy {
   private resetData(): void {
     this.realtimeData = null;
     this.sessionDuration = '00:00:00';
-    // Resetear estado del volumen pero mantener el valor
     this.volumeStatus = 'idle';
     this.lastVolumeUpdate = null;
   }
 
-  stopPolling(): void {
-    if (this.pollingSubscription) {
-      this.pollingSubscription.unsubscribe();
-      this.pollingSubscription = undefined;
-      console.log('⏹️ Fetching ULTRA OPTIMIZADO detenido');
-    }
+  private animateDataUpdate(): void {
+    if (!this.realtimeData?.hasRealtimeData) return;
+    
+    // Animar tarjetas de métricas
+    const metricCards = document.querySelectorAll('.metric-card');
+    metricCards.forEach(card => {
+      card.classList.add('updated');
+      setTimeout(() => card.classList.remove('updated'), 600);
+    });
   }
 
+  private handleError(message: string, error: any): void {
+    console.error(`❌ ${message}:`, error);
+    this.errorMessage = error.error?.message || message;
+    this.isLoading = false;
+  }
+
+  private showTemporaryError(message: string): void {
+    this.errorMessage = message;
+    setTimeout(() => {
+      if (this.errorMessage === message) {
+        this.errorMessage = null;
+      }
+    }, 3000);
+  }
+
+  // ===== MÉTODOS PARA EL TEMPLATE =====
   toggleEnergy(): void {
     this.showEnergy = !this.showEnergy;
   }
 
-  handleLogout(): void {
-    this.authService.logout();
+  canSaveSession(): boolean {
+    return !!(this.activeSessionId && this.realtimeData && this.hasRealtimeData());
   }
 
-  // ⚡ Métodos helper mejorados para el template
+  hasRealtimeData(): boolean {
+    return this.realtimeData?.hasRealtimeData || false;
+  }
+
+  getConnectionStatus(): string {
+    if (!this.isConnected) return 'Desconectado';
+    if (!this.realtimeData) return 'Conectado - Sin datos';
+    if (!this.realtimeData.hasRealtimeData) return 'Conectado - Esperando datos';
+    return 'Conectado - Datos en tiempo real';
+  }
+
+  getDataFreshness(): string {
+    if (!this.realtimeData?.lastUpdated) return 'Sin datos';
+    
+    const lastUpdate = new Date(this.realtimeData.lastUpdated);
+    const now = new Date();
+    const diffSeconds = Math.floor((now.getTime() - lastUpdate.getTime()) / 1000);
+    
+    if (diffSeconds < 5) return 'Datos frescos';
+    if (diffSeconds < 10) return 'Datos recientes';
+    if (diffSeconds < 30) return 'Datos antiguos';
+    return 'Datos obsoletos';
+  }
+
+  // ===== GETTERS PARA MÉTRICAS =====
   getMeasurementCount(): number {
     return this.realtimeData?.statistics.measurementCount || 0;
   }
@@ -529,51 +607,6 @@ export class ControlPanel implements OnInit, OnDestroy {
     return this.realtimeData.statistics.peakPower_mW.toFixed(1);
   }
 
-  formatNumber(value: number | undefined, decimals: number = 2): string {
-    return value ? value.toFixed(decimals) : '0.00';
-  }
-
-  getBatteryStatus(): string {
-    if (!this.realtimeData?.hasRealtimeData) return 'Desconocido';
-    const battery = this.realtimeData.latestData.battery_remaining_percent;
-    if (battery > 80) return 'Excelente';
-    if (battery > 50) return 'Bueno';
-    if (battery > 20) return 'Bajo';
-    return 'Crítico';
-  }
-
-  getBatteryColor(): string {
-    if (!this.realtimeData?.hasRealtimeData) return '#666';
-    const battery = this.realtimeData.latestData.battery_remaining_percent;
-    if (battery > 50) return '#28a745';
-    if (battery > 20) return '#ffc107';
-    return '#dc3545';
-  }
-
-  hasRealtimeData(): boolean {
-    return this.realtimeData?.hasRealtimeData || false;
-  }
-
-  // ⚡ Métodos adicionales para mejor debugging
-  getConnectionStatus(): string {
-    if (!this.isConnected) return 'Desconectado';
-    if (!this.realtimeData) return 'Conectado - Sin datos';
-    if (!this.realtimeData.hasRealtimeData) return 'Conectado - Esperando datos';
-    return 'Conectado - Datos en tiempo real';
-  }
-
-  getDataFreshness(): string {
-    if (!this.realtimeData?.lastUpdated) return 'Sin datos';
-    const lastUpdate = new Date(this.realtimeData.lastUpdated);
-    const now = new Date();
-    const diffSeconds = Math.floor((now.getTime() - lastUpdate.getTime()) / 1000);
-    
-    if (diffSeconds < 5) return 'Datos frescos';
-    if (diffSeconds < 10) return 'Datos recientes';
-    if (diffSeconds < 30) return 'Datos antiguos';
-    return 'Datos obsoletos';
-  }
-
   getCurrentSampleIndex(): number {
     return this.realtimeData?.latestData.sample_index || 0;
   }
@@ -586,113 +619,31 @@ export class ControlPanel implements OnInit, OnDestroy {
     return this.realtimeData?.statistics.durationSeconds || 0;
   }
 
-  // ============= MÉTODOS DE CONTROL DE VOLUMEN =============
-
-  onVolumeChange(event: any): void {
-    const volume = parseInt(event.target.value);
-    if (volume >= this.minVolume && volume <= this.maxVolume) {
-      this.setVolume(volume);
-    }
+  // ===== GETTERS PARA BATERÍA =====
+  getBatteryStatus(): string {
+    if (!this.realtimeData?.hasRealtimeData) return 'Desconocido';
+    
+    const battery = this.realtimeData.latestData.battery_remaining_percent;
+    if (battery > 80) return 'Excelente';
+    if (battery > 60) return 'Bueno';
+    if (battery > 40) return 'Aceptable';
+    if (battery > 20) return 'Bajo';
+    if (battery > 10) return 'Crítico';
+    return 'Muy Crítico';
   }
 
-  increaseVolume(): void {
-    if (this.currentVolume < this.maxVolume) {
-      this.setVolume(this.currentVolume + 1);
-    }
+  getBatteryColor(): string {
+    if (!this.realtimeData?.hasRealtimeData) return '#6c757d';
+    
+    const battery = this.realtimeData.latestData.battery_remaining_percent;
+    if (battery > 60) return 'linear-gradient(135deg, #28a745, #20c997)';
+    if (battery > 40) return 'linear-gradient(135deg, #28a745, #ffc107)';
+    if (battery > 20) return 'linear-gradient(135deg, #ffc107, #fd7e14)';
+    if (battery > 10) return 'linear-gradient(135deg, #fd7e14, #dc3545)';
+    return 'linear-gradient(135deg, #dc3545, #721c24)';
   }
 
-  decreaseVolume(): void {
-    if (this.currentVolume > this.minVolume) {
-      this.setVolume(this.currentVolume - 1);
-    }
-  }
-
-  setVolumePreset(volume: number): void {
-    this.setVolume(volume);
-  }
-
-  private setVolume(volume: number): void {
-    if (!this.isConnected || !this.activeSessionId) {
-      console.warn('⚠️ No se puede ajustar el volumen: sin sesión activa');
-      this.errorMessage = 'No se puede ajustar el volumen sin una sesión activa';
-      setTimeout(() => {
-        if (this.errorMessage?.includes('volumen')) {
-          this.errorMessage = null;
-        }
-      }, 3000);
-      return;
-    }
-
-    if (volume < this.minVolume || volume > this.maxVolume) {
-      console.error(`❌ Volumen fuera de rango: ${volume}. Rango válido: ${this.minVolume}-${this.maxVolume}`);
-      return;
-    }
-
-    this.volumeStatus = 'updating';
-    this.animateVolumeControl();
-
-    console.log(`🔊 Ajustando volumen de ${this.currentVolume} a ${volume}`);
-
-    // Actualizar inmediatamente la UI para mejor experiencia
-    const previousVolume = this.currentVolume;
-    this.currentVolume = volume;
-
-    // Enviar comando al backend para que lo reenvíe al ESP32
-    const payload = {
-      volume: volume,
-      speakerId: this.speakerId,
-      sessionId: this.activeSessionId,
-      timestamp: new Date().toISOString()
-    };
-
-    this.http.post<{ 
-      success: boolean; 
-      data?: any;
-      message?: string;
-    }>(`${this.ESP32_API_URL}/volume/${this.speakerId}`, payload)
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.volumeStatus = 'idle';
-            this.lastVolumeUpdate = new Date();
-            console.log(`✅ Volumen ajustado exitosamente a ${volume}/30 (${this.getVolumePercent()}%)`);
-            
-            // Opcional: mostrar notificación temporal
-            this.showVolumeNotification(volume);
-          } else {
-            console.error('❌ Error en respuesta del servidor:', response.message);
-            this.volumeStatus = 'error';
-            // Revertir volumen en caso de error
-            this.currentVolume = previousVolume;
-            this.errorMessage = response.message || 'Error al ajustar el volumen';
-            setTimeout(() => {
-              if (this.errorMessage?.includes('volumen')) {
-                this.errorMessage = null;
-              }
-            }, 3000);
-          }
-        },
-        error: (err) => {
-          console.error('❌ Error enviando comando de volumen:', err);
-          this.volumeStatus = 'error';
-          // Revertir volumen en caso de error
-          this.currentVolume = previousVolume;
-          
-          // Mostrar error al usuario
-          this.errorMessage = 'Error al ajustar el volumen. Verifica la conexión.';
-          
-          // Limpiar error después de unos segundos
-          setTimeout(() => {
-            if (this.errorMessage?.includes('volumen')) {
-              this.errorMessage = null;
-            }
-          }, 3000);
-        }
-      });
-  }
-
-  // ============= MÉTODOS HELPER PARA EL TEMPLATE =============
-
+  // ===== GETTERS PARA VOLUMEN =====
   getVolumePercent(): number {
     return Math.round((this.currentVolume / this.maxVolume) * 100);
   }
@@ -724,98 +675,7 @@ export class ControlPanel implements OnInit, OnDestroy {
     return 'Máximo';
   }
 
-  // ============= MÉTODOS DE ANIMACIÓN Y FEEDBACK =============
-
-  private animateVolumeControl(): void {
-    const volumeControl = document.querySelector('.volume-control');
-    if (volumeControl) {
-      volumeControl.classList.add('updating');
-      setTimeout(() => {
-        volumeControl.classList.remove('updating');
-      }, 600);
-    }
-  }
-
-  private showVolumeNotification(volume: number): void {
-    // Crear notificación temporal (opcional)
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #28a745;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-weight: bold;
-      z-index: 9999;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      animation: slideInFromRight 0.3s ease;
-    `;
-    notification.innerHTML = `🔊 Volumen: ${volume}/30 (${this.getVolumePercent()}%)`;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      notification.style.animation = 'slideOutToRight 0.3s ease';
-      setTimeout(() => {
-        if (document.body.contains(notification)) {
-          document.body.removeChild(notification);
-        }
-      }, 300);
-    }, 2000);
-  }
-
-  // ============= MÉTODOS ADICIONALES DE COMPATIBILIDAD =============
-
-  /**
-   * Método para sincronizar el volumen con el ESP32 al iniciar sesión
-   */
-  private syncVolumeWithESP32(): void {
-    if (this.isConnected && this.activeSessionId) {
-      console.log(`🔄 Sincronizando volumen inicial: ${this.currentVolume}/30`);
-      
-      // Enviar volumen actual al ESP32
-      const payload = {
-        volume: this.currentVolume,
-        speakerId: this.speakerId,
-        sessionId: this.activeSessionId,
-        action: 'sync',
-        timestamp: new Date().toISOString()
-      };
-
-      this.http.post<{ success: boolean; }>(`${this.ESP32_API_URL}/volume/${this.speakerId}`, payload)
-        .subscribe({
-          next: (response) => {
-            if (response.success) {
-              console.log(`✅ Volumen sincronizado exitosamente: ${this.currentVolume}/30`);
-            } else {
-              console.warn('⚠️ No se pudo sincronizar el volumen con el ESP32');
-            }
-          },
-          error: (err) => {
-            console.error('❌ Error sincronizando volumen:', err);
-          }
-        });
-    }
-  }
-
-  /**
-   * Método para validar que el volumen esté en el rango correcto
-   */
-  private validateVolumeRange(): void {
-    if (this.currentVolume < this.minVolume) {
-      console.warn(`⚠️ Volumen ${this.currentVolume} está por debajo del mínimo. Ajustando a ${this.minVolume}`);
-      this.currentVolume = this.minVolume;
-    } else if (this.currentVolume > this.maxVolume) {
-      console.warn(`⚠️ Volumen ${this.currentVolume} está por encima del máximo. Ajustando a ${this.maxVolume}`);
-      this.currentVolume = this.maxVolume;
-    }
-  }
-
-  /**
-   * Método para obtener información detallada del estado del sistema
-   */
+  // ===== MÉTODOS DE DEBUGGING =====
   getSystemStatus(): { [key: string]: any } {
     return {
       isConnected: this.isConnected,
@@ -832,9 +692,6 @@ export class ControlPanel implements OnInit, OnDestroy {
     };
   }
 
-  /**
-   * Método para debugging - imprimir estado completo en consola
-   */
   debugSystemState(): void {
     console.log('🔍 === ESTADO COMPLETO DEL SISTEMA ===');
     console.table(this.getSystemStatus());
@@ -856,29 +713,18 @@ export class ControlPanel implements OnInit, OnDestroy {
     console.log('=======================================');
   }
 
-  /**
-   * Método para reiniciar el sistema en caso de error
-   */
+  // ===== MÉTODO DE LIMPIEZA =====
   resetSystem(): void {
     console.log('🔄 Reiniciando sistema...');
     
-    // Detener polling
     this.stopPolling();
-    
-    // Resetear datos
     this.resetData();
-    
-    // Resetear estado de conexión
     this.isConnected = false;
     this.activeSessionId = null;
     this.errorMessage = null;
-    
-    // Validar y resetear volumen si es necesario
-    this.validateVolumeRange();
     this.volumeStatus = 'idle';
     this.lastVolumeUpdate = null;
     
-    // Verificar estado inicial nuevamente
     setTimeout(() => {
       this.checkInitialStatus();
     }, 1000);
@@ -886,92 +732,8 @@ export class ControlPanel implements OnInit, OnDestroy {
     console.log('✅ Sistema reiniciado');
   }
 
-  /**
-   * Método para manejar errores de red de forma elegante
-   */
-  private handleNetworkError(error: any, operation: string): void {
-    console.error(`❌ Error de red en ${operation}:`, error);
-    
-    // Si es un error de timeout o conexión
-    if (error.status === 0 || error.status === 504 || error.name === 'TimeoutError') {
-      this.errorMessage = `Sin conexión al servidor (${operation}). Verificando conexión...`;
-      
-      // Intentar reconectar después de un tiempo
-      setTimeout(() => {
-        if (this.errorMessage?.includes('Sin conexión')) {
-          this.checkInitialStatus();
-        }
-      }, 5000);
-    } else {
-      this.errorMessage = error.error?.message || `Error en ${operation}`;
-    }
+  // ===== MÉTODO DE LOGOUT =====
+  handleLogout(): void {
+    this.authService.logout();
   }
-
-  /**
-   * Método para obtener el estado de la batería con más detalle
-   */
-  getDetailedBatteryInfo(): { level: number; status: string; color: string; icon: string } {
-    const batteryLevel = parseFloat(this.getLatestBattery());
-    let status = '';
-    let color = '';
-    let icon = '';
-
-    if (batteryLevel > 80) {
-      status = 'Excelente';
-      color = '#28a745';
-      icon = '🔋';
-    } else if (batteryLevel > 60) {
-      status = 'Bueno';
-      color = '#28a745';
-      icon = '🔋';
-    } else if (batteryLevel > 40) {
-      status = 'Aceptable';
-      color = '#ffc107';
-      icon = '🔋';
-    } else if (batteryLevel > 20) {
-      status = 'Bajo';
-      color = '#fd7e14';
-      icon = '🪫';
-    } else if (batteryLevel > 10) {
-      status = 'Crítico';
-      color = '#dc3545';
-      icon = '🪫';
-    } else {
-      status = 'Muy Crítico';
-      color = '#dc3545';
-      icon = '⚠️';
-    }
-
-    return { level: batteryLevel, status, color, icon };
-  }
-
-  /**
-   * Método para verificar la salud del sistema periódicamente
-   */
-  private performHealthCheck(): void {
-    if (!this.isConnected) return;
-
-    const now = new Date();
-    const lastUpdate = this.realtimeData?.lastUpdated ? new Date(this.realtimeData.lastUpdated) : null;
-    
-    if (lastUpdate) {
-      const timeDiff = (now.getTime() - lastUpdate.getTime()) / 1000;
-      
-      // Si no hay actualizaciones en más de 10 segundos, algo puede estar mal
-      if (timeDiff > 10) {
-        console.warn('⚠️ No se han recibido datos frescos en más de 10 segundos');
-        
-        // Si no hay datos en más de 30 segundos, considerar reconexión
-        if (timeDiff > 30) {
-          console.error('❌ Datos muy antiguos, intentando reconectar...');
-          this.checkInitialStatus();
-        }
-      }
-    }
-  }
-
-  /**
-   * Override del método turnOnSpeaker para incluir sincronización de volumen
-   */
-
 }
