@@ -179,12 +179,13 @@
     margin-bottom: 20px;
   }
 
-  .panel-content{
+  .panel-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 50px;
   }
+  
   .panel {
     display: flex;
     flex-direction: column;
@@ -207,21 +208,62 @@
     gap: 2rem 1.5rem;
   }
 
-  /* Hide the spacer as it's not needed for the 2-column layout */
   .spacer {
     display: none;
   }
   
+  /* CAMBIO PRINCIPAL: Aplicar el estilo del disconnect button */
   .back-button {
-    margin-top: 60%; 
+    margin-top: 60%;
     align-self: center;
     border-radius: 30px;
     width: 100%;
-    height: 60px;
-    max-width: 240px;
+    height: 55px;
+    max-width: 220px;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    min-height: 44px;
+    
+    /* Estilos del disconnect button */
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+    box-shadow: 
+      0 4px 20px rgba(239, 68, 68, 0.3),
+      0 1px 3px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .back-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .back-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 
+      0 8px 30px rgba(239, 68, 68, 0.4),
+      0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .back-button:hover:not(:disabled)::before {
+    left: 100%;
+  }
+  
+  .back-button:active:not(:disabled) {
+    transform: translateY(-1px);
   }
 
-  /* MODIFICATION: Make hidden button completely invisible on mobile */
   .circle-btn.button-hiden {
     background-color: transparent !important;
     visibility: hidden !important;

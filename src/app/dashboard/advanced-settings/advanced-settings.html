@@ -166,5 +166,12 @@
         Last updated: {{ dashboardData.stats.lastUpdate | date:'MMM d, y, h:mm:ss a' }}
       </span>
     </div>
+
+    <!-- NUEVO: Bottom Buttons Section solo para el botón back en responsive -->
+    <div class="bottom-buttons">
+      <button class="back-btn" (click)="goBack()">
+        ← Back
+      </button>
+    </div>
   </div>
 </div>
