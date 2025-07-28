@@ -1,3 +1,4 @@
+<!-- select-panel.component.html -->
 <div class="select-panel-container">
     <app-navbar>
     </app-navbar>
@@ -7,55 +8,55 @@
             <div class="panel-content">
                 <div class="title">Control Panel</div>
                 <div class="buttons">
-                    <!-- Parlante 1 - Amarillo -->
+                    <!-- Speaker 1 - Yellow -->
                     <button class="circle-btn" 
                         (pointerdown)="onButtonDown($event, 'yellow')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
                         data-speaker-id="1"
-                        title="Parlante 1">
+                        title="Speaker 1">
                     </button>
                     
-                    <!-- Parlante 2 - Rojo -->
+                    <!-- Speaker 2 - Red -->
                     <button class="circle-btn" 
                         (pointerdown)="onButtonDown($event, 'red')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
                         data-speaker-id="2"
-                        title="Parlante 2">
+                        title="Speaker 2">
                     </button>
                     
-                    <!-- Parlante 3 - Morado -->
+                    <!-- Speaker 3 - Purple -->
                     <button class="circle-btn" 
                         (pointerdown)="onButtonDown($event, 'purple')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
                         data-speaker-id="3"
-                        title="Parlante 3">
+                        title="Speaker 3">
                     </button>
                     
                     <div class="spacer"></div>
                     
-                    <!-- Parlante 4 - Verde lima -->
+                    <!-- Speaker 4 - Lime Green -->
                     <button class="circle-btn" 
                         (pointerdown)="onButtonDown($event, 'limegreen')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
                         data-speaker-id="4"
-                        title="Parlante 4">
+                        title="Speaker 4">
                     </button>
                     
-                    <!-- Botón oculto/espaciador -->
+                    <!-- Hidden button/spacer -->
                     <button class="circle-btn button-hiden">
                     </button>
                     
-                    <!-- Parlante 5 - Azul -->
+                    <!-- Speaker 5 - Blue -->
                     <button class="circle-btn move-right" 
                         (pointerdown)="onButtonDown($event, 'blue')"
                         (pointerup)="onButtonUp($event)"
                         (pointerleave)="onButtonLeave($event)"
                         data-speaker-id="5"
-                        title="Parlante 5">
+                        title="Speaker 5">
                     </button>
                 </div>
             </div>

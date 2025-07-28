@@ -10,42 +10,50 @@ import { ApiService } from '../../services/api';
   standalone: true,
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  imports: [CommonModule, FormsModule, Logo],
-  // providers: [ApiService] ← Remueve esta línea
+  imports: [CommonModule, FormsModule, Logo]
 })
 export class Login {
   usernameOrEmail: string = '';
   password: string = '';
   errorMessage: string = '';
+  isLoading: boolean = false;
+  showPassword: boolean = false;
 
   constructor(
     private apiService: ApiService,
     private router: Router
   ) {}
 
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
   onLogin() {
     if (!this.usernameOrEmail || !this.password) {
-      this.errorMessage = 'Por favor, llena todos los campos.';
+      this.errorMessage = 'Please fill in all fields.';
       return;
     }
+
+    this.isLoading = true;
+    this.errorMessage = '';
 
     const payload = {
       usernameOrEmail: this.usernameOrEmail,
       password: this.password
     };
 
-    // Usar el servicio API
+    // Use API service
     this.apiService.post('/auth/login', payload)
       .subscribe({
         next: (res: any) => {
-          // Guardar toda la información del usuario en localStorage
+          // Save all user information to localStorage
           localStorage.setItem('accessToken', res.accessToken);
           localStorage.setItem('refreshToken', res.refreshToken);
           localStorage.setItem('userId', res.userId);
           localStorage.setItem('username', res.username);
           localStorage.setItem('roleName', res.roleName);
           
-          // También puedes guardar toda la respuesta como un objeto JSON
+          // Also save the entire response as a JSON object
           localStorage.setItem('userSession', JSON.stringify({
             accessToken: res.accessToken,
             refreshToken: res.refreshToken,
@@ -54,15 +62,17 @@ export class Login {
             roleName: res.roleName
           }));
 
-          // Configurar el token para futuras peticiones
+          // Configure token for future requests
           this.apiService.setAuthToken(res.accessToken);
 
-          console.log('Usuario logueado:', res);
+          console.log('User logged in:', res);
+          this.isLoading = false;
           this.router.navigate(['/home']);
         },
         error: (err) => {
-          console.error(err);
-          this.errorMessage = err.error?.message || 'Error al iniciar sesión.';
+          console.error('Login error:', err);
+          this.isLoading = false;
+          this.errorMessage = err.error?.message || 'An error occurred during login. Please try again.';
         }
       });
   }

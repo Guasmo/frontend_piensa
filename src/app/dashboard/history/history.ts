@@ -46,7 +46,7 @@ export class History implements OnInit {
       },
       error: (error) => {
         console.error('Error loading history:', error);
-        this.error = 'Error al cargar el historial. Por favor, intenta de nuevo.';
+        this.error = 'Error loading history. Please try again.';
         this.loading = false;
       }
     });
@@ -64,7 +64,7 @@ export class History implements OnInit {
       },
       error: (error) => {
         console.error('Error loading speaker history:', error);
-        this.error = 'Error al cargar el historial del speaker.';
+        this.error = 'Error loading speaker history.';
         this.loading = false;
       }
     });
@@ -78,23 +78,23 @@ export class History implements OnInit {
       speakerName: history.speakerName,
       speakerPosition: history.speakerPosition,
       userId: history.userId,
-      username: history.user?.username || 'Usuario desconocido',
+      username: history.user?.username || 'Unknown user',
       startDate: this.formatTimestamp(history.startDate),
       endDate: this.formatTimestamp(history.endDate),
       durationMinutes: history.durationMinutes,
       
-      // Promedios (convertir Decimal a number)
+      // Averages (convert Decimal to number)
       avgCurrent_mA: Number(history.avgCurrent_mA),
       avgVoltage_V: Number(history.avgVoltage_V),
       avgPower_mW: Number(history.avgPower_mW),
       
-      // Totales
+      // Totals
       totalCurrent_mA: Number(history.totalCurrent_mA),
       totalVoltage_V: Number(history.totalVoltage_V),
       totalPower_mW: Number(history.totalPower_mW),
       totalConsumed_mAh: Number(history.totalConsumed_mAh),
       
-      // Información de batería
+      // Battery information
       initialBatteryPercentage: Number(history.initialBatteryPercentage),
       finalBatteryPercentage: Number(history.finalBatteryPercentage),
       batteryConsumed: Number(history.batteryConsumed),
@@ -105,7 +105,7 @@ export class History implements OnInit {
 
   private formatTimestamp(date: Date | string): string {
     const d = new Date(date);
-    return d.toLocaleString('es-ES', {
+    return d.toLocaleString('en-US', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -130,16 +130,16 @@ export class History implements OnInit {
 
   private applyFilter(): void {
     if (!this.speakerIdFilter) {
-      // Si no hay filtro, mostrar todos los historiales
+      // If no filter, show all histories
       this.filteredHistoryItems = [...this.historyItems];
     } else {
-      // Filtrar por speaker ID
+      // Filter by speaker ID
       this.filteredHistoryItems = this.historyItems.filter(
         item => item.speakerId === this.speakerIdFilter
       );
     }
     
-    // Resetear el índice expandido cuando se aplica un filtro
+    // Reset expanded index when filter is applied
     this.expandedIndex = null;
   }
 

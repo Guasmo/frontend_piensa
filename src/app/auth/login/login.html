@@ -1,29 +1,57 @@
-<body>
-  <div class="container">
-    <app-logo />
+<div class="container">
+  <app-logo class="logo" />
+  
+  <h1 class="login-title">Welcome</h1>
 
-    <!-- Formulario de Login -->
-    <form (ngSubmit)="onLogin()">
-      <input class="input white-bg" type="email" placeholder="Email" [(ngModel)]="usernameOrEmail" name="email"
-        required />
+  <!-- Login Form -->
+  <form (ngSubmit)="onLogin()">
+    <!-- Email Field -->
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <div class="input-wrapper">
+        <input 
+          class="input" 
+          type="email" 
+          placeholder="Enter your email" 
+          [(ngModel)]="usernameOrEmail" 
+          name="email"
+          required />
+      </div>
+    </div>
 
-      <input class="input white-bg" type="password" placeholder="Password" [(ngModel)]="password" name="password"
-        required />
+    <!-- Password Field -->
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="input-wrapper">
+        <input 
+          class="input has-icon" 
+          [type]="showPassword ? 'text' : 'password'" 
+          placeholder="Enter your password" 
+          [(ngModel)]="password" 
+          name="password"
+          required />
+        
+        <button 
+          type="button" 
+          class="password-toggle" 
+          (click)="togglePasswordVisibility()">
+          <span class="eye-icon">{{ showPassword ? '👁️' : '👁️‍🗨️' }}</span>
+        </button>
+      </div>
+    </div>
 
-      <!-- Mensaje de error -->
-      <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+    <!-- Error Message -->
+    <div class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
 
-      <div class="forgot">Forget password?</div>
-
-      <button class="btn-black" type="submit">Sign in</button>
-    </form>
-
-    <div class="divider">or continue</div>
-
-    <!-- Botón de Google -->
-    <button class="btn-google">
-      <img src="assets/icons/google-icon.svg" class="icon" />
-      Log in with Google
+    <!-- Login Button -->
+    <button 
+      class="btn-login" 
+      type="submit" 
+      [disabled]="isLoading">
+      <span class="loading-spinner" *ngIf="isLoading"></span>
+      {{ isLoading ? 'Signing in...' : 'Sign In' }}
     </button>
-  </div>
-</body>
+  </form>
+</div>

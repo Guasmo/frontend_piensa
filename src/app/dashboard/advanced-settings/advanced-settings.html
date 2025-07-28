@@ -2,20 +2,20 @@
   <!-- Header -->
   <header class="admin-header">
     <div class="header-left">
-      <button class="back-btn" routerLink="/home">
+      <button class="back-btn" (click)="goBack()">
         ← Back
       </button>
       <h1>Advanced Settings</h1>
       <span class="current-time">{{ currentTime }}</span>
     </div>
     <div class="header-right">
-
       <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon"></span>
         Disconnect
       </button>
-            <button class="refresh-btn" (click)="refreshData()" [disabled]="loading">
-        <span class="refresh-icon">🔄</span>
-        Refresh
+      <button class="refresh-btn" (click)="refreshData()" [disabled]="loading">
+        <span class="refresh-icon" [class.spinning]="loading">🔄</span>
+        {{ loading ? 'Refreshing...' : 'Refresh' }}
       </button>
     </div>
   </header>
@@ -23,9 +23,17 @@
   <!-- Dashboard Content -->
   <div class="dashboard-content">
     
+    <!-- Loading indicator -->
+    <div *ngIf="loading" class="loading-overlay">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Refreshing data...</p>
+      </div>
+    </div>
+    
     <!-- Stats Cards -->
     <div class="stats-grid">
-      <div class="stat-card users-card" routerLink="/dashboard/users-management">
+      <div class="stat-card users-card" (click)="navigateToUsers()">
         <div class="stat-icon">👥</div>
         <div class="stat-content">
           <div class="stat-value">{{ dashboardData.stats.totalUsers }}</div>
@@ -35,7 +43,7 @@
         <div class="stat-arrow">→</div>
       </div>
 
-      <div class="stat-card speakers-card " routerLink="/dashboard/speakers-management">
+      <div class="stat-card speakers-card" (click)="navigateToSpeakers()">
         <div class="stat-icon">🔊</div>
         <div class="stat-content">
           <div class="stat-value">{{ dashboardData.stats.totalSpeakers }}</div>
@@ -79,7 +87,7 @@
             </div>
           </div>
         </div>
-        <button class="view-all-btn" routerLink="/dashboard/users-management">
+        <button class="view-all-btn" (click)="navigateToUsers()">
           View all users →
         </button>
       </div>
