@@ -3,6 +3,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Navbar } from '../../components/navbar/navbar';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -18,65 +19,149 @@ export class DashboardHome implements OnInit {
   flipCardAI: boolean = false;
   private router = inject(Router);
 
+  constructor(private authService: AuthService) {} // Inyectar AuthService
+
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
       // Obtener información del usuario desde localStorage
       this.loadUserInfo();
+      
+      // Debug: Mostrar información del usuario en consola
+      console.log('User info loaded:', {
+        username: this.username,
+        role: this.userRole,
+        isSuperAdmin: this.isSuperAdmin(),
+        isUser: this.isUser()
+      });
     }
   }
 
   private loadUserInfo(): void {
-    // Primero intentar obtener desde userSession
+    // Método 1: Usar AuthService (recomendado)
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.username = currentUser.username || 'User';
+      this.userRole = currentUser.roleName;
+      console.log('Loaded from AuthService:', currentUser);
+      return;
+    }
+
+    // Método 2: Fallback - obtener desde userSession en localStorage
     const userSession = localStorage.getItem('userSession');
     if (userSession) {
       try {
         const sessionData = JSON.parse(userSession);
         this.username = sessionData.username || 'User';
         this.userRole = sessionData.roleName;
+        console.log('Loaded from userSession:', sessionData);
         return;
       } catch (e) {
         console.error('Error parsing userSession', e);
       }
     }
 
-    // Fallback: obtener desde token JWT (método anterior)
-    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        this.username = payload.username || payload.name || 'User';
-        this.userRole = payload.roleName || payload.role;
-      } catch (e) {
-        console.error('Invalid token', e);
+    // Método 3: Fallback - obtener directamente desde localStorage individual
+    this.username = localStorage.getItem('username') || 'User';
+    this.userRole = localStorage.getItem('roleName');
+    console.log('Loaded from individual localStorage items:', {
+      username: this.username,
+      role: this.userRole
+    });
+
+    // Método 4: Último fallback - decodificar token JWT
+    if (!this.userRole) {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          this.username = payload.username || payload.name || 'User';
+          this.userRole = payload.roleName || payload.role;
+          console.log('Loaded from JWT token:', payload);
+        } catch (e) {
+          console.error('Invalid token', e);
+        }
       }
     }
 
-    // También obtener directamente el rol desde localStorage
+    // Si aún no tenemos rol, mostrar advertencia
     if (!this.userRole) {
-      this.userRole = localStorage.getItem('roleName');
+      console.warn('⚠️ No user role detected. User might need to re-login.');
     }
   }
 
   // Método para verificar si el usuario es SUPERADMIN
   isSuperAdmin(): boolean {
-    return this.userRole === 'SUPERADMIN';
+    const isSuper = this.userRole === 'SUPERADMIN';
+    console.log(`Checking isSuperAdmin: ${this.userRole} === 'SUPERADMIN' = ${isSuper}`);
+    return isSuper;
   }
 
-  // Método adicional para verificar otros roles si es necesario
+  // Método para verificar si el usuario es USER
+  isUser(): boolean {
+    const isUserRole = this.userRole === 'USER';
+    console.log(`Checking isUser: ${this.userRole} === 'USER' = ${isUserRole}`);
+    return isUserRole;
+  }
+
+  // Método para verificar si el usuario es ADMIN
+  isAdmin(): boolean {
+    const isAdminRole = this.userRole === 'ADMIN';
+    console.log(`Checking isAdmin: ${this.userRole} === 'ADMIN' = ${isAdminRole}`);
+    return isAdminRole;
+  }
+
+  // Método adicional para verificar cualquier rol específico
   hasRole(role: string): boolean {
-    return this.userRole === role;
+    const hasSpecificRole = this.userRole === role;
+    console.log(`Checking hasRole(${role}): ${this.userRole} === '${role}' = ${hasSpecificRole}`);
+    return hasSpecificRole;
+  }
+
+  // Método para verificar si el usuario tiene permisos de administrador (ADMIN o SUPERADMIN)
+  hasAdminPermissions(): boolean {
+    return this.userRole === 'ADMIN' || this.userRole === 'SUPERADMIN';
   }
 
   logout(): void {
-    // Limpiar toda la información del usuario
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
-    localStorage.removeItem('roleName');
-    localStorage.removeItem('userSession');
-    localStorage.removeItem('token'); // por si queda el método anterior
+    console.log('Logging out user...');
     
-    this.router.navigate(['/auth/login']);
+    // Usar AuthService para logout si está disponible
+    if (this.authService.logout) {
+      this.authService.logout();
+    } else {
+      // Fallback: limpiar manualmente
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+      localStorage.removeItem('roleName');
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('token'); // por si queda el método anterior
+    }
+    
+    // Redirigir al login
+    this.router.navigate(['/auth/login']).then(() => {
+      console.log('User logged out successfully');
+    });
+  }
+
+  // Método adicional para debugging - puedes removerlo en producción
+  debugUserInfo(): void {
+    console.log('=== USER DEBUG INFO ===');
+    console.log('Username:', this.username);
+    console.log('User Role:', this.userRole);
+    console.log('Is SuperAdmin:', this.isSuperAdmin());
+    console.log('Is User:', this.isUser());
+    console.log('Is Admin:', this.isAdmin());
+    console.log('Has Admin Permissions:', this.hasAdminPermissions());
+    console.log('========================');
+    
+    // También mostrar lo que hay en localStorage
+    console.log('=== LOCALSTORAGE INFO ===');
+    console.log('accessToken:', !!localStorage.getItem('accessToken'));
+    console.log('username:', localStorage.getItem('username'));
+    console.log('roleName:', localStorage.getItem('roleName'));
+    console.log('userSession:', localStorage.getItem('userSession'));
+    console.log('========================');
   }
 }

@@ -75,8 +75,8 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
 
   // ===== CONFIGURACIÓN =====
-  private readonly ESP32_API_URL = 'http://192.168.18.143:3000/api/energy';
-  private readonly SPEAKERS_API_URL = 'http://192.168.18.143:3000/api/speakers';
+  private readonly ESP32_API_URL = 'https://backendpiensa-production.up.railway.app/api/energy';
+  private readonly SPEAKERS_API_URL = 'https://backendpiensa-production.up.railway.app/speakers';
   private readonly POLLING_INTERVAL = 2000; // 2 segundos
   private readonly userId = 1;
 

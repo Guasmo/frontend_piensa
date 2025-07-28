@@ -59,24 +59,6 @@
   align-items: center;
 }
 
-.create-btn {
-  background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 10px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.create-btn:hover {
-  background: rgba(16, 185, 129, 0.3);
-  border-color: rgba(16, 185, 129, 0.5);
-  transform: translateY(-1px);
-}
-
 .logout-btn {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
@@ -127,12 +109,63 @@
   margin: 0 auto;
 }
 
+/* Users Header - ACTUALIZADO */
+.users-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
 .users-header h2 {
   color: #e1e8f0;
-  margin-bottom: 30px;
+  margin: 0;
   font-size: 20px;
   font-weight: 500;
   letter-spacing: 0.3px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.create-btn {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+}
+
+.refresh-btn {
+  background: rgba(107, 114, 128, 0.2);
+  color: #e1e8f0;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-btn:hover {
+  background: rgba(107, 114, 128, 0.3);
+  transform: rotate(180deg);
 }
 
 /* Users Grid */
@@ -474,6 +507,61 @@
   color: #e1e8f0;
 }
 
+/* Checkbox Container Styles - NUEVOS */
+.checkbox-container {
+  padding: 12px 0;
+}
+
+.checkbox-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin: 0;
+  color: #e1e8f0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.checkbox-label input[type="checkbox"]:checked::before {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.checkbox-label input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.checkbox-label:hover input[type="checkbox"] {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -570,20 +658,6 @@
   font-weight: 500;
 }
 
-.checkbox-label {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: auto;
-  margin: 0;
-}
-
 .modal-actions {
   padding: 20px 30px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -632,6 +706,119 @@
   color: #8b95a6;
 }
 
+/* Error Banner */
+.error-banner {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  margin: 20px 30px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  gap: 12px;
+}
+
+.error-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.error-message {
+  color: #ef4444;
+  font-weight: 500;
+  flex: 1;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.error-close:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Disabled states */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.action-btn:disabled {
+  background: rgba(107, 114, 128, 0.2) !important;
+  color: #8b95a6 !important;
+  border-color: rgba(107, 114, 128, 0.3) !important;
+}
+
+/* Loading states */
+.btn-primary:disabled,
+.btn-danger:disabled {
+  background: rgba(107, 114, 128, 0.3) !important;
+  border-color: rgba(107, 114, 128, 0.3) !important;
+  color: #8b95a6 !important;
+}
+
+/* Form validation styles */
+.form-group input.ng-invalid.ng-touched,
+.form-group select.ng-invalid.ng-touched {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.form-group input.ng-valid.ng-touched,
+.form-group select.ng-valid.ng-touched {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+/* Success states */
+.success-banner {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  margin: 20px 30px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.success-content {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  gap: 12px;
+}
+
+.success-message {
+  color: #10b981;
+  font-weight: 500;
+  flex: 1;
+}
+
 /* Animaciones */
 @keyframes fadeIn {
   from {
@@ -667,6 +854,20 @@
   
   .users-container {
     padding: 20px;
+  }
+
+  .users-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .users-header h2 {
+    text-align: center;
+  }
+  
+  .header-actions {
+    justify-content: center;
   }
   
   .users-grid {
@@ -714,6 +915,10 @@
   .form-actions {
     flex-direction: column;
   }
+
+  .error-banner {
+    margin: 15px 20px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -744,5 +949,15 @@
 
   .user-form {
     padding: 15px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .create-btn, .refresh-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

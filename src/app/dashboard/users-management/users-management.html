@@ -8,10 +8,17 @@
     </div>
     <div class="header-right">
       <button class="logout-btn" (click)="logout()">Disconnect</button>
-        <button class="create-btn" (click)="openCreateModal()">+ Create User</button>
-      
     </div>
   </header>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-banner">
+    <div class="error-content">
+      <span class="error-icon">⚠️</span>
+      <span class="error-message">{{ error }}</span>
+      <button class="error-close" (click)="clearError()">×</button>
+    </div>
+  </div>
 
   <div *ngIf="loading" class="loading-container">
     <div class="loading-spinner"></div>
@@ -21,6 +28,10 @@
   <div *ngIf="!loading" class="users-container">
     <div class="users-header">
       <h2>System Users ({{ users.length }})</h2>
+      <div class="header-actions">
+        <button class="create-btn" (click)="openCreateModal()" [disabled]="loading">+ Create User</button>
+        <button class="refresh-btn" (click)="loadUsers()" title="Refresh users list">🔄</button>
+      </div>
     </div>
 
     <div class="users-grid" *ngIf="users.length > 0">
@@ -28,7 +39,7 @@
         <div class="user-avatar">{{ getUserAvatar(user) }}</div>
         
         <div class="user-info">
-          <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+          <div class="user-name">{{ user.firstName || user.username }} {{ user.lastName || '' }}</div>
           <div class="user-username">{{ user.username }}</div>
           <div class="user-email">{{ user.email }}</div>
           <div class="user-role">{{ user.role }}</div>
@@ -42,14 +53,14 @@
         </div>
 
         <div class="user-actions">
-          <button class="action-btn edit-btn" (click)="editUser(user)" title="Edit user">✏️</button>
-          <button class="action-btn toggle-btn" (click)="toggleUser(user)" [title]="user.isActive ? 'Deactivate user' : 'Activate user'">{{ user.isActive ? '🔒' : '🔓' }}</button>
-          <button class="action-btn delete-btn" (click)="deleteUser(user)" title="Delete user">🗑️</button>
+          <button class="action-btn edit-btn" (click)="editUser(user)" [disabled]="loading" title="Edit user">✏️</button>
+          <button class="action-btn toggle-btn" (click)="toggleUser(user)" [disabled]="loading" [title]="user.isActive ? 'Deactivate user' : 'Activate user'">{{ user.isActive ? '🔒' : '🔓' }}</button>
+          <button class="action-btn delete-btn" (click)="deleteUser(user)" [disabled]="loading" title="Delete user">🗑️</button>
         </div>
       </div>
     </div>
 
-    <div *ngIf="users.length === 0" class="empty-state">
+    <div *ngIf="users.length === 0 && !loading" class="empty-state">
       <div class="empty-icon">👥</div>
       <h3>No users found</h3>
       <p>Create the first user to get started</p>
@@ -81,22 +92,25 @@
         <div class="form-row">
           <div class="form-group">
             <label for="password">Password *</label>
-            <input type="password" id="password" name="password" [(ngModel)]="createForm.password" required placeholder="Enter password">
+            <input type="password" id="password" name="password" [(ngModel)]="createForm.password" required placeholder="Enter password" minlength="6">
           </div>
           
           <div class="form-group">
             <label for="role">Role *</label>
             <select id="role" name="role" [(ngModel)]="createForm.role" required>
               <option value="">Select role</option>
-              <option value="Administrator">Administrator</option>
-              <option value="User">User</option>
+              <option value="SUPERADMIN">Super Admin</option>
+              <option value="ADMIN">Administrator</option>
+              <option value="USER">User</option>
             </select>
           </div>
         </div>
         
         <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="!createUserForm.form.valid">Create User</button>
-          <button type="button" class="btn-secondary" (click)="closeCreateModal()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="!createUserForm.form.valid || loading">
+            {{ loading ? 'Creating...' : 'Create User' }}
+          </button>
+          <button type="button" class="btn-secondary" (click)="closeCreateModal()" [disabled]="loading">Cancel</button>
         </div>
       </form>
     </div>
@@ -128,23 +142,32 @@
             <label for="editRole">Role *</label>
             <select id="editRole" name="editRole" [(ngModel)]="editForm.role" required>
               <option value="">Select role</option>
-              <option value="Administrator">Administrator</option>
-              <option value="User">User</option>
+              <option value="SUPERADMIN">SUPERADMIN</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="USER">USER</option>
             </select>
           </div>
           
           <div class="form-group">
             <label for="isActive">Status</label>
-            <select id="isActive" name="isActive" [(ngModel)]="editForm.isActive">
-              <option [value]="true">Active</option>
-              <option [value]="false">Inactive</option>
-            </select>
+            <!-- FIX: Usar checkbox en lugar de select para valores booleanos -->
+            <div class="checkbox-container">
+              <label class="checkbox-label">
+                <input type="checkbox" 
+                       id="isActive" 
+                       name="isActive" 
+                       [(ngModel)]="editForm.isActive">
+                <span>User is active</span>
+              </label>
+            </div>
           </div>
         </div>
         
         <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="!editUserForm.form.valid">Update User</button>
-          <button type="button" class="btn-secondary" (click)="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="!editUserForm.form.valid || loading">
+            {{ loading ? 'Updating...' : 'Update User' }}
+          </button>
+          <button type="button" class="btn-secondary" (click)="closeEditModal()" [disabled]="loading">Cancel</button>
         </div>
       </form>
     </div>
@@ -164,8 +187,10 @@
         <p class="warning-text">This action cannot be undone.</p>
         
         <div class="form-actions">
-          <button class="btn-danger" (click)="confirmDelete()">Delete</button>
-          <button class="btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+          <button class="btn-danger" (click)="confirmDelete()" [disabled]="loading">
+            {{ loading ? 'Deleting...' : 'Delete' }}
+          </button>
+          <button class="btn-secondary" (click)="closeDeleteModal()" [disabled]="loading">Cancel</button>
         </div>
       </div>
     </div>

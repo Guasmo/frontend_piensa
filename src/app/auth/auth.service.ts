@@ -23,7 +23,7 @@ export interface UserSession {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = 'https://backendpiensa-production.up.railway.app';
   private currentUserSubject = new BehaviorSubject<UserSession | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 

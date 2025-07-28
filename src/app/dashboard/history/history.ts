@@ -59,6 +59,7 @@ export class History implements OnInit {
     }
   }
 
+  
   // 🔥 MÉTODO CORREGIDO: Cargar historial de un parlante específico
   loadSpeakerHistory(speakerId: number): void {
     this.loading = true;

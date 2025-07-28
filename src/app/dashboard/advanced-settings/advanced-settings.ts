@@ -1,73 +1,71 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { User, UserService } from '../../services/user.service';
+
+interface Speaker {
+  id: number;
+  name: string;
+  position: string;
+  state: boolean;
+  batteryPercentage: number;
+  createdAt: string;
+  updatedAt: string;
+  usageSessions: any[];
+  _count: {
+    usageSessions: number;
+    histories: number;
+  };
+}
+
+interface SpeakersApiResponse {
+  success: boolean;
+  count: number;
+  data: Speaker[];
+  timestamp: string;
+}
 
 @Component({
   selector: 'app-advanced-settings',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, HttpClientModule],
+  providers: [UserService],
   templateUrl: './advanced-settings.html',
   styleUrl: './advanced-settings.css'
 })
 export class AdvancedSettingsComponent implements OnInit, OnDestroy {
   
-  // Sample data properties to avoid template errors
+  private readonly API_URL = 'https://backendpiensa-production.up.railway.app';
+
+  // Datos del dashboard
   dashboardData = {
     stats: {
-      totalUsers: 127,
-      activeUsers: 95,
-      totalSpeakers: 24,
-      activeSpeakers: 18,
-      totalSessions: 1543,
-      todaySessions: 23,
-      systemUptime: '15d 7h',
+      totalUsers: 0,
+      activeUsers: 0,
+      inactiveUsers: 0,
+      totalSpeakers: 0,
+      activeSpeakers: 0,
+      inactiveSpeakers: 0,
       lastUpdate: new Date()
     },
-    recentUsers: [
-      {
-        id: '1',
-        username: 'john.smith',
-        email: 'john.smith@test.com',
-        roleName: 'Administrator',
-        isActive: true,
-        profile: {
-          firstName: 'John',
-          lastName: 'Smith'
-        }
-      },
-      {
-        id: '2',
-        username: 'maria.garcia',
-        email: 'maria.garcia@test.com',
-        roleName: 'User',
-        isActive: true,
-        profile: {
-          firstName: 'Maria',
-          lastName: 'Garcia'
-        }
-      },
-      {
-        id: '3',
-        username: 'carlos.rodriguez',
-        email: 'carlos.rodriguez@test.com',
-        roleName: 'Moderator',
-        isActive: false,
-        profile: {
-          firstName: 'Carlos',
-          lastName: 'Rodriguez'
-        }
-      }
-    ],
+    recentUsers: [] as User[],
+    recentSpeakers: [] as Speaker[]
   };
 
   loading = false;
+  error: string | null = null;
   currentTime = '';
   private timeInterval: any;
+  private subscription = new Subscription();
 
   constructor(
     private router: Router,
-    private location: Location
+    private location: Location,
+    private userService: UserService,
+    private http: HttpClient
   ) {
     // Configurar para que siempre recargue al navegar a la misma ruta
     this.router.onSameUrlNavigation = 'reload';
@@ -81,6 +79,18 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
     this.timeInterval = setInterval(() => {
       this.updateCurrentTime();
     }, 1000);
+
+    // Cargar datos del dashboard
+    this.loadDashboardData();
+
+    // Suscribirse a los cambios en la lista de usuarios
+    this.subscription.add(
+      this.userService.users$.subscribe(users => {
+        if (users.length > 0) {
+          this.updateUserStats(users);
+        }
+      })
+    );
   }
 
   ngOnDestroy() {
@@ -88,6 +98,140 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
     if (this.timeInterval) {
       clearInterval(this.timeInterval);
     }
+    
+    // Limpiar suscripciones
+    this.subscription.unsubscribe();
+  }
+
+  // Método para cargar datos del dashboard
+  loadDashboardData() {
+    this.loading = true;
+    this.error = null;
+    
+    console.log('🔄 Loading dashboard data (users and speakers)...');
+    
+    // Cargar usuarios
+    this.loadUsersData();
+    
+    // Cargar speakers
+    this.loadSpeakersData();
+  }
+
+  // Cargar datos de usuarios
+  private loadUsersData() {
+    console.log('🔄 Loading users data...');
+    
+    this.subscription.add(
+      this.userService.getAllUsers().subscribe({
+        next: (users) => {
+          console.log('✅ Users loaded successfully:', users);
+          this.updateUserStats(users);
+        },
+        error: (error) => {
+          console.error('❌ Error loading users:', error);
+          // No parar el loading por error de usuarios
+        }
+      })
+    );
+  }
+
+  // Cargar datos de speakers usando HttpClient directamente
+  private loadSpeakersData() {
+    console.log('🔄 Loading speakers data...');
+    
+    this.subscription.add(
+      this.http.get<SpeakersApiResponse>(`${this.API_URL}/speakers`).subscribe({
+        next: (response) => {
+          console.log('✅ Speakers loaded successfully:', response);
+          
+          if (response.success && response.data) {
+            this.updateSpeakerStats(response.data);
+          } else {
+            console.warn('⚠️ Invalid speakers response format');
+            this.setDefaultSpeakerStats();
+          }
+          
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('❌ Error loading speakers:', error);
+          this.setDefaultSpeakerStats();
+          this.loading = false;
+        }
+      })
+    );
+  }
+
+  // Método para actualizar las estadísticas de usuarios
+  private updateUserStats(users: User[]) {
+    const activeUsers = users.filter(user => user.isActive).length;
+    const inactiveUsers = users.filter(user => !user.isActive).length;
+
+    // Actualizar estadísticas de usuarios
+    this.dashboardData.stats.totalUsers = users.length;
+    this.dashboardData.stats.activeUsers = activeUsers;
+    this.dashboardData.stats.inactiveUsers = inactiveUsers;
+    this.dashboardData.stats.lastUpdate = new Date();
+
+    // Obtener los 3 usuarios más recientes
+    this.dashboardData.recentUsers = users
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3);
+
+    console.log('👥 User stats updated:', {
+      total: this.dashboardData.stats.totalUsers,
+      active: this.dashboardData.stats.activeUsers,
+      inactive: this.dashboardData.stats.inactiveUsers
+    });
+  }
+
+  // Método para actualizar las estadísticas de speakers
+  private updateSpeakerStats(speakers: Speaker[]) {
+    const activeSpeakers = speakers.filter(speaker => speaker.state).length;
+    const inactiveSpeakers = speakers.filter(speaker => !speaker.state).length;
+
+    // Actualizar estadísticas de speakers
+    this.dashboardData.stats.totalSpeakers = speakers.length;
+    this.dashboardData.stats.activeSpeakers = activeSpeakers;
+    this.dashboardData.stats.inactiveSpeakers = inactiveSpeakers;
+    this.dashboardData.stats.lastUpdate = new Date();
+
+    // Obtener los 3 speakers más recientes
+    this.dashboardData.recentSpeakers = speakers
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3);
+
+    console.log('🔊 Speaker stats updated:', {
+      total: this.dashboardData.stats.totalSpeakers,
+      active: this.dashboardData.stats.activeSpeakers,
+      inactive: this.dashboardData.stats.inactiveSpeakers
+    });
+  }
+
+  // Establecer estadísticas por defecto para speakers en caso de error
+  private setDefaultSpeakerStats() {
+    this.dashboardData.stats.totalSpeakers = 0;
+    this.dashboardData.stats.activeSpeakers = 0;
+    this.dashboardData.stats.inactiveSpeakers = 0;
+    this.dashboardData.recentSpeakers = [];
+    
+    console.log('⚠️ Using default speaker stats due to error');
+  }
+
+  // Método para establecer datos por defecto en caso de error
+  private setDefaultData() {
+    this.dashboardData.stats = {
+      totalUsers: 0,
+      activeUsers: 0,
+      inactiveUsers: 0,
+      totalSpeakers: 0,
+      activeSpeakers: 0,
+      inactiveSpeakers: 0,
+      lastUpdate: new Date()
+    };
+    
+    this.dashboardData.recentUsers = [];
+    this.dashboardData.recentSpeakers = [];
   }
 
   // Método para actualizar la fecha y hora actual
@@ -109,36 +253,13 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
 
   // Método para volver atrás
   goBack() {
-    // Opción 1: Navegar a una ruta específica
-    this.router.navigate(['/dashboard']);
-    
-    // Opción 2: Usar el historial del navegador (descomenta esta línea si prefieres esta opción)
-    // this.location.back();
+    this.router.navigate(['/home']);
   }
 
-  // Método mejorado para refresh
+  // Método para refresh
   refreshData() {
-    console.log('Refreshing data...');
-    
-    // Mostrar estado de carga
-    this.loading = true;
-    
-    // Simular recarga de datos (reemplaza esto con tu lógica de API)
-    setTimeout(() => {
-      // Actualizar estadísticas con datos aleatorios para simular cambios
-      this.dashboardData.stats.totalUsers = Math.floor(Math.random() * 50) + 100;
-      this.dashboardData.stats.activeUsers = Math.floor(Math.random() * 30) + 80;
-      this.dashboardData.stats.totalSpeakers = Math.floor(Math.random() * 10) + 20;
-      this.dashboardData.stats.activeSpeakers = Math.floor(Math.random() * 8) + 15;
-      this.dashboardData.stats.todaySessions = Math.floor(Math.random() * 30) + 10;
-      this.dashboardData.stats.lastUpdate = new Date();
-      
-      this.loading = false;
-      console.log('Data refreshed successfully');
-    }, 1500);
-    
-    // Opción alternativa: Recarga completa de la página
-    // window.location.reload();
+    console.log('🔄 Refreshing dashboard data...');
+    this.loadDashboardData();
   }
 
   // Método para desconectar/logout
@@ -149,9 +270,12 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
     const confirmLogout = confirm('¿Estás seguro de que quieres desconectarte?');
     
     if (confirmLogout) {
-      // Limpiar cualquier dato de sesión (localStorage, sessionStorage, etc.)
-      localStorage.clear();
+      // Limpiar cualquier dato de sesión
+      localStorage.removeItem('authToken');
       sessionStorage.clear();
+      
+      // Limpiar cache de usuarios
+      this.userService.clearUsersCache();
       
       // Limpiar el intervalo de tiempo
       if (this.timeInterval) {
@@ -162,35 +286,97 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login']).then(() => {
         console.log('Logged out successfully');
       });
-      
-      // Opción alternativa: Recargar la página completamente
-      // window.location.href = '/login';
     }
   }
 
-  // Método alternativo para usar con routerLink (si prefieres mantener routerLink)
-  handleRefreshClick() {
-    // Fuerza la recarga navegando a una ruta temporal y luego de vuelta
-    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate([this.router.url]);
-    });
-  }
-
+  // Navegación a diferentes secciones
   navigateToUsers() {
-    console.log('Navigate to users');
+    console.log('Navigate to users management');
     this.router.navigate(['/dashboard/users-management']);
   }
 
   navigateToSpeakers() {
-    console.log('Navigate to speakers');
+    console.log('Navigate to speakers management');
     this.router.navigate(['/dashboard/speakers-management']);
   }
 
   navigateToRoles() {
-    console.log('Navigate to roles');
+    console.log('Navigate to roles management');
     this.router.navigate(['/dashboard/roles-management']);
   }
 
+  // Método utilitario para obtener avatar del usuario
+  getUserAvatar(user: User): string {
+    return (user.firstName || user.username).charAt(0).toUpperCase();
+  }
+
+  // Método utilitario para formatear la fecha de creación
+  formatCreatedDate(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) {
+      return 'Today';
+    } else if (diffDays === 2) {
+      return 'Yesterday';
+    } else if (diffDays <= 7) {
+      return `${diffDays - 1} days ago`;
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      });
+    }
+  }
+
+  // Método para obtener el rol formateado
+  getUserRole(user: User): string {
+    switch (user.role) {
+      case 'SUPERADMIN':
+        return 'Super Admin';
+      case 'ADMIN':
+        return 'Administrator';
+      case 'USER':
+        return 'User';
+      default:
+        return user.role;
+    }
+  }
+
+  // Método para limpiar errores
+  clearError() {
+    this.error = null;
+  }
+
+  // Métodos utilitarios para speakers
+  getSpeakerBatteryStatus(batteryPercentage: number): string {
+    if (batteryPercentage > 60) return 'Good';
+    if (batteryPercentage > 30) return 'Medium';
+    if (batteryPercentage > 10) return 'Low';
+    return 'Critical';
+  }
+
+  getSpeakerStatusText(speaker: Speaker): string {
+    if (speaker.state) {
+      return speaker.usageSessions && speaker.usageSessions.length > 0 ? 'In Use' : 'Active';
+    }
+    return 'Inactive';
+  }
+
+  // Método para calcular el promedio de batería de forma segura
+  getAverageBatteryPercentage(): number {
+    if (this.dashboardData.recentSpeakers.length === 0) {
+      return 0;
+    }
+    
+    const total = this.dashboardData.recentSpeakers.reduce((sum, speaker) => sum + speaker.batteryPercentage, 0);
+    return Math.round(total / this.dashboardData.recentSpeakers.length);
+  }
+
+  // Métodos utilitarios para alertas (mantenidos para compatibilidad)
   getAlertClass(type: string): string {
     return `alert-${type}`;
   }

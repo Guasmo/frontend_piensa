@@ -25,9 +25,9 @@ export const routes: Routes = [
     
     // Redirección para compatibilidad
     { path: 'dashboard/control-panel', redirectTo: '/dashboard/select-panel', pathMatch: 'full'},
-    {path: 'dashboard/adminpanel', component: AdvancedSettingsComponent},
-    {path: 'dashboard/users-management', component: UsersManagementComponent},
-    {path: 'dashboard/speakers-management',component: SpeakersManagementComponent },
+    { path: 'dashboard/adminpanel', component: AdvancedSettingsComponent, canActivate: [AuthGuard]},
+    { path: 'dashboard/users-management', component: UsersManagementComponent, canActivate: [AuthGuard]},
+    { path: 'dashboard/speakers-management',component: SpeakersManagementComponent, canActivate: [AuthGuard] },
     
     // Ruta wildcard - debe ir al final
     { path: '**', redirectTo: '/' }

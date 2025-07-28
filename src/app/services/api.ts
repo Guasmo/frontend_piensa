@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root' // ← Esto es importante
 })
 export class ApiService {
-  private baseUrl = 'http://localhost:3000'; // Ajusta según tu API
+  private baseUrl = 'https://backendpiensa-production.up.railway.app'; // Ajusta según tu API
   private authToken: string | null = null;
 
   constructor(private http: HttpClient) {}

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HistoryItem } from '../interfaces/speakerInterface';
@@ -8,9 +8,33 @@ import { HistoryItem } from '../interfaces/speakerInterface';
   providedIn: 'root'
 })
 export class SpeakersService {
-  private readonly API_URL = 'http://192.168.18.143:3000';
+  private readonly API_URL = 'https://backendpiensa-production.up.railway.app';
 
   constructor(private http: HttpClient) {}
+
+  // 🔐 MÉTODO PARA OBTENER HEADERS CON AUTENTICACIÓN
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    
+    if (!token) {
+      console.warn('⚠️ No auth token found in localStorage or sessionStorage');
+      return new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+    }
+
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
+  // 🔐 MÉTODO PARA OBTENER OPCIONES HTTP CON AUTENTICACIÓN
+  private getHttpOptions() {
+    return {
+      headers: this.getAuthHeaders()
+    };
+  }
 
   // 📊 MÉTODO CORREGIDO: Obtener historial de todos los parlantes
   getAllSpeakersHistory(): Observable<HistoryItem[]> {
@@ -22,7 +46,7 @@ export class SpeakersService {
         page: number;
         limit: number;
       }
-    }>(`${this.API_URL}/speakers/all-history`)
+    }>(`${this.API_URL}/speakers/all-history`, this.getHttpOptions())
     .pipe(
       map(response => {
         if (!response.success || !response.data || !response.data.histories) {
@@ -55,7 +79,7 @@ export class SpeakersService {
           totalPages: number;
         }
       }
-    }>(`${this.API_URL}/speakers/${speakerId}/history?limit=${limit}&page=${page}`)
+    }>(`${this.API_URL}/speakers/${speakerId}/history?limit=${limit}&page=${page}`, this.getHttpOptions())
     .pipe(
       map(response => {
         if (!response.success || !response.data) {
@@ -178,24 +202,64 @@ export class SpeakersService {
     return 0;
   }
 
-  // Métodos existentes sin cambios
+  // 🔐 MÉTODOS CON AUTENTICACIÓN - ACTUALIZADOS
   getAllSpeakers(): Observable<any> {
-    return this.http.get(`${this.API_URL}/speakers`);
+    return this.http.get(`${this.API_URL}/speakers`, this.getHttpOptions());
   }
 
   getSpeakerById(id: number): Observable<any> {
-    return this.http.get(`${this.API_URL}/speakers/${id}`);
+    return this.http.get(`${this.API_URL}/speakers/${id}`, this.getHttpOptions());
   }
 
+  // 🔐 CREATE SPEAKER - CON AUTENTICACIÓN
   createSpeaker(speaker: any): Observable<any> {
-    return this.http.post(`${this.API_URL}/speakers`, speaker);
+    console.log('🔐 Creating speaker with auth headers:', this.getAuthHeaders());
+    console.log('📝 Speaker data:', speaker);
+    
+    return this.http.post(`${this.API_URL}/speakers`, speaker, this.getHttpOptions());
   }
 
+  // 🔐 UPDATE SPEAKER - CON AUTENTICACIÓN
   updateSpeaker(id: number, speaker: any): Observable<any> {
-    return this.http.put(`${this.API_URL}/speakers/${id}`, speaker);
+    console.log('🔐 Updating speaker with auth headers:', this.getAuthHeaders());
+    console.log('📝 Update data:', speaker);
+    
+    return this.http.put(`${this.API_URL}/speakers/${id}`, speaker, this.getHttpOptions());
   }
 
+  // 🔐 DELETE SPEAKER - CON AUTENTICACIÓN
   deleteSpeaker(id: number): Observable<any> {
-    return this.http.delete(`${this.API_URL}/speakers/${id}`);
+    console.log('🔐 Deleting speaker with auth headers:', this.getAuthHeaders());
+    
+    return this.http.delete(`${this.API_URL}/speakers/${id}`, this.getHttpOptions());
+  }
+
+  // 🔐 MÉTODOS ADICIONALES CON AUTENTICACIÓN
+  getSpeakerStatus(id: number): Observable<any> {
+    return this.http.get(`${this.API_URL}/speakers/${id}/status`, this.getHttpOptions());
+  }
+
+  getSpeakerActiveSession(id: number): Observable<any> {
+    return this.http.get(`${this.API_URL}/speakers/${id}/active-session`, this.getHttpOptions());
+  }
+
+  forceShutdownSpeaker(id: number): Observable<any> {
+    return this.http.post(`${this.API_URL}/speakers/${id}/force-shutdown`, {}, this.getHttpOptions());
+  }
+
+  getBatteryStats(): Observable<any> {
+    return this.http.get(`${this.API_URL}/speakers/battery/stats`, this.getHttpOptions());
+  }
+
+  // 🔧 MÉTODO PARA VERIFICAR SI HAY TOKEN
+  hasaccessToken(): boolean {
+    const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    return !!token;
+  }
+
+  // 🔧 MÉTODO PARA LIMPIAR TOKEN (ÚTIL PARA LOGOUT)
+  clearaccessToken(): void {
+    localStorage.removeItem('accessToken');
+    sessionStorage.removeItem('accessToken');
   }
 }

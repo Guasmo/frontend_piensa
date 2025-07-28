@@ -3,6 +3,7 @@
   </app-navbar>
 
   <main class="sara-content column-layout">
+    <!-- Control Panel - Visible para todos los usuarios -->
     <div class="widget-card big-card" routerLink="/dashboard/select-panel">
       <div class="widget-icon">
         <img class="icon" src="assets/icons/control-panel.svg" alt="Control Icon">
@@ -10,6 +11,7 @@
       <div class="widget-label">Control Panel</div>
     </div>
 
+    <!-- History - Visible para todos los usuarios -->
     <div class="widget-card big-card" routerLink="/dashboard/history">
       <div class="widget-icon">
         <img class="icon" src="assets/icons/history.svg" alt="History" />
@@ -17,7 +19,11 @@
       <div class="widget-label">History</div>
     </div>
 
-    <div class="widget-card big-card" routerLink="/dashboard/adminpanel">
+    <!-- Advanced Settings - Solo visible para SUPERADMIN -->
+    <div 
+      class="widget-card big-card" 
+      routerLink="/dashboard/adminpanel"
+      *ngIf="isSuperAdmin()">
       <div class="widget-icon">
         <img class="icon" src="assets/icons/settings.svg" alt="Advanced Settings" />
       </div>
