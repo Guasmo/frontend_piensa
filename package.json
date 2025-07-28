@@ -5,9 +5,12 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration=production",
+    "build:vercel": "ng build --configuration=vercel",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:frontend_piensa": "node dist/frontend_piensa/server/server.mjs"
+    "serve:ssr:frontend_piensa": "node dist/frontend_piensa/server/server.mjs",
+    "prerender": "ng run frontend_piensa:prerender"
   },
   "private": true,
   "dependencies": {
@@ -42,5 +45,9 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.8.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

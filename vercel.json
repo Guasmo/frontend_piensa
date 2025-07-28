@@ -1,8 +1,29 @@
 {
-  "buildCommand": "npm run build -- --no-optimization",
+  "version": 2,
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "dist/frontend_piensa/browser",
+  "framework": null,
+  "installCommand": "npm ci",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
   "functions": {
     "app/**": {
-      "maxDuration": 60
+      "maxDuration": 30
     }
   }
 }
