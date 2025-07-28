@@ -38,7 +38,6 @@ export class History implements OnInit {
   loadHistory(): void {
     this.loading = true;
     this.error = null;
-
     if (this.speakerIdFilter) {
       // Si hay filtro, cargar solo el historial de ese parlante
       this.loadSpeakerHistory(this.speakerIdFilter);
@@ -119,7 +118,7 @@ export class History implements OnInit {
 
   private formatTimestamp(date: Date | string): string {
     const d = new Date(date);
-    return d.toLocaleString('es-ES', {
+    return d.toLocaleString('en-US', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -145,16 +144,16 @@ export class History implements OnInit {
   // 🔥 MÉTODO MEJORADO: Aplicar filtro
   private applyFilter(): void {
     if (!this.speakerIdFilter) {
-      // Si no hay filtro, mostrar todos los historiales
+      // If no filter, show all histories
       this.filteredHistoryItems = [...this.historyItems];
     } else {
-      // Filtrar por speaker ID
+      // Filter by speaker ID
       this.filteredHistoryItems = this.historyItems.filter(
         item => item.speakerId === this.speakerIdFilter
       );
     }
     
-    // Resetear el índice expandido cuando se aplica un filtro
+    // Reset expanded index when filter is applied
     this.expandedIndex = null;
     
     console.log('🔍 Filtro aplicado:', {
