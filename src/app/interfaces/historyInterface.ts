@@ -7,11 +7,16 @@ export interface DisplayHistoryItem {
   speakerPosition: string;
   userId: number;
   username: string;
-  startDate: string;
-  endDate: string;
+  startDate: string; // Formatted date string
+  endDate: string;   // Formatted date string
   durationMinutes: number | null;
   
-  // 🔧 CAMPOS NUMÉRICOS ASEGURADOS
+  // Raw dates for filtering
+  rawStartDate: Date;
+  rawEndDate: Date;
+  rawCreatedAt: Date;
+  
+  // Electrical measurements (pueden ser null si no hay datos)
   avgCurrent_mA: number;
   avgVoltage_V: number;
   avgPower_mW: number;
@@ -21,12 +26,12 @@ export interface DisplayHistoryItem {
   totalPower_mW: number;
   totalConsumed_mAh: number;
   
-  // Información de batería
+  // Battery information
   initialBatteryPercentage: number;
   finalBatteryPercentage: number;
   batteryConsumed: number;
   
-  createdAt: string;
+  createdAt: string; // Formatted date string
 }
 
 // speakerInterface.ts - Parte del HistoryItem

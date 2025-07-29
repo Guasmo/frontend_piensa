@@ -14,8 +14,9 @@
       </button>
     </div>
 
-    <!-- Filter by Speaker ID -->
+    <!-- Filters Container -->
     <div class="filter-container">
+      <!-- Speaker ID Filter Row -->
       <div class="filter-row">
         <input 
           type="number" 
@@ -24,20 +25,90 @@
           [value]="speakerIdFilter || ''"
           (input)="onFilterInput($event)"
           min="1">
+        
+        <!-- Date Filter Button -->
+        <button 
+          class="date-filter-button"
+          (click)="toggleCalendar()"
+          [class.active]="showCalendar">
+          📅 {{ selectedDate ? 'Date: ' + dateFilter : 'Select Date' }}
+        </button>
+
+        <!-- Clear All Filters Button -->
         <button 
           class="clear-filter-button" 
-          (click)="clearFilter()"
-          *ngIf="speakerIdFilter">
-          Clear
+          (click)="clearAllFilters()"
+          *ngIf="hasActiveFilters">
+          Clear All
         </button>
       </div>
+
+      <!-- Calendar Overlay (Desktop only) -->
+      <div class="calendar-overlay" *ngIf="showCalendar" (click)="toggleCalendar()"></div>
+
+      <!-- Calendar Widget -->
+      <div class="calendar-container" *ngIf="showCalendar" (click)="$event.stopPropagation()">
+        <div class="calendar-header">
+          <button class="calendar-nav-button" (click)="previousMonth()">‹</button>
+          <h3 class="calendar-month-year">{{ currentMonthYear }}</h3>
+          <button class="calendar-nav-button" (click)="nextMonth()">›</button>
+          <button class="calendar-close-button" (click)="toggleCalendar()" title="Close Calendar">×</button>
+        </div>
+        
+        <div class="calendar-weekdays">
+          <div class="calendar-weekday">Sun</div>
+          <div class="calendar-weekday">Mon</div>
+          <div class="calendar-weekday">Tue</div>
+          <div class="calendar-weekday">Wed</div>
+          <div class="calendar-weekday">Thu</div>
+          <div class="calendar-weekday">Fri</div>
+          <div class="calendar-weekday">Sat</div>
+        </div>
+        
+        <div class="calendar-days">
+          <div 
+            *ngFor="let day of calendarDays"
+            class="calendar-day"
+            [class.current-month]="day.isCurrentMonth"
+            [class.today]="day.isToday"
+            [class.selected]="day.isSelected"
+            [class.has-history]="day.hasHistory"
+            [class.clickable]="day.isCurrentMonth"
+            (click)="selectDate(day)"
+            [title]="day.hasHistory ? day.historyCount + ' record(s) on this date' : ''">
+            
+            <span class="day-number">{{ day.day }}</span>
+            <span class="history-indicator" *ngIf="day.hasHistory">
+              {{ day.historyCount }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Quick Date Actions -->
+        <div class="calendar-actions">
+          <button class="quick-date-button" (click)="clearDateFilter()" *ngIf="selectedDate">
+            Clear Date Filter
+          </button>
+        </div>
+      </div>
       
-      <!-- Filter information -->
-      <div class="filter-info" *ngIf="speakerIdFilter">
+      <!-- Active Filters Information -->
+      <div class="filter-info" *ngIf="speakerIdFilter && !selectedDate">
         Showing history for Speaker ID: {{ speakerIdFilter }}
         ({{ filteredHistoryItems.length }} record{{ filteredHistoryItems.length !== 1 ? 's' : '' }})
       </div>
-      <div class="filter-info" *ngIf="!speakerIdFilter && !loading">
+      
+      <div class="filter-info" *ngIf="selectedDate && !speakerIdFilter">
+        Showing history for {{ dateFilter }}
+        ({{ filteredHistoryItems.length }} record{{ filteredHistoryItems.length !== 1 ? 's' : '' }})
+      </div>
+      
+      <div class="filter-info" *ngIf="speakerIdFilter && selectedDate">
+        Showing history for Speaker ID: {{ speakerIdFilter }} on {{ dateFilter }}
+        ({{ filteredHistoryItems.length }} record{{ filteredHistoryItems.length !== 1 ? 's' : '' }})
+      </div>
+      
+      <div class="filter-info" *ngIf="!speakerIdFilter && !selectedDate && !loading">
         Showing all histories ({{ filteredHistoryItems.length }} record{{ filteredHistoryItems.length !== 1 ? 's' : '' }})
       </div>
     </div>
@@ -71,7 +142,7 @@
           <p class="user" *ngIf="item.username">
             <strong>User:</strong> <span>{{ item.username }}</span>
           </p>
-          <p class="duration" *ngIf="item.durationMinutes">
+          <p class="duration" *ngIf="item.durationMinutes !== null">
             <strong>Duration:</strong> <span>{{ item.durationMinutes }}m</span>
           </p>
         </div>
@@ -155,8 +226,18 @@
 
       <!-- Message when no data -->
       <div class="no-data" *ngIf="filteredHistoryItems.length === 0 && !loading">
-        <p *ngIf="speakerIdFilter">No history available for Speaker ID: {{ speakerIdFilter }}</p>
-        <p *ngIf="!speakerIdFilter">No history available</p>
+        <p *ngIf="speakerIdFilter && selectedDate">
+          No history available for Speaker ID: {{ speakerIdFilter }} on {{ dateFilter }}
+        </p>
+        <p *ngIf="speakerIdFilter && !selectedDate">
+          No history available for Speaker ID: {{ speakerIdFilter }}
+        </p>
+        <p *ngIf="!speakerIdFilter && selectedDate">
+          No history available for {{ dateFilter }}
+        </p>
+        <p *ngIf="!speakerIdFilter && !selectedDate">
+          No history available
+        </p>
       </div>
     </div>
 
