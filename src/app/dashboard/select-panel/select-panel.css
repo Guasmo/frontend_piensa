@@ -54,7 +54,15 @@
   gap: 1.5rem;
   justify-items: center;
   margin-bottom: 20px;
+
+  /* 🎯 Fondo del arco */
+  background-image: url('/assets/icons/arco.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%; /* o cover si quieres que llene todo */
+  padding: 50px 30px; /* Puedes ajustar para que se vea bien */
 }
+
 
 /* Circular button */
 .circle-btn {
@@ -269,3 +277,37 @@
     visibility: hidden !important;
   }
 }
+
+.circle-btn.locked {
+  background-color: #555 !important;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.circle-btn.locked::after {
+  content: '🔒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 22px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.circle-btn.locked:hover::after {
+  opacity: 1;
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+  /* Solo Speaker 1 tiene hover amarillo */
+  .circle-btn.speaker-yellow:hover {
+    background-color: #ffc107 !important;
+    transform: scale(1.1);
+    filter: brightness(1.3);
+  }
+}
+

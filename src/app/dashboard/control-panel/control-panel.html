@@ -177,27 +177,25 @@
       <!-- Right Column -->
       <div class="right-column">
         
-        <!-- Energy Metrics -->
+        <!-- Energy Metrics - ALWAYS VISIBLE (removed toggle button and collapsed class) -->
         <div class="panel-card energy-card">
           <div class="card-header">
             <h2 class="card-title">
               <span class="card-icon">⚡</span>
               Energy Metrics
             </h2>
-            <button class="toggle-btn" (click)="toggleEnergy()">
-              {{ showEnergy ? 'Hide' : 'Show' }}
-            </button>
+            <!-- REMOVED: toggle button for hide/show -->
           </div>
-          <div class="card-content" [class.collapsed]="!showEnergy">
+          <div class="card-content">
             
             <!-- Optimization indicator -->
-            <div *ngIf="isConnected && showEnergy" class="optimization-info">
+            <div *ngIf="isConnected" class="optimization-info">
               <span class="optimization-badge">📡 Single endpoint every 2s</span>
               <span class="data-freshness">{{ getDataFreshness() }}</span>
             </div>
 
             <!-- Metrics grid -->
-            <div *ngIf="realtimeData && hasRealtimeData() && showEnergy; else noEnergyData" class="metrics-grid">
+            <div *ngIf="realtimeData && hasRealtimeData(); else noEnergyData" class="metrics-grid">
               
               <div class="metric-card voltage">
                 <div class="metric-header">
@@ -259,7 +257,7 @@
 
             <!-- No energy data state -->
             <ng-template #noEnergyData>
-              <div class="no-energy-data" *ngIf="showEnergy">
+              <div class="no-energy-data">
                 <div *ngIf="isConnected; else notConnectedEnergy" class="waiting-energy">
                   <div class="state-icon">⏳</div>
                   <h4>Waiting for ESP32 data</h4>
