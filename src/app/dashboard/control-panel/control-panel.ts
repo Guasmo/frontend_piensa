@@ -44,7 +44,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
   speakerId!: number;
   isLoading = true;
   isConnected = false;
-  showEnergy = false;
+  // REMOVED: showEnergy property (no longer needed since it's always visible)
   errorMessage: string | null = null;
   activeSessionId: number | null = null;
   
@@ -485,9 +485,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
   }
 
   // ===== MÉTODOS PARA EL TEMPLATE =====
-  toggleEnergy(): void {
-    this.showEnergy = !this.showEnergy;
-  }
+  // REMOVED: toggleEnergy() method (no longer needed since Energy Metrics is always visible)
 
   canSaveSession(): boolean {
     return !!(this.activeSessionId && this.realtimeData && this.hasRealtimeData());

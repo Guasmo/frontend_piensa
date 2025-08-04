@@ -54,7 +54,15 @@
   gap: 1.5rem;
   justify-items: center;
   margin-bottom: 20px;
+
+  /* 🎯 Fondo del arco */
+  background-image: url('/assets/icons/arco.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100%; /* o cover si quieres que llene todo */
+  padding: 50px 30px; /* Puedes ajustar para que se vea bien */
 }
+
 
 /* Circular button */
 .circle-btn {
@@ -115,25 +123,54 @@
 
 /* Hover only for devices that support it */
 @media (hover: hover) and (pointer: fine) {
-  .circle-btn:hover:not(.button-hiden) {
+  .circle-btn:hover:not(.button-hiden):not(.locked) {
     transform: scale(1.1);
     filter: brightness(1.3);
   }
   
   /* Hover colors for each button position */
-  .circle-btn:nth-child(1):hover { background-color: #ffc107; } /* Yellow */
-  .circle-btn:nth-child(2):hover { background-color: #dc3545; } /* Red */
-  .circle-btn:nth-child(3):hover { background-color: #8b5cf6; } /* Purple */
-  .circle-btn:nth-child(5):hover { background-color: #32cd32; } /* Lime Green */
-  .circle-btn:nth-child(7):hover { background-color: #007bff; } /* Blue */
+  .circle-btn:nth-child(1):hover:not(.locked) { background-color: #ffc107; } /* Yellow */
+  .circle-btn:nth-child(2):hover:not(.locked) { background-color: #dc3545; } /* Red */
+  .circle-btn:nth-child(3):hover:not(.locked) { background-color: #8b5cf6; } /* Purple */
+  .circle-btn:nth-child(5):hover:not(.locked) { background-color: #32cd32; } /* Lime Green */
+  .circle-btn:nth-child(7):hover:not(.locked) { background-color: #007bff; } /* Blue */
 }
 
-/* Active colors */
+/* ✅ COLORES ACTIVOS ORIGINALES */
 .circle-btn.active.yellow { background-color: #f9d71c; box-shadow: 0 0 15px #f9d71caa; }
 .circle-btn.active.red { background-color: #e74c3c; box-shadow: 0 0 15px #e74c3caa; }
 .circle-btn.active.purple { background-color: #8e44ad; box-shadow: 0 0 15px #8e44adaa; }
 .circle-btn.active.limegreen { background-color: #32cd32; box-shadow: 0 0 15px #32cd32aa; }
 .circle-btn.active.blue { background-color: #3498db; box-shadow: 0 0 15px #3498dbaa; }
+
+/* ✅ NUEVO: COLOR VERDE PARA SESIÓN ACTIVA */
+.circle-btn.active.green { 
+  background-color: #32cd32 !important; 
+  box-shadow: 0 0 20px #32cd32cc, 0 0 30px #32cd3288 !important;
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+/* ✅ ANIMACIÓN DE PULSO VERDE PARA SESIÓN ACTIVA */
+@keyframes pulse-green {
+  0% { 
+    box-shadow: 0 0 15px #32cd32aa, 0 0 25px #32cd3266;
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 25px #32cd32cc, 0 0 35px #32cd3288;
+    transform: scale(1.05);
+  }
+  100% { 
+    box-shadow: 0 0 15px #32cd32aa, 0 0 25px #32cd3266;
+    transform: scale(1);
+  }
+}
+
+/* ✅ ASEGURAR QUE EL VERDE TIENE PRIORIDAD SOBRE OTROS COLORES */
+.circle-btn.active.green:hover {
+  background-color: #28a745 !important;
+  box-shadow: 0 0 25px #28a745cc, 0 0 35px #28a74588 !important;
+}
 
 /* Space between rows */
 .spacer {
@@ -268,4 +305,64 @@
     background-color: transparent !important;
     visibility: hidden !important;
   }
+}
+
+/* ✅ ESTILOS PARA BOTONES BLOQUEADOS */
+.circle-btn.locked {
+  background-color: #555 !important;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.circle-btn.locked::after {
+  content: '🔒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 22px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.circle-btn.locked:hover::after {
+  opacity: 1;
+}
+
+/* ✅ HOVER SOLO PARA SPEAKER DISPONIBLE (Speaker 1) */
+@media (hover: hover) and (pointer: fine) {
+  /* Solo Speaker 1 tiene hover cuando no está en sesión activa */
+  .circle-btn[data-speaker-id="1"]:not(.green):hover {
+    background-color: #ffc107 !important;
+    transform: scale(1.1);
+    filter: brightness(1.3);
+  }
+  
+  /* Hover especial para speaker con sesión activa (verde) */
+  .circle-btn.active.green:hover {
+    background-color: #28a745 !important;
+    transform: scale(1.1);
+    box-shadow: 0 0 30px #28a745dd, 0 0 40px #28a74599 !important;
+  }
+}
+
+/* ✅ INDICADOR VISUAL DE ESTADO EN TIEMPO REAL */
+.circle-btn.active.green::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  background: #00ff00;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #00ff00;
+  animation: blink-indicator 1.5s ease-in-out infinite;
+}
+
+@keyframes blink-indicator {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }

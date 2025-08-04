@@ -53,35 +53,18 @@ export class History implements OnInit {
         this.showCalendar = false;
       }
     });
-
-    // 🔥 DEBUG: Debugging automático después de cargar
-    setTimeout(() => {
-      this.debugHistoryData();
-    }, 3000);
   }
 
-  // 🔥 MÉTODO CORREGIDO: Cargar historial completo o filtrado
+  // 🔥 MÉTODO OPTIMIZADO: Cargar historial básico
   loadHistory(): void {
     this.loading = true;
     this.error = null;
     
-    console.log('🔄 Cargando historial...');
-    
     if (this.speakerIdFilter) {
-      // Si hay filtro, cargar solo el historial de ese parlante
       this.loadSpeakerHistory(this.speakerIdFilter);
     } else {
-      // Si no hay filtro, cargar todo el historial
       this.speakersService.getAllSpeakersHistory().subscribe({
         next: (histories: HistoryItem[]) => {
-          console.log('📊 Historial completo recibido:', histories);
-          console.log('📊 Cantidad de registros:', histories.length);
-          
-          // Debug del primer elemento para verificar transformación
-          if (histories.length > 0) {
-            console.log('🔍 Primer elemento transformado:', histories[0]);
-          }
-          
           this.historyItems = this.transformHistoryData(histories);
           this.applyFilters();
           this.updateCalendarWithHistory();
@@ -96,18 +79,13 @@ export class History implements OnInit {
     }
   }
 
-  // 🔥 MÉTODO CORREGIDO: Cargar historial de un parlante específico
+  // 🔥 MÉTODO OPTIMIZADO: Cargar historial de parlante específico
   loadSpeakerHistory(speakerId: number): void {
     this.loading = true;
     this.error = null;
 
-    console.log('📊 Cargando historial del parlante:', speakerId);
-
     this.speakersService.getSpeakerHistory(speakerId, 50, 1).subscribe({
       next: (response) => {
-        console.log('📊 Historial del parlante recibido:', response);
-        console.log('📊 Cantidad de registros:', response.data.histories.length);
-        
         this.historyItems = this.transformHistoryData(response.data.histories);
         this.applyFilters();
         this.updateCalendarWithHistory();
@@ -121,18 +99,9 @@ export class History implements OnInit {
     });
   }
 
-  // 🔥 MÉTODO transformHistoryData SIMPLIFICADO
+  // 🔥 MÉTODO OPTIMIZADO: Transformar datos SIN LOGS EXCESIVOS
   private transformHistoryData(histories: HistoryItem[]): DisplayHistoryItem[] {
     return histories.map(history => {
-      console.log('🔄 Transformando para display:', {
-        id: history.id,
-        speakerName: history.speakerName,
-        avgCurrent: history.avgCurrent_mA,
-        avgVoltage: history.avgVoltage_V,
-        avgPower: history.avgPower_mW,
-        totalConsumed: history.totalConsumed_mAh
-      });
-      
       const displayItem: DisplayHistoryItem = {
         id: history.id,
         usageSessionId: history.usageSessionId,
@@ -145,7 +114,7 @@ export class History implements OnInit {
         endDate: this.formatTimestamp(history.endDate),
         durationMinutes: history.durationMinutes,
         
-        // 🔥 USAR DIRECTAMENTE LOS VALORES YA TRANSFORMADOS POR EL SERVICE
+        // 🔥 DATOS BÁSICOS - Los detalles se cargan solo cuando se expande
         avgCurrent_mA: history.avgCurrent_mA,
         avgVoltage_V: history.avgVoltage_V,
         avgPower_mW: history.avgPower_mW,
@@ -168,11 +137,6 @@ export class History implements OnInit {
         rawCreatedAt: new Date(history.createdAt)
       };
 
-      // Verificar que los valores numéricos estén correctos
-      if (displayItem.avgCurrent_mA === 0 && displayItem.avgVoltage_V === 0 && displayItem.avgPower_mW === 0) {
-        console.warn('⚠️ Todos los valores eléctricos son 0 para el item:', displayItem.id);
-      }
-
       return displayItem;
     });
   }
@@ -189,7 +153,7 @@ export class History implements OnInit {
     });
   }
 
-  // 🔥 NUEVO: Aplicar todos los filtros
+  // 🔥 APLICAR FILTROS SIN LOGS
   private applyFilters(): void {
     let filtered = [...this.historyItems];
 
@@ -209,24 +173,16 @@ export class History implements OnInit {
 
     this.filteredHistoryItems = filtered;
     this.expandedIndex = null;
-    
-    console.log('🔍 Filtros aplicados:', {
-      speakerIdFilter: this.speakerIdFilter,
-      dateFilter: this.selectedDate,
-      totalItems: this.historyItems.length,
-      filteredItems: this.filteredHistoryItems.length
-    });
   }
 
-  // 🔥 NUEVO: Formatear fecha para comparación (YYYY-MM-DD)
+  // 🔥 FORMATEAR FECHA PARA COMPARACIÓN (YYYY-MM-DD)
   private formatDateForComparison(date: Date): string {
     return date.toISOString().split('T')[0];
   }
 
-  // 🔥 MÉTODO MEJORADO: Manejar input del filtro de Speaker ID
+  // 🔥 MANEJAR INPUT DEL FILTRO SIN LOGS
   onFilterInput(event: any): void {
     const value = event.target.value;
-    console.log('🔍 Valor del filtro Speaker ID:', value);
     
     if (!value || value === '' || Number(value) <= 0) {
       this.speakerIdFilter = null;
@@ -237,21 +193,17 @@ export class History implements OnInit {
     this.applyFilters();
   }
 
-  // 🔥 NUEVO: Generar calendario
+  // 🔥 GENERAR CALENDARIO
   generateCalendar(): void {
     const year = this.currentCalendarDate.getFullYear();
     const month = this.currentCalendarDate.getMonth();
     
-    // First day of the month
     const firstDay = new Date(year, month, 1);
-    // Last day of the month
     const lastDay = new Date(year, month + 1, 0);
     
-    // Start from the beginning of the week
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay());
     
-    // Generate 42 days (6 weeks)
     this.calendarDays = [];
     const today = new Date();
     
@@ -277,7 +229,7 @@ export class History implements OnInit {
     this.updateCalendarWithHistory();
   }
 
-  // 🔥 NUEVO: Actualizar calendario con información de historial
+  // 🔥 ACTUALIZAR CALENDARIO CON HISTORIAL
   updateCalendarWithHistory(): void {
     this.calendarDays.forEach(day => {
       const dayDateStr = this.formatDateForComparison(day.date);
@@ -291,30 +243,28 @@ export class History implements OnInit {
     });
   }
 
-  // 🔥 NUEVO: Verificar si dos fechas son el mismo día
+  // 🔥 VERIFICAR SI DOS FECHAS SON EL MISMO DÍA
   private isSameDate(date1: Date, date2: Date): boolean {
     return this.formatDateForComparison(date1) === this.formatDateForComparison(date2);
   }
 
-  // 🔥 NUEVO: Seleccionar fecha en el calendario
+  // 🔥 SELECCIONAR FECHA EN EL CALENDARIO
   selectDate(day: CalendarDay): void {
     if (!day.isCurrentMonth) return;
     
     if (this.selectedDate && this.isSameDate(day.date, this.selectedDate)) {
-      // If clicking the same date, deselect it
       this.selectedDate = null;
       this.dateFilter = null;
     } else {
-      // Select new date
       this.selectedDate = new Date(day.date);
       this.dateFilter = this.formatDateForDisplay(this.selectedDate);
     }
     
-    this.generateCalendar(); // Regenerate to update selected state
+    this.generateCalendar();
     this.applyFilters();
   }
 
-  // 🔥 NUEVO: Formatear fecha para mostrar
+  // 🔥 FORMATEAR FECHA PARA MOSTRAR
   private formatDateForDisplay(date: Date): string {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -323,7 +273,7 @@ export class History implements OnInit {
     });
   }
 
-  // 🔥 NUEVO: Navegar calendario
+  // NAVEGACIÓN DE CALENDARIO
   previousMonth(): void {
     this.currentCalendarDate.setMonth(this.currentCalendarDate.getMonth() - 1);
     this.currentCalendarDate = new Date(this.currentCalendarDate);
@@ -336,12 +286,12 @@ export class History implements OnInit {
     this.generateCalendar();
   }
 
-  // 🔥 NUEVO: Toggle calendar visibility
+  // TOGGLE CALENDAR
   toggleCalendar(): void {
     this.showCalendar = !this.showCalendar;
   }
 
-  // 🔥 NUEVO: Limpiar filtro de fecha
+  // LIMPIAR FILTRO DE FECHA
   clearDateFilter(): void {
     this.selectedDate = null;
     this.dateFilter = null;
@@ -349,7 +299,7 @@ export class History implements OnInit {
     this.applyFilters();
   }
 
-  // 🔥 MÉTODO MEJORADO: Limpiar todos los filtros
+  // 🔥 LIMPIAR TODOS LOS FILTROS
   clearAllFilters(): void {
     this.speakerIdFilter = null;
     this.selectedDate = null;
@@ -358,52 +308,61 @@ export class History implements OnInit {
     this.applyFilters();
   }
 
+  // 🔥 TOGGLE ITEM - AQUÍ ES DONDE CARGAMOS LOS DETALLES
   toggleItem(index: number): void {
-    this.expandedIndex = this.expandedIndex === index ? null : index;
+    if (this.expandedIndex === index) {
+      // Si ya está expandido, lo contraemos
+      this.expandedIndex = null;
+    } else {
+      // Si no está expandido, lo expandimos
+      this.expandedIndex = index;
+      // Los detalles ya están cargados en el objeto, no necesitamos hacer nada más
+      // Los valores ya están transformados en transformHistoryData()
+    }
   }
 
-  // 🔥 MÉTODO MEJORADO: Refrescar historial
+  // REFRESCAR HISTORIAL
   refreshHistory(): void {
-    console.log('🔄 Refrescando historial...');
     this.loadHistory();
   }
 
   loadMore(): void {
-    console.log('Loading more data...');
     // TODO: Implementar paginación
   }
 
-  // 🔥 NUEVO: Obtener nombre del mes actual del calendario
+  // GETTERS
   get currentMonthYear(): string {
     return `${this.monthNames[this.currentCalendarDate.getMonth()]} ${this.currentCalendarDate.getFullYear()}`;
   }
 
-  // 🔥 NUEVO: Verificar si hay filtros activos
   get hasActiveFilters(): boolean {
     return this.speakerIdFilter !== null || this.selectedDate !== null;
   }
 
-  // 🔥 MÉTODO DE DEBUGGING PARA EL COMPONENTE
+  // 🔥 MÉTODO DE DEBUGGING SIMPLIFICADO - SOLO CUANDO SE NECESITE
   debugHistoryData(): void {
-    console.log('🔍 === DEBUG HISTORY COMPONENT ===');
-    console.log('Total items cargados:', this.historyItems.length);
+    if (this.historyItems.length === 0) {
+      console.log('🔍 No hay datos de historial para debuggear');
+      return;
+    }
+
+    console.log('🔍 === DEBUG SIMPLE ===');
+    console.log('Total items:', this.historyItems.length);
     console.log('Items filtrados:', this.filteredHistoryItems.length);
-    console.log('Speaker ID filter:', this.speakerIdFilter);
-    console.log('Date filter:', this.selectedDate);
+    console.log('Filtros activos:', {
+      speakerId: this.speakerIdFilter,
+      fecha: this.selectedDate?.toDateString()
+    });
     
-    if (this.historyItems.length > 0) {
-      console.log('Primer item:', this.historyItems[0]);
-      console.log('Valores eléctricos del primer item:');
-      console.log('  - avgCurrent_mA:', this.historyItems[0].avgCurrent_mA);
-      console.log('  - avgVoltage_V:', this.historyItems[0].avgVoltage_V);
-      console.log('  - avgPower_mW:', this.historyItems[0].avgPower_mW);
-      console.log('  - totalConsumed_mAh:', this.historyItems[0].totalConsumed_mAh);
-    }
-    
-    if (this.filteredHistoryItems.length > 0) {
-      console.log('Primer item filtrado:', this.filteredHistoryItems[0]);
-    }
-    
-    console.log('=====================================');
+    // Solo mostrar el primer item como ejemplo
+    const firstItem = this.historyItems[0];
+    console.log('Primer item:', {
+      id: firstItem.id,
+      speaker: firstItem.speakerName,
+      usuario: firstItem.username,
+      duracion: firstItem.durationMinutes,
+      bateria: `${firstItem.initialBatteryPercentage}% -> ${firstItem.finalBatteryPercentage}%`
+    });
+    console.log('==================');
   }
 }

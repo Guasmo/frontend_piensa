@@ -19,7 +19,6 @@ export class SpeakersService {
     const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
     
     if (!token) {
-      console.warn('⚠️ No auth token found in localStorage or sessionStorage');
       return new HttpHeaders({
         'Content-Type': 'application/json'
       });
@@ -38,50 +37,40 @@ export class SpeakersService {
     };
   }
 
-  // 🔥 MÉTODO DE DEBUGGING PARA VER LOS NOMBRES REALES DE LOS CAMPOS
-  debugHistoryItemFields(item: any): void {
-    console.log('🔍 === DEBUGGING CAMPOS DEL HISTORIAL ===');
-    console.log('Campos disponibles:', Object.keys(item));
-    console.log('Valores de campos relevantes:');
+  // 🔥 FUNCIÓN HELPER OPTIMIZADA: Convertir valores a número de forma segura
+  private safeToNumber(value: any, defaultValue: number = 0): number {
+    if (value === null || value === undefined || value === '') {
+      return defaultValue;
+    }
     
-    // Buscar campos que contengan 'current', 'voltage', 'power', 'battery', etc.
-    Object.keys(item).forEach(key => {
-      const lowerKey = key.toLowerCase();
-      if (lowerKey.includes('current') || 
-          lowerKey.includes('voltage') || 
-          lowerKey.includes('power') || 
-          lowerKey.includes('battery') || 
-          lowerKey.includes('consumed') || 
-          lowerKey.includes('avg') || 
-          lowerKey.includes('total')) {
-        console.log(`  ${key}: ${item[key]} (type: ${typeof item[key]})`);
-      }
-    });
-    console.log('======================================');
+    // Si es objeto Decimal de Prisma/PostgreSQL
+    if (typeof value === 'object' && value.constructor && value.constructor.name === 'Decimal') {
+      const num = Number(value.toString());
+      return isNaN(num) ? defaultValue : num;
+    }
+    
+    // Si es string o number
+    const num = Number(value);
+    return isNaN(num) ? defaultValue : num;
   }
 
-  // 🔥 MÉTODO CORREGIDO: Transformar datos del historial
+  // 🔥 MÉTODO OPTIMIZADO: Transformar historial SIN LOGS EXCESIVOS
   private transformHistoryItem(item: any): HistoryItem {
-    console.log('🔍 RAW item del backend:', item);
+    // 🔥 SOLO UN LOG PER BATCH, NO PER ITEM
+    const isFirstItem = item.id === 1 || Math.random() < 0.1; // Solo 10% de probabilidad de log
+    
+    if (isFirstItem) {
+      // Solo mostrar los campos más importantes
+      const relevantFields = {
+        id: item.id,
+        speakerName: item.speakerName,
+        avgCurrent: item.avgAmpereHours || item.avgCurrent_mA || 0,
+        avgVoltage: item.avgVoltageHours || item.avgVoltage_V || 0,
+        avgPower: item.avgWattsHours || item.avgPower_mW || 0
+      };
+    }
 
-    // 🔥 FUNCIÓN HELPER: Convertir valores a número de forma segura
-    const safeToNumber = (value: any, defaultValue: number = 0): number => {
-      if (value === null || value === undefined || value === '') {
-        return defaultValue;
-      }
-      
-      // Si es objeto Decimal de Prisma/PostgreSQL
-      if (typeof value === 'object' && value.constructor && value.constructor.name === 'Decimal') {
-        const num = Number(value.toString());
-        return isNaN(num) ? defaultValue : num;
-      }
-      
-      // Si es string o number
-      const num = Number(value);
-      return isNaN(num) ? defaultValue : num;
-    };
-
-    // 🔥 MAPEO CORRECTO DE CAMPOS DEL BACKEND
+    // 🔥 TRANSFORMACIÓN RÁPIDA Y DIRECTA
     const transformedItem: HistoryItem = {
       id: item.id,
       usageSessionId: item.usageSessionId,
@@ -93,83 +82,64 @@ export class SpeakersService {
       endDate: new Date(item.endDate),
       durationMinutes: item.durationMinutes || 0,
       
-      // 🔥 CAMPOS NUMÉRICOS CORREGIDOS - MÚLTIPLES OPCIONES DE NOMBRES
-      avgCurrent_mA: safeToNumber(
+      // 🔥 CAMPOS NUMÉRICOS - USAR NOMBRES CORRECTOS DEL BACKEND
+      avgCurrent_mA: this.safeToNumber(
         item.avgCurrent_mA || 
         item.avgAmpereHours || 
         item.averageCurrentMA || 
-        item.average_current_mA || 
-        item.avgCurrentMA
+        item.average_current_mA
       ),
-      avgVoltage_V: safeToNumber(
+      avgVoltage_V: this.safeToNumber(
         item.avgVoltage_V || 
         item.avgVoltageHours || 
         item.averageVoltageV || 
-        item.average_voltage_V || 
-        item.avgVoltageV
+        item.average_voltage_V
       ),
-      avgPower_mW: safeToNumber(
+      avgPower_mW: this.safeToNumber(
         item.avgPower_mW || 
         item.avgWattsHours || 
         item.averagePowerMW || 
-        item.average_power_mW || 
-        item.avgPowerMW
+        item.average_power_mW
       ),
       
-      totalCurrent_mA: safeToNumber(
+      totalCurrent_mA: this.safeToNumber(
         item.totalCurrent_mA || 
         item.totalAmpereHours || 
         item.totalCurrentMA || 
-        item.total_current_mA || 
-        item.totalCurrentmA
+        item.total_current_mA
       ),
-      totalVoltage_V: safeToNumber(
+      totalVoltage_V: this.safeToNumber(
         item.totalVoltage_V || 
         item.totalVoltageHours || 
         item.totalVoltageV || 
-        item.total_voltage_V || 
-        item.totalVoltagemV
+        item.total_voltage_V
       ),
-      totalPower_mW: safeToNumber(
+      totalPower_mW: this.safeToNumber(
         item.totalPower_mW || 
         item.totalWattsHours || 
         item.totalPowerMW || 
-        item.total_power_mW || 
-        item.totalPowermW
+        item.total_power_mW
       ),
-      totalConsumed_mAh: safeToNumber(
+      totalConsumed_mAh: this.safeToNumber(
         item.totalConsumed_mAh || 
         item.totalConsumption || 
         item.totalConsumedMAh || 
-        item.total_consumed_mAh || 
-        item.totalConsumedmAh
+        item.total_consumed_mAh
       ),
       
       // Información de batería
-      initialBatteryPercentage: safeToNumber(item.initialBatteryPercentage, 100),
-      finalBatteryPercentage: safeToNumber(item.finalBatteryPercentage, 100),
-      batteryConsumed: safeToNumber(item.batteryConsumed, 0),
+      initialBatteryPercentage: this.safeToNumber(item.initialBatteryPercentage, 100),
+      finalBatteryPercentage: this.safeToNumber(item.finalBatteryPercentage, 100),
+      batteryConsumed: this.safeToNumber(item.batteryConsumed, 0),
       
       createdAt: new Date(item.createdAt),
-      
-      // Información del usuario
       user: item.user || null
     };
-
-    console.log('✅ Item transformado exitosamente:', {
-      id: transformedItem.id,
-      speakerName: transformedItem.speakerName,
-      avgCurrent_mA: transformedItem.avgCurrent_mA,
-      avgVoltage_V: transformedItem.avgVoltage_V,
-      avgPower_mW: transformedItem.avgPower_mW,
-      totalConsumed_mAh: transformedItem.totalConsumed_mAh,
-      batteryInfo: `${transformedItem.initialBatteryPercentage}% -> ${transformedItem.finalBatteryPercentage}%`
-    });
 
     return transformedItem;
   }
 
-  // 📊 MÉTODO CORREGIDO: Obtener historial de todos los parlantes
+  // 📊 MÉTODO OPTIMIZADO: Obtener historial de todos los parlantes
   getAllSpeakersHistory(): Observable<HistoryItem[]> {
     return this.http.get<{
       success: boolean;
@@ -183,23 +153,23 @@ export class SpeakersService {
     .pipe(
       map(response => {
         if (!response.success || !response.data || !response.data.histories) {
-          console.error('❌ Formato de respuesta inválido:', response);
+          console.error('❌ Formato de respuesta inválido');
           return [];
         }
 
-        console.log('📊 Total historiales recibidos:', response.data.histories.length);
-        
-        // Debugging del primer item para ver los campos reales
-        if (response.data.histories.length > 0) {
-          this.debugHistoryItemFields(response.data.histories[0]);
+        // 🔥 SOLO UN LOG DE RESUMEN
+        const totalHistories = response.data.histories.length;
+        if (totalHistories > 0) {
+          console.log(`📊 Historial cargado: ${totalHistories} registros`);
         }
 
+        // 🔥 TRANSFORMACIÓN RÁPIDA SIN LOGS POR ITEM
         return response.data.histories.map(item => this.transformHistoryItem(item));
       })
     );
   }
 
-  // 📊 MÉTODO CORREGIDO: Obtener historial de parlante específico
+  // 📊 MÉTODO OPTIMIZADO: Obtener historial de parlante específico
   getSpeakerHistory(speakerId: number, limit: number = 20, page: number = 1): Observable<{
     data: {
       histories: HistoryItem[];
@@ -226,11 +196,10 @@ export class SpeakersService {
           throw new Error('Error al obtener el historial del parlante');
         }
 
-        console.log('📊 Historial del parlante recibido:', response.data.histories.length, 'registros');
-        
-        // Debugging del primer item si existe
-        if (response.data.histories.length > 0) {
-          this.debugHistoryItemFields(response.data.histories[0]);
+        // 🔥 SOLO UN LOG DE RESUMEN
+        const totalHistories = response.data.histories.length;
+        if (totalHistories > 0) {
+          console.log(`📊 Historial parlante ${speakerId}: ${totalHistories} registros`);
         }
 
         return {
@@ -245,7 +214,7 @@ export class SpeakersService {
     );
   }
 
-  // 🔐 MÉTODOS CON AUTENTICACIÓN - ACTUALIZADOS
+  // 🔐 MÉTODOS CON AUTENTICACIÓN - SIN LOGS EXCESIVOS
   getAllSpeakers(): Observable<any> {
     return this.http.get(`${this.API_URL}${getSpeakersApi}`, this.getHttpOptions());
   }
@@ -256,24 +225,16 @@ export class SpeakersService {
 
   // 🔐 CREATE SPEAKER - CON AUTENTICACIÓN
   createSpeaker(speaker: any): Observable<any> {
-    console.log('🔐 Creating speaker with auth headers:', this.getAuthHeaders());
-    console.log('📝 Speaker data:', speaker);
-    
     return this.http.post(`${this.API_URL}${createSpeakerApi}`, speaker, this.getHttpOptions());
   }
 
   // 🔐 UPDATE SPEAKER - CON AUTENTICACIÓN
   updateSpeaker(id: number, speaker: any): Observable<any> {
-    console.log('🔐 Updating speaker with auth headers:', this.getAuthHeaders());
-    console.log('📝 Update data:', speaker);
-    
     return this.http.put(`${this.API_URL}${updateSpeakerApi}${id}`, speaker, this.getHttpOptions());
   }
 
   // 🔐 DELETE SPEAKER - CON AUTENTICACIÓN
   deleteSpeaker(id: number): Observable<any> {
-    console.log('🔐 Deleting speaker with auth headers:', this.getAuthHeaders());
-    
     return this.http.delete(`${this.API_URL}${deleteSpeakerApi}${id}`, this.getHttpOptions());
   }
 
@@ -294,36 +255,31 @@ export class SpeakersService {
     return this.http.get(`${this.API_URL}${speakersApi}${getBatteryLevelApi}`, this.getHttpOptions());
   }
 
-  // 🔧 MÉTODO PARA VERIFICAR SI HAY TOKEN
+  // 🔧 MÉTODOS DE UTILIDAD
   hasAccessToken(): boolean {
     const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
     return !!token;
   }
 
-  // 🔧 MÉTODO PARA LIMPIAR TOKEN (ÚTIL PARA LOGOUT)
   clearAccessToken(): void {
     localStorage.removeItem('accessToken');
     sessionStorage.removeItem('accessToken');
   }
 
+  // MÉTODOS DE BATERÍA
+  getSpeakerBatteryLevel(speakerId: number): Observable<{
+    success: boolean;
+    speakerId: number;
+    currentBatteryLevel: number;
+    lastUpdated: string;
+  }> {
+    return this.http.get<any>(`${this.API_URL}${speakersApi}/${speakerId}${getBatteryLevelApi}`, this.getHttpOptions());
+  }
 
-  // Obtener nivel actual de batería de un speaker
-getSpeakerBatteryLevel(speakerId: number): Observable<{
-  success: boolean;
-  speakerId: number;
-  currentBatteryLevel: number;
-  lastUpdated: string;
-}> {
-  return this.http.get<any>(`${this.API_URL}${speakersApi}/${speakerId}${getBatteryLevelApi}`, this.getHttpOptions());
-}
-
-// Actualizar nivel de batería de un speaker
-updateSpeakerBatteryLevel(speakerId: number, batteryLevel: number): Observable<any> {
-  return this.http.put(`${this.API_URL}${speakersApi}/${speakerId}${getBatteryLevelApi}`, 
-    { batteryLevel }, 
-    this.getHttpOptions()
-  );
-}
-
-
+  updateSpeakerBatteryLevel(speakerId: number, batteryLevel: number): Observable<any> {
+    return this.http.put(`${this.API_URL}${speakersApi}/${speakerId}${getBatteryLevelApi}`, 
+      { batteryLevel }, 
+      this.getHttpOptions()
+    );
+  }
 }

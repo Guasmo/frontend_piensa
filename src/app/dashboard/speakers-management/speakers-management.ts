@@ -74,19 +74,20 @@ export class SpeakersManagementComponent implements OnInit {
     batteryPercentage: 100
   };
 
-  // Colores predefinidos para los speakers
-  private speakerColors = [
-    { name: 'Yellow', color: '#ffc107' },
-    { name: 'Red', color: '#dc3545' },
-    { name: 'Purple', color: '#8b5cf6' },
-    { name: 'Green', color: '#32cd32' },
-    { name: 'Blue', color: '#007bff' },
-    { name: 'Orange', color: '#fd7e14' },
-    { name: 'Pink', color: '#e83e8c' },
-    { name: 'Cyan', color: '#17a2b8' }
-  ];
+  // Position mapping
+  private positionMapping: { [key: string]: string } = {
+    'Top Left': 'Top Left',
+    'Top Center': 'Top Center', 
+    'Top Right': 'Top Right',
+    'Center Left': 'Center Left',
+    'Center': 'Center',
+    'Center Right': 'Center Right',
+    'Bottom Left': 'Bottom Left',
+    'Bottom Center': 'Bottom Center',
+    'Bottom Right': 'Bottom Right'
+  };
 
-  // Posiciones disponibles
+  // Available positions
   availablePositions = [
     'Top Left',
     'Top Center', 
@@ -115,16 +116,36 @@ export class SpeakersManagementComponent implements OnInit {
           this.speakers = response.data;
           console.log('✅ Speakers loaded:', this.speakers);
         } else {
-          this.error = 'Error al cargar los speakers';
+          this.error = 'Error loading speakers';
         }
         this.loading = false;
       },
       error: (error) => {
         console.error('❌ Error loading speakers:', error);
-        this.error = 'Error de conexión con el servidor';
+        this.error = 'Connection error with server';
         this.loading = false;
       }
     });
+  }
+
+  // Get correct position
+  getCorrectPosition(position: string): string {
+    return this.positionMapping[position] || position;
+  }
+
+  // Get speaker color for border
+  getSpeakerColor(index: number): { name: string; color: string } {
+    const colors = [
+      { name: 'Yellow', color: '#ffc107' },
+      { name: 'Red', color: '#dc3545' },
+      { name: 'Purple', color: '#8b5cf6' },
+      { name: 'Green', color: '#32cd32' },
+      { name: 'Blue', color: '#007bff' },
+      { name: 'Orange', color: '#fd7e14' },
+      { name: 'Pink', color: '#e83e8c' },
+      { name: 'Cyan', color: '#17a2b8' }
+    ];
+    return colors[index % colors.length];
   }
 
   // CREATE SPEAKER MODAL METHODS
@@ -151,7 +172,6 @@ export class SpeakersManagementComponent implements OnInit {
       return;
     }
 
-    // 🔐 Verificar autenticación antes de crear
     if (!this.speakersService.hasAccessToken()) {
       this.error = 'Authentication required. Please log in again.';
       return;
@@ -174,16 +194,13 @@ export class SpeakersManagementComponent implements OnInit {
         console.log('✅ Speaker created successfully:', response);
         this.closeCreateModal();
         this.loading = false;
-        this.loadSpeakers(); // Recargar la lista
+        this.loadSpeakers();
       },
       error: (error) => {
         console.error('❌ Error creating speaker:', error);
         
-        // 🔐 Manejar errores de autenticación
         if (error.status === 401) {
           this.error = 'Authentication expired. Please log in again.';
-          // Opcional: redirigir al login
-          // this.router.navigate(['/login']);
         } else if (error.status === 403) {
           this.error = 'You do not have permission to create speakers.';
         } else {
@@ -231,7 +248,6 @@ export class SpeakersManagementComponent implements OnInit {
       return;
     }
 
-    // 🔐 Verificar autenticación antes de actualizar
     if (!this.speakersService.hasAccessToken()) {
       this.error = 'Authentication required. Please log in again.';
       return;
@@ -244,7 +260,7 @@ export class SpeakersManagementComponent implements OnInit {
 
     const updateData: any = {};
     
-    // Solo incluir campos que han cambiado
+    // Only include changed fields
     if (this.editForm.name?.trim() && this.editForm.name.trim() !== this.selectedSpeaker.name) {
       updateData.name = this.editForm.name.trim();
     }
@@ -263,7 +279,7 @@ export class SpeakersManagementComponent implements OnInit {
 
     console.log('🔄 Final update data:', updateData);
 
-    // Si no hay cambios, mostrar mensaje
+    // If no changes, show message
     if (Object.keys(updateData).length === 0) {
       this.error = 'No changes detected';
       this.loading = false;
@@ -275,12 +291,11 @@ export class SpeakersManagementComponent implements OnInit {
         console.log('✅ Speaker updated successfully:', response);
         this.closeEditModal();
         this.loading = false;
-        this.loadSpeakers(); // Recargar la lista
+        this.loadSpeakers();
       },
       error: (error) => {
         console.error('❌ Error updating speaker:', error);
         
-        // 🔐 Manejar errores de autenticación
         if (error.status === 401) {
           this.error = 'Authentication expired. Please log in again.';
         } else if (error.status === 403) {
@@ -322,7 +337,6 @@ export class SpeakersManagementComponent implements OnInit {
       return;
     }
 
-    // 🔐 Verificar autenticación antes de eliminar
     if (!this.speakersService.hasAccessToken()) {
       this.error = 'Authentication required. Please log in again.';
       return;
@@ -338,12 +352,11 @@ export class SpeakersManagementComponent implements OnInit {
         console.log('✅ Speaker deleted successfully:', response);
         this.closeDeleteModal();
         this.loading = false;
-        this.loadSpeakers(); // Recargar la lista
+        this.loadSpeakers();
       },
       error: (error) => {
         console.error('❌ Error deleting speaker:', error);
         
-        // 🔐 Manejar errores de autenticación
         if (error.status === 401) {
           this.error = 'Authentication expired. Please log in again.';
         } else if (error.status === 403) {
@@ -360,10 +373,6 @@ export class SpeakersManagementComponent implements OnInit {
   }
 
   // UTILITY METHODS
-  getSpeakerColor(index: number): { name: string; color: string } {
-    return this.speakerColors[index % this.speakerColors.length];
-  }
-
   getBatteryStatus(percentage: number): string {
     if (percentage > 60) return 'high';
     if (percentage > 30) return 'medium';
@@ -390,21 +399,21 @@ export class SpeakersManagementComponent implements OnInit {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffDays > 0) {
-      return `${diffDays} día${diffDays > 1 ? 's' : ''} atrás`;
+      return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
     } else if (diffHours > 0) {
-      return `${diffHours} hora${diffHours > 1 ? 's' : ''} atrás`;
+      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     } else {
-      return 'Hace unos minutos';
+      return 'A few minutes ago';
     }
   }
 
-  // Alternar estado del speaker (método existente mejorado)
+  // Toggle speaker state
   toggleSpeaker(speaker: Speaker) {
     const newState = !speaker.state;
     
     this.speakersService.updateSpeaker(speaker.id, { state: newState }).subscribe({
       next: (response) => {
-        // Actualizar el speaker en la lista local
+        // Update speaker in local list
         const index = this.speakers.findIndex(s => s.id === speaker.id);
         if (index !== -1) {
           this.speakers[index].state = newState;
@@ -413,33 +422,33 @@ export class SpeakersManagementComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Error updating speaker state:', error);
-        this.error = 'Error al actualizar el estado del speaker';
+        this.error = 'Error updating speaker status';
       }
     });
   }
 
-  // Método para desconectar/logout
+  // Logout method
   logout() {
     console.log('Logout');
-    // Implementar lógica de logout
+    // Implement logout logic
   }
 
-  // Obtener el total de sesiones de uso de un speaker
+  // Get total sessions for a speaker
   getTotalSessions(speaker: Speaker): number {
     return speaker._count?.usageSessions || 0;
   }
 
-  // Obtener el total de historiales de un speaker
+  // Get total histories for a speaker
   getTotalHistories(speaker: Speaker): number {
     return speaker._count?.histories || 0;
   }
 
-  // Verificar si un speaker tiene sesión activa
+  // Check if speaker has active session
   hasActiveSession(speaker: Speaker): boolean {
     return speaker.usageSessions && speaker.usageSessions.length > 0;
   }
 
-  // Obtener información de la sesión activa
+  // Get active session info
   getActiveSessionInfo(speaker: Speaker): any {
     if (this.hasActiveSession(speaker)) {
       return speaker.usageSessions[0];
@@ -447,7 +456,7 @@ export class SpeakersManagementComponent implements OnInit {
     return null;
   }
 
-  // Método para limpiar errores
+  // Clear error method
   clearError() {
     this.error = '';
   }
