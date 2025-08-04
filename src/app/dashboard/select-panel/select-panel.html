@@ -8,13 +8,16 @@
         <div class="title">Control Panel</div>
         <div class="buttons">
           
-          <!-- Speaker 1 - Active (Yellow) -->
-          <button class="circle-btn active"
-                  (pointerdown)="onButtonDown($event, 'yellow')"
+          <!-- Speaker 1 - Dinámico (Amarillo normal / Verde con sesión activa) -->
+          <button class="circle-btn"
+                  [class.active]="true"
+                  [class.yellow]="!hasSpeakerActiveSession(1)"
+                  [class.green]="hasSpeakerActiveSession(1)"
+                  (pointerdown)="onButtonDown($event, getSpeakerCurrentColor(1))"
                   (pointerup)="onButtonUp($event)"
                   (pointerleave)="onButtonLeave($event)"
                   data-speaker-id="1"
-                  title="Speaker 1">
+                  [title]="hasSpeakerActiveSession(1) ? 'Speaker 1 - Active Session' : 'Speaker 1 - Available'">
           </button>
 
           <!-- Speaker 2 - Locked -->
@@ -50,7 +53,6 @@
                   disabled>
           </button>
         </div>
-      </div>
 
       <button class="back-button" routerLink="/home">Back</button>
     </div>
