@@ -11,12 +11,12 @@ export interface DisplayHistoryItem {
   endDate: string;   // Formatted date string
   durationMinutes: number | null;
   
-  // Raw dates for filtering
+  // Raw dates para filtrado
   rawStartDate: Date;
   rawEndDate: Date;
   rawCreatedAt: Date;
   
-  // Electrical measurements (pueden ser null si no hay datos)
+  // 🔥 CAMPOS ELÉCTRICOS SIEMPRE COMO NUMBER
   avgCurrent_mA: number;
   avgVoltage_V: number;
   avgPower_mW: number;
@@ -85,6 +85,27 @@ export interface SpeakerHistoryResponse {
     total?: number;
     page?: number;
     limit?: number;
+  };
+  timestamp: string;
+}
+
+export interface CalendarDay {
+  date: Date;
+  day: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isSelected: boolean;
+  hasHistory: boolean;
+  historyCount: number;
+}
+
+export interface AllHistoryResponse {
+  success: boolean;
+  data: {
+    histories: any[]; // Raw data from backend
+    total: number;
+    page: number;
+    limit: number;
   };
   timestamp: string;
 }

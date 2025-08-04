@@ -5,17 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { Navbar } from '../../components/navbar/navbar';
 import { SpeakersService } from '../../services/speaker.service';
 import { HistoryItem } from '../../interfaces/speakerInterface';
-import { DisplayHistoryItem } from '../../interfaces/historyInterface';
-
-interface CalendarDay {
-  date: Date;
-  day: number;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isSelected: boolean;
-  hasHistory: boolean;
-  historyCount: number;
-}
+import { CalendarDay, DisplayHistoryItem } from '../../interfaces/historyInterface';
 
 @Component({
   selector: 'app-history',
@@ -63,12 +53,20 @@ export class History implements OnInit {
         this.showCalendar = false;
       }
     });
+
+    // 🔥 DEBUG: Debugging automático después de cargar
+    setTimeout(() => {
+      this.debugHistoryData();
+    }, 3000);
   }
 
   // 🔥 MÉTODO CORREGIDO: Cargar historial completo o filtrado
   loadHistory(): void {
     this.loading = true;
     this.error = null;
+    
+    console.log('🔄 Cargando historial...');
+    
     if (this.speakerIdFilter) {
       // Si hay filtro, cargar solo el historial de ese parlante
       this.loadSpeakerHistory(this.speakerIdFilter);
@@ -76,7 +74,14 @@ export class History implements OnInit {
       // Si no hay filtro, cargar todo el historial
       this.speakersService.getAllSpeakersHistory().subscribe({
         next: (histories: HistoryItem[]) => {
-          console.log('📊 Historial recibido:', histories);
+          console.log('📊 Historial completo recibido:', histories);
+          console.log('📊 Cantidad de registros:', histories.length);
+          
+          // Debug del primer elemento para verificar transformación
+          if (histories.length > 0) {
+            console.log('🔍 Primer elemento transformado:', histories[0]);
+          }
+          
           this.historyItems = this.transformHistoryData(histories);
           this.applyFilters();
           this.updateCalendarWithHistory();
@@ -96,9 +101,13 @@ export class History implements OnInit {
     this.loading = true;
     this.error = null;
 
+    console.log('📊 Cargando historial del parlante:', speakerId);
+
     this.speakersService.getSpeakerHistory(speakerId, 50, 1).subscribe({
       next: (response) => {
         console.log('📊 Historial del parlante recibido:', response);
+        console.log('📊 Cantidad de registros:', response.data.histories.length);
+        
         this.historyItems = this.transformHistoryData(response.data.histories);
         this.applyFilters();
         this.updateCalendarWithHistory();
@@ -112,12 +121,19 @@ export class History implements OnInit {
     });
   }
 
-  // 🔥 MÉTODO MEJORADO: Transformar datos del historial
+  // 🔥 MÉTODO transformHistoryData SIMPLIFICADO
   private transformHistoryData(histories: HistoryItem[]): DisplayHistoryItem[] {
     return histories.map(history => {
-      console.log('🔄 Transformando historial:', history);
+      console.log('🔄 Transformando para display:', {
+        id: history.id,
+        speakerName: history.speakerName,
+        avgCurrent: history.avgCurrent_mA,
+        avgVoltage: history.avgVoltage_V,
+        avgPower: history.avgPower_mW,
+        totalConsumed: history.totalConsumed_mAh
+      });
       
-      return {
+      const displayItem: DisplayHistoryItem = {
         id: history.id,
         usageSessionId: history.usageSessionId,
         speakerId: history.speakerId,
@@ -129,28 +145,35 @@ export class History implements OnInit {
         endDate: this.formatTimestamp(history.endDate),
         durationMinutes: history.durationMinutes,
         
-        // Usar los valores ya transformados del service
-        avgCurrent_mA: history.avgCurrent_mA || 0,
-        avgVoltage_V: history.avgVoltage_V || 0,
-        avgPower_mW: history.avgPower_mW || 0,
+        // 🔥 USAR DIRECTAMENTE LOS VALORES YA TRANSFORMADOS POR EL SERVICE
+        avgCurrent_mA: history.avgCurrent_mA,
+        avgVoltage_V: history.avgVoltage_V,
+        avgPower_mW: history.avgPower_mW,
         
-        totalCurrent_mA: history.totalCurrent_mA || 0,
-        totalVoltage_V: history.totalVoltage_V || 0,
-        totalPower_mW: history.totalPower_mW || 0,
-        totalConsumed_mAh: history.totalConsumed_mAh || 0,
+        totalCurrent_mA: history.totalCurrent_mA,
+        totalVoltage_V: history.totalVoltage_V,
+        totalPower_mW: history.totalPower_mW,
+        totalConsumed_mAh: history.totalConsumed_mAh,
         
         // Información de batería
-        initialBatteryPercentage: history.initialBatteryPercentage || 0,
-        finalBatteryPercentage: history.finalBatteryPercentage || 0,
-        batteryConsumed: history.batteryConsumed || 0,
+        initialBatteryPercentage: history.initialBatteryPercentage,
+        finalBatteryPercentage: history.finalBatteryPercentage,
+        batteryConsumed: history.batteryConsumed,
         
         createdAt: this.formatTimestamp(history.createdAt),
         
-        // Add raw date for filtering
+        // Raw dates para filtrado
         rawStartDate: new Date(history.startDate),
         rawEndDate: new Date(history.endDate),
         rawCreatedAt: new Date(history.createdAt)
       };
+
+      // Verificar que los valores numéricos estén correctos
+      if (displayItem.avgCurrent_mA === 0 && displayItem.avgVoltage_V === 0 && displayItem.avgPower_mW === 0) {
+        console.warn('⚠️ Todos los valores eléctricos son 0 para el item:', displayItem.id);
+      }
+
+      return displayItem;
     });
   }
 
@@ -358,5 +381,29 @@ export class History implements OnInit {
   // 🔥 NUEVO: Verificar si hay filtros activos
   get hasActiveFilters(): boolean {
     return this.speakerIdFilter !== null || this.selectedDate !== null;
+  }
+
+  // 🔥 MÉTODO DE DEBUGGING PARA EL COMPONENTE
+  debugHistoryData(): void {
+    console.log('🔍 === DEBUG HISTORY COMPONENT ===');
+    console.log('Total items cargados:', this.historyItems.length);
+    console.log('Items filtrados:', this.filteredHistoryItems.length);
+    console.log('Speaker ID filter:', this.speakerIdFilter);
+    console.log('Date filter:', this.selectedDate);
+    
+    if (this.historyItems.length > 0) {
+      console.log('Primer item:', this.historyItems[0]);
+      console.log('Valores eléctricos del primer item:');
+      console.log('  - avgCurrent_mA:', this.historyItems[0].avgCurrent_mA);
+      console.log('  - avgVoltage_V:', this.historyItems[0].avgVoltage_V);
+      console.log('  - avgPower_mW:', this.historyItems[0].avgPower_mW);
+      console.log('  - totalConsumed_mAh:', this.historyItems[0].totalConsumed_mAh);
+    }
+    
+    if (this.filteredHistoryItems.length > 0) {
+      console.log('Primer item filtrado:', this.filteredHistoryItems[0]);
+    }
+    
+    console.log('=====================================');
   }
 }

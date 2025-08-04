@@ -6,58 +6,18 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Subscription, timer } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { AuthService } from '../../services/auth';
+import { apiURL } from '../../services/api';
+import { 
+  endSessionApi, 
+  esp32Data, 
+  getActiveSpeakerSessionApi, 
+  setVolumeApi, 
+  speakersApi, 
+  startSessionApi 
+} from '../../constants/endPoints';
+import { AuthService } from '../../services/auth.service';
+import { RealtimeSessionData, SessionData, SpeakerInfo } from '../../interfaces/controlPanel';
 
-// ===== INTERFACES OPTIMIZADAS =====
-interface RealtimeSessionData {
-  sessionId: number;
-  speakerId: number;
-  speakerName: string;
-  userId: number;
-  status: string;
-  startTime: string;
-  durationMinutes: number;
-  initialBatteryPercentage: number;
-  
-  latestData: {
-    timestamp: number;
-    current_mA: number;
-    voltage_V: number;
-    power_mW: number;
-    battery_remaining_percent: number;
-    total_consumed_mAh: number;
-    sample_index: number;
-  };
-  
-  statistics: {
-    avgCurrent_mA: number;
-    avgVoltage_V: number;
-    avgPower_mW: number;
-    peakPower_mW: number;
-    measurementCount: number;
-    totalConsumed_mAh: number;
-    durationSeconds: number;
-  };
-  
-  hasRealtimeData: boolean;
-  lastUpdated: string;
-}
-
-interface SessionData {
-  id: number;
-  speakerId: number;
-  startTime: string;
-  status: string;
-  speaker?: {
-    name: string;
-    position: string;
-  };
-}
-
-interface SpeakerInfo {
-  name: string;
-  position: string;
-}
 
 @Component({
   selector: 'app-control-panel',
@@ -75,8 +35,8 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
 
   // ===== CONFIGURACIÓN =====
-  private readonly ESP32_API_URL = 'https://backendpiensa-production.up.railway.app/api/energy';
-  private readonly SPEAKERS_API_URL = 'https://backendpiensa-production.up.railway.app/speakers';
+  private readonly ESP32_API_URL = `${apiURL}${esp32Data}`;
+  private readonly SPEAKERS_API_URL = `${apiURL}${speakersApi}`;
   private readonly POLLING_INTERVAL = 2000; // 2 segundos
   private readonly userId = 1;
 
@@ -140,7 +100,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
       success: boolean; 
       hasActiveSession: boolean; 
       session: SessionData | null;
-    }>(`${this.ESP32_API_URL}/active-session/speaker/${this.speakerId}`)
+    }>(`${this.ESP32_API_URL}${getActiveSpeakerSessionApi}${this.speakerId}`)
       .pipe(
         catchError(err => {
           console.error('❌ Error checking status:', err);
@@ -220,7 +180,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
       success: boolean; 
       data: { id: number; startTime: string };
       message: string;
-    }>(`${this.ESP32_API_URL}/start-session`, payload)
+    }>(`${this.ESP32_API_URL}${startSessionApi}`, payload)
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
@@ -255,7 +215,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
       success: boolean; 
       data: any;
       message: string;
-    }>(`${this.ESP32_API_URL}/end-session/${this.activeSessionId}`, payload)
+    }>(`${this.ESP32_API_URL}${endSessionApi}${this.activeSessionId}`, payload)
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -376,7 +336,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     };
 
     this.http.post<{ success: boolean; message?: string; }>
-      (`${this.ESP32_API_URL}/volume/${this.speakerId}`, payload)
+      (`${this.ESP32_API_URL}${setVolumeApi}${this.speakerId}`, payload)
       .subscribe({
         next: (response) => {
           this.handleVolumeResponse(response, volume);
@@ -434,7 +394,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
       success: boolean; 
       data: any; 
       message?: string;
-    }>(`${this.ESP32_API_URL}/end-session/${this.activeSessionId}`, payload)
+    }>(`${this.ESP32_API_URL}${endSessionApi}${this.activeSessionId}`, payload)
       .subscribe({
         next: (response) => {
           this.handleSaveResponse(response);

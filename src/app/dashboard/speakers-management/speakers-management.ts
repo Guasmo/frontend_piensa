@@ -152,7 +152,7 @@ export class SpeakersManagementComponent implements OnInit {
     }
 
     // 🔐 Verificar autenticación antes de crear
-    if (!this.speakersService.hasaccessToken()) {
+    if (!this.speakersService.hasAccessToken()) {
       this.error = 'Authentication required. Please log in again.';
       return;
     }
@@ -232,7 +232,7 @@ export class SpeakersManagementComponent implements OnInit {
     }
 
     // 🔐 Verificar autenticación antes de actualizar
-    if (!this.speakersService.hasaccessToken()) {
+    if (!this.speakersService.hasAccessToken()) {
       this.error = 'Authentication required. Please log in again.';
       return;
     }
@@ -323,7 +323,7 @@ export class SpeakersManagementComponent implements OnInit {
     }
 
     // 🔐 Verificar autenticación antes de eliminar
-    if (!this.speakersService.hasaccessToken()) {
+    if (!this.speakersService.hasAccessToken()) {
       this.error = 'Authentication required. Please log in again.';
       return;
     }

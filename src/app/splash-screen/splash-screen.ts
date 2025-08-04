@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { loginApi } from '../constants/endPoints';
 
 @Component({
   selector: 'app-splash',
@@ -12,7 +13,7 @@ export class SplashScreen implements OnInit {
   ngOnInit(): void {
     // Espera hasta que termine la animación (~2.7s), luego redirige
     setTimeout(() => {
-      this.router.navigate(['/auth/login']); // Cambia '/login' por la ruta deseada
+      this.router.navigate([`${loginApi}`]); // Cambia '/login' por la ruta deseada
     }, 3000);
   }
 }

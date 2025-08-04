@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Navbar } from '../../components/navbar/navbar';
+import { loginApi } from '../../constants/endPoints';
 
 @Component({
   selector: 'app-select-panel',
@@ -38,7 +39,7 @@ export class SelectPanel implements OnInit {
 
   logout(): void {
     localStorage.removeItem('token');
-    this.router.navigate(['/auth/login']);
+    this.router.navigate([`${loginApi}`]);
   }
 
   // Método universal para mouse y touch usando PointerEvent

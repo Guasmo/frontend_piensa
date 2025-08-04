@@ -3,7 +3,8 @@ import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Navbar } from '../../components/navbar/navbar';
-import { AuthService } from '../../services/auth';
+import { loginApi } from '../../constants/endPoints';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -136,32 +137,12 @@ export class DashboardHome implements OnInit {
       localStorage.removeItem('username');
       localStorage.removeItem('roleName');
       localStorage.removeItem('userSession');
-      localStorage.removeItem('token'); // por si queda el método anterior
     }
     
     // Redirigir al login
-    this.router.navigate(['/auth/login']).then(() => {
+    this.router.navigate([`${loginApi}`]).then(() => {
       console.log('User logged out successfully');
     });
   }
 
-  // Método adicional para debugging - puedes removerlo en producción
-  debugUserInfo(): void {
-    console.log('=== USER DEBUG INFO ===');
-    console.log('Username:', this.username);
-    console.log('User Role:', this.userRole);
-    console.log('Is SuperAdmin:', this.isSuperAdmin());
-    console.log('Is User:', this.isUser());
-    console.log('Is Admin:', this.isAdmin());
-    console.log('Has Admin Permissions:', this.hasAdminPermissions());
-    console.log('========================');
-    
-    // También mostrar lo que hay en localStorage
-    console.log('=== LOCALSTORAGE INFO ===');
-    console.log('accessToken:', !!localStorage.getItem('accessToken'));
-    console.log('username:', localStorage.getItem('username'));
-    console.log('roleName:', localStorage.getItem('roleName'));
-    console.log('userSession:', localStorage.getItem('userSession'));
-    console.log('========================');
-  }
 }

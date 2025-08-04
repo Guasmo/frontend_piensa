@@ -3,7 +3,9 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Logo } from '../../logo/logo';
+import { Logo } from '../../components/logo/logo';
+import { loginApi, registerApi } from '../../constants/endPoints';
+import { apiURL } from '../../services/api';
 
 @Component({
   selector: 'app-register',
@@ -39,12 +41,12 @@ export class Register {
       password: this.password,
     };
 
-    this.http.post('https://backendpiensa-production-e02a.up.railway.app/auth/register', payload)
+    this.http.post(`${apiURL}${registerApi}`, payload)
       .subscribe({
         next: response => {
           this.successMessage = '¡Cuenta creada exitosamente!';
           this.errorMessage = '';
-          setTimeout(() => this.router.navigate(['/auth/login']), 3000);
+          setTimeout(() => this.router.navigate([`${loginApi}`]), 3000);
         },
         error: error => {
           this.successMessage = '';

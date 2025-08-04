@@ -1,5 +1,4 @@
-// interfaces/speakerInterface.ts - Actualizar esta interfaz
-
+// speakerInterface.ts - CÓDIGO COMPLETO CORREGIDO
 export interface HistoryItem {
   id: number;
   usageSessionId: number;
@@ -11,7 +10,7 @@ export interface HistoryItem {
   endDate: Date;
   durationMinutes: number | null;
   
-  // 🔧 CAMPOS NUMÉRICOS RETORNADOS COMO NUMBER DESPUÉS DE LA TRANSFORMACIÓN
+  // 🔥 CAMPOS NUMÉRICOS SIEMPRE COMO NUMBER (YA TRANSFORMADOS)
   avgCurrent_mA: number;
   avgVoltage_V: number;
   avgPower_mW: number;
@@ -35,3 +34,4 @@ export interface HistoryItem {
     email: string;
   } | null;
 }
+

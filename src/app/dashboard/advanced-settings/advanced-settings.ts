@@ -5,6 +5,8 @@ import { Location } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { User, UserService } from '../../services/user.service';
+import { apiURL } from '../../services/api';
+import { loginApi, speakersApi } from '../../constants/endPoints';
 
 interface Speaker {
   id: number;
@@ -38,7 +40,7 @@ interface SpeakersApiResponse {
 })
 export class AdvancedSettingsComponent implements OnInit, OnDestroy {
   
-  private readonly API_URL = 'https://backendpiensa-production.up.railway.app';
+  private readonly API_URL = apiURL;
 
   // Datos del dashboard
   dashboardData = {
@@ -140,7 +142,7 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
     console.log('🔄 Loading speakers data...');
     
     this.subscription.add(
-      this.http.get<SpeakersApiResponse>(`${this.API_URL}/speakers`).subscribe({
+      this.http.get<SpeakersApiResponse>(`${this.API_URL}${speakersApi}`).subscribe({
         next: (response) => {
           console.log('✅ Speakers loaded successfully:', response);
           
@@ -283,7 +285,7 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
       }
       
       // Redirigir a la página de login
-      this.router.navigate(['/login']).then(() => {
+      this.router.navigate([`${loginApi}`]).then(() => {
         console.log('Logged out successfully');
       });
     }

@@ -26,11 +26,8 @@ export interface SessionData {
 }
 
 export interface SpeakerInfo {
-  id: number;
   name: string;
   position: string;
-  isActive?: boolean;
-  lastUsed?: string;
 }
 
 export interface UserInfo {
@@ -45,7 +42,7 @@ export interface RealtimeSessionData {
   speakerId: number;
   speakerName: string;
   userId: number;
-  status: 'active' | 'paused' | 'completed';
+  status: string;
   startTime: string;
   durationMinutes: number;
   initialBatteryPercentage: number;
@@ -65,16 +62,13 @@ export interface RealtimeSessionData {
     avgVoltage_V: number;
     avgPower_mW: number;
     peakPower_mW: number;
-    minPower_mW: number;
     measurementCount: number;
     totalConsumed_mAh: number;
     durationSeconds: number;
-    efficiency?: number;
   };
   
   hasRealtimeData: boolean;
   lastUpdated: string;
-  dataQuality: 'good' | 'fair' | 'poor';
 }
 
 export interface VolumeControl {

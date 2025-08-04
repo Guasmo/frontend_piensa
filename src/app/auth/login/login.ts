@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Logo } from '../../logo/logo';
-import { ApiService } from '../../services/api';
+import { Logo } from '../../components/logo/logo';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +20,8 @@ export class Login {
   showPassword: boolean = false;
 
   constructor(
-    private apiService: ApiService,
+    //UrlBackend
+    private authService: AuthService, // Cambiar a authService
     private router: Router
   ) {}
 
@@ -37,39 +38,20 @@ export class Login {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const payload = {
+    const credentials = {
       usernameOrEmail: this.usernameOrEmail,
       password: this.password
     };
 
-    // Use API service
-    this.apiService.post('/auth/login', payload)
+    // Usar AuthService en lugar de ApiService
+    this.authService.login(credentials)
       .subscribe({
-        next: (res: any) => {
-          // Save all user information to localStorage
-          localStorage.setItem('accessToken', res.accessToken);
-          localStorage.setItem('refreshToken', res.refreshToken);
-          localStorage.setItem('userId', res.userId);
-          localStorage.setItem('username', res.username);
-          localStorage.setItem('roleName', res.roleName);
-          
-          // Also save the entire response as a JSON object
-          localStorage.setItem('userSession', JSON.stringify({
-            accessToken: res.accessToken,
-            refreshToken: res.refreshToken,
-            userId: res.userId,
-            username: res.username,
-            roleName: res.roleName
-          }));
-
-          // Configure token for future requests
-          this.apiService.setAuthToken(res.accessToken);
-
-          console.log('User logged in:', res);
+        next: (response) => {
+          console.log('User logged in:', response);
           this.isLoading = false;
           this.router.navigate(['/home']);
         },
-        error: (err) => {
+        error: (err: any) => { // Tipar explícitamente el error
           console.error('Login error:', err);
           this.isLoading = false;
           this.errorMessage = err.error?.message || 'An error occurred during login. Please try again.';

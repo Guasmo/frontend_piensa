@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { CreateUserRequest, UpdateUserRequest, User, UserService } from '../../services/user.service';
+import { loginApi } from '../../constants/endPoints';
 
 @Component({
   selector: 'app-users-management',
@@ -95,7 +96,7 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
     // Limpiar token si existe
     localStorage.removeItem('authToken');
     this.userService.clearUsersCache();
-    this.router.navigate(['/login']);
+    this.router.navigate([`${loginApi}`]);
   }
 
   // Create User Modal Methods

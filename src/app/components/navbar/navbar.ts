@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Logo } from '../../logo/logo';
+import { Logo } from '../logo/logo';
 
 @Component({
   selector: 'app-navbar',

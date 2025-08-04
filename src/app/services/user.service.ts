@@ -3,6 +3,14 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { isPlatformBrowser } from '@angular/common';
+import { apiURL } from './api';
+import { 
+  createUserApi,
+  deleteUserApi, 
+  getUserByIdApi, 
+  updateUserApi, 
+  usersApi 
+} from '../constants/endPoints';
 
 export interface User {
   id: number; // Cambiado a number para coincidir con el backend
@@ -40,7 +48,7 @@ export interface UpdateUserRequest {
   providedIn: 'root'
 })
 export class UserService {
-  private readonly API_URL = 'https://backendpiensa-production.up.railway.app';
+  private readonly API_URL = apiURL;
   private usersSubject = new BehaviorSubject<User[]>([]);
   public users$ = this.usersSubject.asObservable();
 
@@ -138,9 +146,9 @@ export class UserService {
   }
 
   getAllUsers(): Observable<User[]> {
-    console.log('🔍 Fetching all users from:', `${this.API_URL}/user`);
+    console.log('🔍 Fetching all users from:', `${this.API_URL}${usersApi}`);
     
-    return this.http.get<User[]>(`${this.API_URL}/user`, {
+    return this.http.get<User[]>(`${this.API_URL}${usersApi}`, {
       headers: this.getHeaders()
     }).pipe(
       tap(users => {
@@ -154,7 +162,7 @@ export class UserService {
   getUserById(id: number): Observable<User> {
     console.log('🔍 Fetching user by ID:', id);
     
-    return this.http.get<User>(`${this.API_URL}/user/${id}`, {
+    return this.http.get<User>(`${this.API_URL}${getUserByIdApi}${id}`, {
       headers: this.getHeaders()
     }).pipe(
       tap(user => console.log('✅ User fetched successfully:', user)),
@@ -180,7 +188,7 @@ export class UserService {
       isActive: userData.isActive !== undefined ? userData.isActive : true
     };
 
-    return this.http.post<User>(`${this.API_URL}/user`, cleanData, {
+    return this.http.post<User>(`${this.API_URL}${createUserApi}`, cleanData, {
       headers: this.getHeaders()
     }).pipe(
       tap(newUser => {
@@ -218,7 +226,7 @@ export class UserService {
     if (userData.role) cleanData.role = userData.role;
     if (userData.isActive !== undefined) cleanData.isActive = userData.isActive;
 
-    return this.http.patch<User>(`${this.API_URL}/user/${id}`, cleanData, {
+    return this.http.patch<User>(`${this.API_URL}${updateUserApi}${id}`, cleanData, {
       headers: this.getHeaders()
     }).pipe(
       tap(updatedUser => {
@@ -240,7 +248,7 @@ export class UserService {
   deleteUser(id: number): Observable<any> {
     console.log('🗑️ Deleting user:', id);
     
-    return this.http.delete(`${this.API_URL}/user/${id}`, {
+    return this.http.delete(`${this.API_URL}${deleteUserApi}${id}`, {
       headers: this.getHeaders()
     }).pipe(
       tap(() => {

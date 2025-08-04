@@ -3,28 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { apiURL } from '../services/api';
+import { LoginResponse, UserSession } from '../interfaces/loginInterface';
+import { loginApi, registerApi } from '../constants/endPoints';
 
-export interface LoginResponse {
-  userId: string;
-  username: string;
-  roleName: string;
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface UserSession {
-  userId: string;
-  username: string;
-  roleName: string;
-  accessToken: string;
-  refreshToken: string;
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://backendpiensa-production.up.railway.app';
+  private apiUrl = apiURL;
   private currentUserSubject = new BehaviorSubject<UserSession | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -37,11 +25,11 @@ export class AuthService {
   }
 
   create(user: { username: string, email: string, password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/register`, user);
+    return this.http.post(`${this.apiUrl}${registerApi}`, user);
   }
 
   login(credentials: { usernameOrEmail: string; password: string }): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials)
+    return this.http.post<LoginResponse>(`${this.apiUrl}${loginApi}`, credentials)
       .pipe(
         tap(response => {
           this.saveUserToStorage(response);
@@ -63,14 +51,8 @@ export class AuthService {
       localStorage.setItem('userId', userSession.userId);
       localStorage.setItem('username', userSession.username);
       localStorage.setItem('roleName', userSession.roleName);
-      localStorage.setItem('userSession', JSON.stringify(userSession));
-      
-      console.log('💾 User session saved to localStorage:', {
-        username: userSession.username,
-        role: userSession.roleName
-      });
+      localStorage.setItem('userSession', JSON.stringify(userSession));      
     } catch (error) {
-      console.error('❌ Error saving user session to localStorage:', error);
     }
   }
 
@@ -81,10 +63,6 @@ export class AuthService {
       if (userSession) {
         const user = JSON.parse(userSession);
         this.currentUserSubject.next(user);
-        console.log('📖 User session loaded from localStorage:', {
-          username: user.username,
-          role: user.roleName
-        });
       } else {
         console.log('ℹ️ No user session found in localStorage');
       }
@@ -140,7 +118,6 @@ export class AuthService {
       'username',
       'roleName',
       'userSession',
-      'token' // Por compatibilidad con versiones anteriores
     ];
     
     itemsToRemove.forEach(item => {
@@ -189,11 +166,6 @@ export class AuthService {
     return this.hasRole('SUPERADMIN');
   }
 
-  // Verificar si es admin
-  isAdmin(): boolean {
-    return this.hasRole('ADMIN');
-  }
-
   // Verificar si es usuario regular
   isUser(): boolean {
     return this.hasRole('USER');
@@ -207,13 +179,11 @@ export class AuthService {
 
   // Método para debugging
   debugAuthState(): void {
-    console.log('=== AUTH SERVICE DEBUG ===');
     console.log('Is Logged In:', this.isLoggedIn());
     console.log('Access Token:', !!this.getAccessToken());
     console.log('Current User:', this.getCurrentUser());
     console.log('User Role:', this.getUserRole());
     console.log('Is SuperAdmin:', this.isSuperAdmin());
-    console.log('Is Admin:', this.isAdmin());
     console.log('Is User:', this.isUser());
     console.log('Has Admin Permissions:', this.hasAdminPermissions());
     console.log('=========================');
