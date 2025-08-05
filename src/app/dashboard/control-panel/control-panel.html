@@ -224,14 +224,6 @@
                 <div class="metric-avg">Avg: {{ getAveragePower() }} mW</div>
               </div>
 
-              <div class="metric-card consumption">
-                <div class="metric-header">
-                  <span class="metric-icon">📊</span>
-                  <span class="metric-label">Total Consumption</span>
-                </div>
-                <div class="metric-value">{{ getTotalConsumed() }} mAh</div>
-                <div class="metric-note">Calculated on ESP32</div>
-              </div>
 
               <div class="metric-card battery" [style.background]="getBatteryColor()">
                 <div class="metric-header">

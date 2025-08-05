@@ -26,14 +26,6 @@ export class DashboardHome implements OnInit {
     if (typeof window !== 'undefined') {
       // Obtener información del usuario desde localStorage
       this.loadUserInfo();
-      
-      // Debug: Mostrar información del usuario en consola
-      console.log('User info loaded:', {
-        username: this.username,
-        role: this.userRole,
-        isSuperAdmin: this.isSuperAdmin(),
-        isUser: this.isUser()
-      });
     }
   }
 
@@ -43,7 +35,6 @@ export class DashboardHome implements OnInit {
     if (currentUser) {
       this.username = currentUser.username || 'User';
       this.userRole = currentUser.roleName;
-      console.log('Loaded from AuthService:', currentUser);
       return;
     }
 
@@ -93,28 +84,24 @@ export class DashboardHome implements OnInit {
   // Método para verificar si el usuario es SUPERADMIN
   isSuperAdmin(): boolean {
     const isSuper = this.userRole === 'SUPERADMIN';
-    console.log(`Checking isSuperAdmin: ${this.userRole} === 'SUPERADMIN' = ${isSuper}`);
     return isSuper;
   }
 
   // Método para verificar si el usuario es USER
   isUser(): boolean {
     const isUserRole = this.userRole === 'USER';
-    console.log(`Checking isUser: ${this.userRole} === 'USER' = ${isUserRole}`);
     return isUserRole;
   }
 
   // Método para verificar si el usuario es ADMIN
   isAdmin(): boolean {
     const isAdminRole = this.userRole === 'ADMIN';
-    console.log(`Checking isAdmin: ${this.userRole} === 'ADMIN' = ${isAdminRole}`);
     return isAdminRole;
   }
 
   // Método adicional para verificar cualquier rol específico
   hasRole(role: string): boolean {
     const hasSpecificRole = this.userRole === role;
-    console.log(`Checking hasRole(${role}): ${this.userRole} === '${role}' = ${hasSpecificRole}`);
     return hasSpecificRole;
   }
 

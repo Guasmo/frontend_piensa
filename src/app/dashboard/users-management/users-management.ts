@@ -19,9 +19,14 @@ import { loginApi } from '../../constants/endPoints';
 export class UsersManagementComponent implements OnInit, OnDestroy {
   
   users: User[] = [];
+  filteredUsers: User[] = []; // Nueva propiedad para usuarios filtrados
   loading = false;
   error: string | null = null;
   private subscription = new Subscription();
+
+  // Propiedades del filtro
+  searchTerm = '';
+  filterBy: 'all' | 'username' | 'email' = 'all';
 
   // Modal control variables
   showCreateModal = false;
@@ -58,6 +63,7 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.userService.users$.subscribe(users => {
         this.users = users;
+        this.applyFilter(); // Aplicar filtro cuando cambien los usuarios
       })
     );
   }
@@ -74,6 +80,7 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
       this.userService.getAllUsers().subscribe({
         next: (users) => {
           this.users = users;
+          this.applyFilter(); // Aplicar filtro después de cargar
           this.loading = false;
           console.log('✅ Users loaded in component:', users);
         },
@@ -86,17 +93,81 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Métodos de filtrado
+  applyFilter() {
+    if (!this.searchTerm.trim()) {
+      this.filteredUsers = [...this.users];
+      return;
+    }
+
+    const searchTermLower = this.searchTerm.toLowerCase().trim();
+    
+    this.filteredUsers = this.users.filter(user => {
+      switch (this.filterBy) {
+        case 'username':
+          return user.username.toLowerCase().includes(searchTermLower);
+        case 'email':
+          return user.email.toLowerCase().includes(searchTermLower);
+        case 'all':
+        default:
+          return user.username.toLowerCase().includes(searchTermLower) ||
+                 user.email.toLowerCase().includes(searchTermLower);
+      }
+    });
+
+    console.log(`🔍 Filter applied. Found ${this.filteredUsers.length} users out of ${this.users.length}`);
+  }
+
+  onSearchChange() {
+    this.applyFilter();
+  }
+
+  onFilterByChange() {
+    this.applyFilter();
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    this.filterBy = 'all';
+    this.applyFilter();
+  }
+
+  // Getter para obtener el conteo de usuarios mostrados
+  get displayedUserCount(): number {
+    return this.filteredUsers.length;
+  }
+
+  get totalUserCount(): number {
+    return this.users.length;
+  }
+
+  get isFiltered(): boolean {
+    return this.searchTerm.trim() !== '' || this.filterBy !== 'all';
+  }
+
   // Métodos básicos para navegación
   goBack() {
     this.router.navigate(['/dashboard']);
   }
 
   logout() {
-    console.log('Logout clicked');
-    // Limpiar token si existe
-    localStorage.removeItem('authToken');
-    this.userService.clearUsersCache();
-    this.router.navigate([`${loginApi}`]);
+       // Mostrar confirmación
+    const confirmLogout = confirm('¿Estás seguro de que quieres desconectarte?');
+    
+    if (confirmLogout) {
+      // Limpiar cualquier dato de sesión
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+      localStorage.removeItem('roleName');
+      localStorage.removeItem('userSession');
+      
+      // Redirigir a la página de login
+      this.router.navigate([`${loginApi}`]).then(() => {
+        console.log('Logged out successfully');
+      });
+    }
   }
 
   // Create User Modal Methods

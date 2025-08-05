@@ -2,15 +2,18 @@
 <div class="speaker-management-container">
   <!-- Header -->
   <header class="page-header">
-    <div class="header-left">
-      <button class="back-btn" routerLink="/dashboard/adminpanel">← Back</button>
-      <h1>🔊 Speaker Management</h1>
-    </div>
-    <div class="header-right">
-      <button class="logout-btn" (click)="logout()">Disconnect</button>
-      <button class="create-btn" (click)="openCreateModal()" [disabled]="loading">+ Add Speaker</button>
-    </div>
-  </header>
+  <div class="header-left">
+    <button class="back-btn" routerLink="/dashboard/adminpanel">← Back</button>
+    <h1>🔊 Speaker Management</h1>
+    <!-- NUEVO: Botón logout movido aquí para responsive -->
+    <button class="logout-btn" (click)="logout()">Disconnect</button>
+  </div>
+  <div class="header-right">
+    <!-- Botón logout original (se oculta en responsive) -->
+    <button class="logout-btn" (click)="logout()">Disconnect</button>
+    <button class="create-btn" (click)="openCreateModal()" [disabled]="loading">+ Add Speaker</button>
+  </div>
+</header>
 
   <!-- Error Message -->
   <div *ngIf="error" class="error-banner">
@@ -32,6 +35,8 @@
   <div *ngIf="!loading || speakers.length > 0" class="speakers-container">
     <div class="speakers-header">
       <h2>Speakers ({{ speakers.length }})</h2>
+      <!-- NUEVO: Botón Add Speaker en speakers-header para responsive -->
+      <button class="create-btn" (click)="openCreateModal()" [disabled]="loading">+ Add Speaker</button>
     </div>
 
     <div class="speakers-grid" *ngIf="speakers.length > 0">
@@ -43,7 +48,6 @@
             <div class="speaker-emoji">🔊</div>
           </div>
           <!-- CAMBIO: Mostrar "Speaker X" y color -->
-          <div class="speaker-label">Speaker {{ speaker.id }}</div>
           <div class="speaker-color-label">{{ getSpeakerColor(i).name }}</div>
         </div>
         
@@ -123,6 +127,13 @@
       <h3>No speakers found</h3>
       <p>Add your first speaker to get started</p>
       <button class="create-btn" (click)="openCreateModal()">+ Add Speaker</button>
+    </div>
+
+    <!-- NUEVO: Bottom Buttons Section solo para el botón back en responsive -->
+    <div class="bottom-buttons">
+      <button class="back-btn" routerLink="/dashboard/adminpanel">
+        ← Back
+      </button>
     </div>
   </div>
 

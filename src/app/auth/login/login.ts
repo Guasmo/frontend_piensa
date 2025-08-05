@@ -47,7 +47,6 @@ export class Login {
     this.authService.login(credentials)
       .subscribe({
         next: (response) => {
-          console.log('User logged in:', response);
           this.isLoading = false;
           this.router.navigate(['/home']);
         },

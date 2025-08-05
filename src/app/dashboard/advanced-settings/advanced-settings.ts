@@ -264,20 +264,33 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
     this.loadDashboardData();
   }
 
+
+    onLogout(): void {
+    // Verificar que estamos en el navegador
+    if (typeof window !== 'undefined') {
+      // Limpiar todos los datos de autenticación del localStorage
+
+      
+      // También limpiar el token genérico que usa el guard
+    }
+    
+    // Redirigir al login
+    this.router.navigate(['/auth/login']);
+  }
+
   // Método para desconectar/logout
   logout() {
-    console.log('Logging out...');
-    
     // Mostrar confirmación
     const confirmLogout = confirm('¿Estás seguro de que quieres desconectarte?');
     
     if (confirmLogout) {
       // Limpiar cualquier dato de sesión
-      localStorage.removeItem('authToken');
-      sessionStorage.clear();
-      
-      // Limpiar cache de usuarios
-      this.userService.clearUsersCache();
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+      localStorage.removeItem('roleName');
+      localStorage.removeItem('userSession');
       
       // Limpiar el intervalo de tiempo
       if (this.timeInterval) {
@@ -290,7 +303,7 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
       });
     }
   }
-
+  
   // Navegación a diferentes secciones
   navigateToUsers() {
     console.log('Navigate to users management');

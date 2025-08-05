@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Logo } from '../logo/logo';
+import { loginApi } from '../../constants/endPoints';
 
 @Component({
   selector: 'app-navbar',
@@ -27,9 +28,11 @@ export class Navbar implements OnInit {
   }
 
   onLogout(): void {
-    // Verificar que estamos en el navegador
-    if (typeof window !== 'undefined') {
-      // Limpiar todos los datos de autenticación del localStorage
+        // Mostrar confirmación
+    const confirmLogout = confirm('¿Estás seguro de que quieres desconectarte?');
+    
+    if (confirmLogout) {
+      // Limpiar cualquier dato de sesión
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('userId');
@@ -37,10 +40,11 @@ export class Navbar implements OnInit {
       localStorage.removeItem('roleName');
       localStorage.removeItem('userSession');
       
-      // También limpiar el token genérico que usa el guard
+      
+      // Redirigir a la página de login
+      this.router.navigate([`${loginApi}`]).then(() => {
+        console.log('Logged out successfully');
+      });
     }
-    
-    // Redirigir al login
-    this.router.navigate(['/auth/login']);
   }
 }

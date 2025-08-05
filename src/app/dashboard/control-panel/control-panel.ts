@@ -69,7 +69,6 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
 
   // ===== LIFECYCLE HOOKS =====
   ngOnInit(): void {
-    console.log('⚡ Iniciando Control Panel ULTRA OPTIMIZADO');
     this.initializeComponent();
   }
 
@@ -166,7 +165,6 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
   }
 
   private turnOnSpeaker(): void {
-    console.log('⚡ Encendiendo parlante - Modo Ultra Optimizado');
     
     const payload = {
       speakerId: this.speakerId,
@@ -201,7 +199,6 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
     this.resetData();
     this.startOptimizedPolling(this.activeSessionId);
     
-    console.log(`⚡ Modo Ultra Optimizado activado - Sesión: ${this.activeSessionId}`);
   }
 
   private turnOffSpeaker(): void {
@@ -230,20 +227,43 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
   }
 
   private createEndSessionPayload() {
-    if (!this.realtimeData) throw new Error('No realtime data available');
+  if (!this.realtimeData) throw new Error('No realtime data available');
+  
+  const payload = {
+    finalBatteryPercentage: this.realtimeData.latestData.battery_remaining_percent,
+    totalMeasurementsSent: this.realtimeData.statistics.measurementCount,
+    totalConsumed_mAh: this.realtimeData.statistics.totalConsumed_mAh,  // ← Campo clave
+    sessionDurationSeconds: this.realtimeData.statistics.durationSeconds,
+    avgCurrent_mA: this.realtimeData.statistics.avgCurrent_mA,
+    avgVoltage_V: this.realtimeData.statistics.avgVoltage_V,
+    avgPower_mW: this.realtimeData.statistics.avgPower_mW,
+    peakPower_mW: this.realtimeData.statistics.peakPower_mW,
+    mode: "ultra_optimized"
+  };
+
+  // ✅ LOGGING PARA DEBUG DEL PROBLEMA
+  console.log('🔍 DEBUG - Payload para finalizar sesión:', payload);
+  console.log('🔍 DEBUG - Datos completos de realtimeData.statistics:', this.realtimeData.statistics);
+  console.log('🔍 DEBUG - Datos completos de realtimeData.latestData:', this.realtimeData.latestData);
+  
+  // ✅ VERIFICAR SI EL CAMPO CLAVE ESTÁ PRESENTE
+  if (!payload.totalConsumed_mAh || payload.totalConsumed_mAh <= 0) {
+    console.warn('⚠️ totalConsumed_mAh está vacío o en cero:', {
+      fromStatistics: this.realtimeData.statistics.totalConsumed_mAh,
+      fromLatestData: this.realtimeData.latestData.total_consumed_mAh,
+      allStatistics: this.realtimeData.statistics,
+      allLatestData: this.realtimeData.latestData
+    });
     
-    return {
-      finalBatteryPercentage: this.realtimeData.latestData.battery_remaining_percent,
-      totalMeasurementsSent: this.realtimeData.statistics.measurementCount,
-      totalConsumed_mAh: this.realtimeData.statistics.totalConsumed_mAh,
-      sessionDurationSeconds: this.realtimeData.statistics.durationSeconds,
-      avgCurrent_mA: this.realtimeData.statistics.avgCurrent_mA,
-      avgVoltage_V: this.realtimeData.statistics.avgVoltage_V,
-      avgPower_mW: this.realtimeData.statistics.avgPower_mW,
-      peakPower_mW: this.realtimeData.statistics.peakPower_mW,
-      mode: "ultra_optimized"
-    };
+    // Intentar usar el valor del latestData si statistics está vacío
+    if (this.realtimeData.latestData.total_consumed_mAh > 0) {
+      console.log('🔄 Usando totalConsumed_mAh desde latestData:', this.realtimeData.latestData.total_consumed_mAh);
+      payload.totalConsumed_mAh = this.realtimeData.latestData.total_consumed_mAh;
+    }
   }
+
+  return payload;
+}
 
   private handleSuccessfulEnd(): void {
     this.isConnected = false;
@@ -258,7 +278,6 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
   private startOptimizedPolling(sessionId: number): void {
     this.stopPolling();
     
-    console.log(`📊 Iniciando fetching cada ${this.POLLING_INTERVAL/1000}s`);
     
     this.pollingSubscription = timer(500, this.POLLING_INTERVAL).pipe(
       switchMap(() => this.http.get<{ 
@@ -386,7 +405,7 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('💾 Guardando sesión ultra optimizada...');
+    console.log('💾 Guardando sesión ');
 
     const payload = this.createEndSessionPayload();
 
@@ -658,17 +677,11 @@ export class ControlPanelComponent implements OnInit, OnDestroy {
       console.log('📊 Datos en tiempo real:', this.realtimeData);
     }
     
-    console.log('🔊 Estado del volumen:');
-    console.log(`  - Actual: ${this.currentVolume}/30 (${this.getVolumePercent()}%)`);
-    console.log(`  - Rango: ${this.minVolume}-${this.maxVolume}`);
-    console.log(`  - Estado: ${this.volumeStatus}`);
-    console.log(`  - Descripción: ${this.getVolumeDescription()}`);
     
     if (this.lastVolumeUpdate) {
       console.log(`  - Última actualización: ${this.lastVolumeUpdate.toLocaleTimeString()}`);
     }
     
-    console.log('=======================================');
   }
 
   // ===== MÉTODO DE LIMPIEZA =====

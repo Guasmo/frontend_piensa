@@ -151,13 +151,11 @@ export class SelectPanel implements OnInit, OnDestroy {
       // Si hay sesión activa, pintar de verde
       button.classList.add('active', 'green');
       button.style.backgroundColor = '#32cd32'; // Verde
-      console.log(`🟢 Speaker ${speakerId} pintado de verde (sesión activa)`);
     } else {
       // Si no hay sesión activa, volver al color original
       if (speakerId === 1) { // Solo el speaker 1 está disponible
         button.classList.add('active', speaker.color);
         button.style.backgroundColor = this.getColorValue(speaker.color);
-        console.log(`🟡 Speaker ${speakerId} pintado de ${speaker.color} (sin sesión)`);
       } else {
         // Speakers bloqueados mantienen su estado
         button.style.backgroundColor = '#555';
@@ -241,7 +239,6 @@ export class SelectPanel implements OnInit, OnDestroy {
       const speakerIdStr = this.pressedButton.getAttribute('data-speaker-id');
       const speakerId = speakerIdStr ? parseInt(speakerIdStr) : 1;
       
-      console.log(`🎯 Navegando al panel de control del parlante ${speakerId}`);
       
       // Navegar al control panel con el ID específico
       this.router.navigate(['/dashboard/control-panel', speakerId]);
@@ -276,13 +273,11 @@ export class SelectPanel implements OnInit, OnDestroy {
 
   // ✅ MÉTODO PARA NAVEGACIÓN DIRECTA (alternativo)
   navigateToSpeaker(speakerId: number): void {
-    console.log(`🎯 Navegando directamente al parlante ${speakerId}`);
     this.router.navigate(['/dashboard/control-panel', speakerId]);
   }
 
   // ✅ MÉTODO PARA FORZAR ACTUALIZACIÓN DE ESTADO
   public refreshSpeakerStatus(): void {
-    console.log('🔄 Actualizando estado de speakers manualmente...');
     this.checkAllSpeakersStatus();
   }
 

@@ -1,9 +1,10 @@
 // speakers-management.component.ts
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SpeakersService } from '../../services/speaker.service';
+import { loginApi } from '../../constants/endPoints';
 
 interface Speaker {
   id: number;
@@ -100,8 +101,7 @@ export class SpeakersManagementComponent implements OnInit {
     'Bottom Right'
   ];
 
-  constructor(private speakersService: SpeakersService) {}
-
+  constructor(private speakersService: SpeakersService, private router: Router) {}
   ngOnInit() {
     this.loadSpeakers();
   }
@@ -429,9 +429,24 @@ export class SpeakersManagementComponent implements OnInit {
 
   // Logout method
   logout() {
-    console.log('Logout');
-    // Implement logout logic
-  }
+         // Mostrar confirmación
+      const confirmLogout = confirm('¿Estás seguro de que quieres desconectarte?');
+      
+      if (confirmLogout) {
+        // Limpiar cualquier dato de sesión
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        localStorage.removeItem('roleName');
+        localStorage.removeItem('userSession');
+        
+        // Redirigir a la página de login
+        this.router.navigate([`${loginApi}`]).then(() => {
+          console.log('Logged out successfully');
+        });
+      }
+    }
 
   // Get total sessions for a speaker
   getTotalSessions(speaker: Speaker): number {
