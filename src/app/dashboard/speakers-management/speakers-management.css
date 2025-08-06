@@ -1,9 +1,300 @@
+/* speakers-management.component.css - CÓDIGO COMPLETO */
+
 /* Contenedor principal */
 .speaker-management-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #0f1419 0%, #1a2332 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
+/* NUEVO: Estilos para datos reales de batería */
+
+/* Battery Data Status */
+.battery-data-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin-top: 8px;
+  font-weight: 500;
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.battery-data-status.loading {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.battery-data-status.no-data {
+  background: rgba(107, 114, 128, 0.1);
+  color: #8b95a6;
+  border-color: rgba(107, 114, 128, 0.3);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Battery Data Source Info */
+.battery-data-source {
+  text-align: center;
+  font-size: 12px;
+  color: #8b95a6;
+  padding: 8px;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.data-range {
+  font-size: 11px;
+  opacity: 0.8;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Loading Indicator */
+.battery-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px;
+  color: #8b95a6;
+  font-size: 14px;
+}
+
+.loading-spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Chart Data Info */
+.chart-data-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.real-data-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-weight: 500;
+}
+
+.estimated-data-badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: rgba(107, 114, 128, 0.2);
+  color: #8b95a6;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  font-weight: 500;
+}
+
+/* No Battery Data Message */
+.no-battery-data {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 20px 0;
+}
+
+.no-data-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.6;
+}
+
+.no-battery-data h4 {
+  color: #e1e8f0;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.no-battery-data p {
+  color: #8b95a6;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.no-data-suggestion {
+  color: #64748b;
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Disabled State for Filters */
+.battery-filter-select:disabled,
+.battery-date-filter-button:disabled,
+.battery-clear-filter-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background: rgba(107, 114, 128, 0.1) !important;
+  color: #6b7280 !important;
+  border-color: rgba(107, 114, 128, 0.2) !important;
+}
+
+/* Enhanced Chart for Real Data */
+.battery-svg path[stroke="#10b981"] {
+  filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3));
+}
+
+.battery-svg path[stroke="#6b7280"] {
+  opacity: 0.7;
+}
+
+/* Calendar Day with Real Data */
+.battery-calendar-day.has-data {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.battery-calendar-day.has-data .data-indicator {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.2);
+}
+
+/* Enhanced Detail Cards for Real Data */
+.detail-card.has-real-data {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.1);
+}
+
+.detail-card.has-real-data .detail-icon {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.detail-card.has-real-data .detail-value {
+  color: #10b981;
+}
+
+/* Battery Filter Info Enhanced */
+.battery-filter-info {
+  text-align: center;
+  font-size: 12px;
+  color: #8b95a6;
+  padding: 8px 12px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 10px;
+  border-left: 3px solid #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  position: relative;
+}
+
+.battery-filter-info::before {
+  content: '📊';
+  margin-right: 6px;
+}
+
+/* Improved Grid Layout for Battery Details */
+.battery-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 25px;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+  .battery-data-source {
+    font-size: 11px;
+    padding: 6px;
+  }
+  
+  .data-range {
+    font-size: 10px;
+  }
+  
+  .chart-data-info {
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-end;
+  }
+  
+  .real-data-badge,
+  .estimated-data-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  
+  .battery-loading {
+    padding: 20px;
+    font-size: 13px;
+  }
+  
+  .no-battery-data {
+    padding: 30px 15px;
+  }
+  
+  .no-battery-data h4 {
+    font-size: 16px;
+  }
+  
+  .no-battery-data p {
+    font-size: 13px;
+  }
+  
+  .battery-details-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .battery-data-status {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  
+  .battery-filter-info {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+  
+  .chart-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .chart-data-info {
+    align-self: stretch;
+    justify-content: center;
+  }
+  
+  .battery-details-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .no-data-icon {
+    font-size: 40px;
+  }
+}
+
 
 /* Header */
 .page-header {
@@ -187,7 +478,7 @@
 
 /* Speakers Grid */
 .speakers-grid {
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 20px;
@@ -205,6 +496,17 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+}
+
+/* Speaker card seleccionada */
+.speaker-card.selected {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateX(5px);
+}
+
+.speaker-card.selected::before {
+  opacity: 1;
 }
 
 .speaker-card::before {
@@ -229,7 +531,7 @@
   opacity: 1;
 }
 
-/* CAMBIO: Speaker Visual - Nuevo diseño con emoji y círculo de color */
+/* Speaker Visual */
 .speaker-visual {
   display: flex;
   flex-direction: column;
@@ -386,10 +688,10 @@
   line-height: 1.3;
 }
 
-/* CAMBIO: Speaker Actions - VERTICAL en desktop */
+/* Speaker Actions - VERTICAL en desktop */
 .speaker-actions {
   display: flex;
-  flex-direction: column;  /* ← VERTICAL en desktop */
+  flex-direction: column;
   gap: 10px;
   flex-shrink: 0;
   padding-top: 15px;
@@ -399,14 +701,21 @@
 .action-btn {
   width: 40px;
   height: 40px;
-  border-radius: 12px;  /* ← Cuadrado redondeado, no círculo */
+  border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid;  /* ← Añadido border base */
+  border: 1px solid;
+  position: relative;
+}
+
+/* Estados activos para los botones */
+.action-btn.active {
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .edit-btn {
@@ -415,7 +724,7 @@
   border-color: rgba(59, 130, 246, 0.3);
 }
 
-.edit-btn:hover {
+.edit-btn:hover, .edit-btn.active {
   background: rgba(59, 130, 246, 0.3);
   transform: scale(1.1);
 }
@@ -426,9 +735,41 @@
   border-color: rgba(245, 158, 11, 0.3);
 }
 
-.toggle-btn:hover {
+.toggle-btn:hover, .toggle-btn.active {
   background: rgba(245, 158, 11, 0.3);
   transform: scale(1.1);
+}
+
+/* Botón de batería */
+.battery-btn {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+  position: relative;
+}
+
+.battery-btn:hover, .battery-btn.active {
+  background: rgba(16, 185, 129, 0.3);
+  transform: scale(1.1);
+}
+
+/* Efecto de pulso para el botón de batería */
+.battery-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  background: linear-gradient(90deg, #34d399, #10b981);
+  border-radius: 0 0 12px 12px;
+  opacity: 0.6;
+  animation: batteryPulse 2s ease-in-out infinite;
+}
+
+@keyframes batteryPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.9; }
 }
 
 .delete-btn {
@@ -437,7 +778,7 @@
   border-color: rgba(239, 68, 68, 0.3);
 }
 
-.delete-btn:hover {
+.delete-btn:hover, .delete-btn.active {
   background: rgba(239, 68, 68, 0.3);
   transform: scale(1.1);
 }
@@ -456,6 +797,7 @@
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
+  margin-bottom: 30px;
 }
 
 .empty-icon {
@@ -475,70 +817,48 @@
   margin-bottom: 30px;
 }
 
-/* Modal Overlay */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-  backdrop-filter: blur(10px);
-}
-
-.modal-content {
-  background: rgba(26, 35, 50, 0.95);
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Data Container */
+.data-container {
+  background: rgba(26, 35, 50, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  max-width: 700px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-  animation: modalSlideIn 0.3s ease-out;
+  margin-bottom: 30px;
+  animation: slideUp 0.3s ease-out;
 }
 
-.modal-content.small-modal {
-  max-width: 400px;
-}
-
-@keyframes modalSlideIn {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(-30px) scale(0.95);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
-.modal-header {
-  padding: 25px 30px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.data-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 20px 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.modal-header h2 {
+.data-header h3 {
   margin: 0;
   color: #e1e8f0;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
-.close-btn {
+.close-data-btn {
   background: none;
   border: none;
-  font-size: 24px;
   color: #8b95a6;
+  font-size: 24px;
   cursor: pointer;
   padding: 0;
   width: 30px;
@@ -546,31 +866,57 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.3s ease;
   border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
-.close-btn:hover {
+.close-data-btn:hover {
   color: #e1e8f0;
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Form Styles */
-.speaker-form {
+.data-content {
   padding: 30px;
+  min-height: 200px;
+}
+
+/* Data Placeholder */
+.data-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  color: #8b95a6;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.6;
+}
+
+.data-placeholder p {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #64748b;
+}
+
+.data-placeholder small {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Data Form */
+.data-form h4 {
+  color: #e1e8f0;
+  margin-bottom: 25px;
+  font-size: 18px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .form-section {
-  margin-bottom: 30px;
-}
-
-.form-section h3 {
-  color: #e1e8f0;
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 25px;
 }
 
 .form-row {
@@ -621,12 +967,6 @@
   color: #e1e8f0;
 }
 
-.form-group small {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #8b95a6;
-}
-
 /* Checkbox Container */
 .checkbox-container {
   padding: 12px 0;
@@ -673,21 +1013,12 @@
   font-weight: bold;
 }
 
-.checkbox-label input[type="checkbox"]:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.checkbox-label:hover input[type="checkbox"] {
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-/* Modal Actions */
-.modal-actions {
+/* Form Actions */
+.form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 15px;
-  margin-top: 30px;
+  margin-top: 25px;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -736,20 +1067,669 @@
   transform: none !important;
 }
 
-/* Delete Modal Content */
-.delete-content {
-  padding: 30px;
-  text-align: center;
+/* Data Info */
+.data-info h4 {
+  color: #e1e8f0;
+  margin-bottom: 25px;
+  font-size: 18px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.warning-icon {
-  font-size: 48px;
+/* Battery Header */
+.battery-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 16px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.battery-percentage-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.battery-percentage-large {
+  font-size: 64px;
+  font-weight: bold;
+  color: #e1e8f0;
+  text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+  animation: batteryGlow 3s ease-in-out infinite;
+}
+
+@keyframes batteryGlow {
+  0%, 100% { text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3); }
+  50% { text-shadow: 0 2px 20px rgba(16, 185, 129, 0.6); }
+}
+
+/* NUEVO: Battery Filter Styles */
+.battery-filter-container {
+  width: 100%;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+}
+
+.battery-filter-row {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.battery-filter-select {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e1e8f0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.battery-filter-select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.battery-filter-select option {
+  background: #1a2332;
+  color: #e1e8f0;
+}
+
+/* Battery Date Filter Button */
+.battery-date-filter-button {
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  white-space: nowrap;
+  min-width: 140px;
+}
+
+.battery-date-filter-button:hover {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+}
+
+.battery-date-filter-button.active {
+  background: rgba(16, 185, 129, 0.4);
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.battery-clear-filter-button {
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.battery-clear-filter-button:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Battery Calendar Overlay */
+.battery-calendar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Battery Calendar Container */
+.battery-calendar-container {
+  background: rgba(26, 35, 50, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideDown 0.3s ease;
+  
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  width: 90%;
+  max-width: 380px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.battery-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 10px;
+}
+
+.battery-calendar-month-year {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e1e8f0;
+  text-align: center;
+  flex: 1;
+  margin: 0;
+}
+
+.battery-calendar-close-button {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+}
+
+.battery-calendar-close-button:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: scale(1.1);
+}
+
+.battery-calendar-nav-button {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.battery-calendar-nav-button:hover {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.5);
+  transform: scale(1.1);
+}
+
+.battery-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.battery-calendar-weekday {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b95a6;
+  padding: 8px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.battery-calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.battery-calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  min-height: 44px;
+  cursor: default;
+}
+
+.battery-calendar-day:not(.current-month) {
+  color: #4b5563;
+  opacity: 0.4;
+}
+
+.battery-calendar-day.current-month {
+  color: #e1e8f0;
+}
+
+.battery-calendar-day.clickable {
+  cursor: pointer;
+}
+
+.battery-calendar-day.clickable:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: scale(1.05);
+}
+
+.battery-calendar-day.today {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  font-weight: 600;
+}
+
+.battery-calendar-day.selected {
+  background: rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #10b981;
+  font-weight: 600;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.battery-calendar-day.has-data {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.battery-calendar-day.has-data.clickable:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.day-number {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.data-indicator {
+  font-size: 10px;
+  font-weight: 600;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  padding: 1px 4px;
+  min-width: 16px;
+  text-align: center;
+  margin-top: 2px;
+  line-height: 1;
+}
+
+.battery-calendar-actions {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+}
+
+.battery-quick-date-button {
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 13px;
+}
+
+.battery-quick-date-button:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: translateY(-1px);
+}
+
+.battery-filter-info {
+  text-align: center;
+  font-size: 12px;
+  color: #8b95a6;
+  padding: 10px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 10px;
+  border-left: 3px solid #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Battery Chart Section */
+.battery-chart-section {
+  margin: 30px 0;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 25px;
+}
+
+.chart-container {
+  width: 100%;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-.delete-content p {
-  margin-bottom: 15px;
+.chart-header h5 {
+  margin: 0;
   color: #e1e8f0;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e1e8f0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.filter-select option {
+  background: #1a2332;
+  color: #e1e8f0;
+}
+
+/* Voltage Chart */
+.voltage-chart {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  grid-template-rows: 1fr 30px;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.chart-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-right: 10px;
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.y-label {
+  font-size: 12px;
+  color: #8b95a6;
+  font-weight: 500;
+}
+
+.chart-area {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  grid-row: 1;
+  grid-column: 2;
+  position: relative;
+  overflow: hidden;
+}
+
+.battery-svg {
+  width: 100%;
+  height: 300px;
+  display: block;
+}
+
+.chart-x-axis {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  grid-row: 2;
+  grid-column: 2;
+  padding: 0 10px;
+}
+
+.x-label {
+  font-size: 12px;
+  color: #8b95a6;
+  font-weight: 500;
+}
+
+/* Battery Details Grid */
+.battery-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.detail-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.detail-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.detail-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+}
+
+.detail-icon.active-icon {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.detail-icon.inactive-icon {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.detail-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: #8b95a6;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 16px;
+  color: #e1e8f0;
+  font-weight: 500;
+}
+
+.detail-value.active {
+  color: #10b981;
+}
+
+.detail-value.inactive {
+  color: #ef4444;
+}
+
+/* Toggle Data */
+.toggle-data {
+  max-width: 600px;
+}
+
+.current-status {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 25px;
+}
+
+.status-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.current-label {
+  color: #8b95a6;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.status-badge-large {
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-badge-large.active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.toggle-info p {
+  color: #e1e8f0;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.toggle-actions {
+  text-align: center;
+}
+
+.toggle-action-btn {
+  padding: 12px 30px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid;
+}
+
+.toggle-action-btn.activate {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.toggle-action-btn.activate:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.toggle-action-btn.deactivate {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.toggle-action-btn.deactivate:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* Delete Data */
+.delete-data {
+  max-width: 600px;
+}
+
+.warning-section {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.warning-icon-large {
+  font-size: 48px;
+  margin-bottom: 15px;
+  color: #ef4444;
+}
+
+.warning-section p {
+  color: #e1e8f0;
+  margin-bottom: 15px;
+  line-height: 1.5;
 }
 
 .warning-text {
@@ -757,8 +1737,21 @@
   font-weight: 500;
 }
 
-/* CAMBIO: Botón delete del modal igual que users-management */
-.modal-actions .delete-btn {
+.speaker-details {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.delete-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.delete-btn {
   background: rgba(239, 68, 68, 0.8);
   color: white;
   border: 1px solid rgba(239, 68, 68, 0.3);
@@ -770,18 +1763,23 @@
   transition: all 0.3s ease;
 }
 
-.modal-actions .delete-btn:hover:not(:disabled) {
+.delete-btn:hover:not(:disabled) {
   background: rgba(239, 68, 68, 1);
   border-color: #ef4444;
   transform: translateY(-1px);
 }
 
-.modal-actions .delete-btn:disabled {
+.delete-btn:disabled {
   background: rgba(107, 114, 128, 0.3) !important;
   border-color: rgba(107, 114, 128, 0.3) !important;
   cursor: not-allowed !important;
   color: #8b95a6 !important;
   transform: none !important;
+}
+
+/* Bottom Buttons */
+.bottom-buttons {
+  display: none;
 }
 
 /* Form validation styles */
@@ -812,25 +1810,6 @@
   animation: fadeIn 0.5s ease-out;
 }
 
-/* Estados adicionales */
-.create-btn {
-  background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 10px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.create-btn:hover {
-  background: rgba(16, 185, 129, 0.3);
-  border-color: rgba(16, 185, 129, 0.5);
-  transform: translateY(-1px);
-}
-
 /* Mejoras para accesibilidad */
 .speaker-card:focus {
   outline: 2px solid #3b82f6;
@@ -842,14 +1821,7 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-/* NUEVO: Sección para botones inferiores (inicialmente oculta) */
-.bottom-buttons {
-  display: none; /* Oculto en desktop */
-}
-
-
-
-/* Responsive para el botón back */
+/* Responsive */
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
@@ -858,10 +1830,9 @@ button:focus-visible {
     gap: 15px;
   }
   
-  /* CAMBIO: Reorganizar header-left y header-right */
   .header-left {
     width: 100%;
-    justify-content: space-between; /* Distribuir espacio entre título y disconnect */
+    justify-content: space-between;
     align-items: center;
   }
   
@@ -871,10 +1842,9 @@ button:focus-visible {
     font-size: 20px;
     font-weight: 500;
     letter-spacing: 0.5px;
-    order: 1; /* Título primero */
+    order: 1;
   }
   
-  /* Mover el botón logout a header-left */
   .header-left .logout-btn {
     background: rgba(239, 68, 68, 0.2);
     color: #ef4444;
@@ -885,7 +1855,7 @@ button:focus-visible {
     font-size: 14px;
     font-weight: 500;
     transition: all 0.3s ease;
-    order: 2; /* Disconnect segundo */
+    order: 2;
   }
   
   .header-left .logout-btn:hover {
@@ -894,12 +1864,10 @@ button:focus-visible {
     transform: translateY(-1px);
   }
   
-  /* Header-right oculto en responsive */
   .header-right {
     display: none;
   }
   
-  /* CAMBIO: Solo ocultar el botón back en header para responsive */
   .back-btn {
     display: none;
   }
@@ -908,7 +1876,6 @@ button:focus-visible {
     padding: 20px 15px;
   }
   
-  /* NUEVO: Reorganizar speakers-header en responsive */
   .speakers-header {
     display: flex;
     justify-content: space-between;
@@ -924,9 +1891,8 @@ button:focus-visible {
     letter-spacing: 0.3px;
   }
   
-  /* Botón Add Speaker en speakers-header para responsive */
   .speakers-header .create-btn {
-    display: flex; /* Mostrar en responsive */
+    display: flex;
     background: rgba(16, 185, 129, 0.2);
     color: #10b981;
     border: 1px solid rgba(16, 185, 129, 0.3);
@@ -990,24 +1956,64 @@ button:focus-visible {
     grid-template-columns: 1fr;
   }
   
-  .modal-content {
-    margin: 10px;
-    max-height: calc(100vh - 20px);
+  .battery-details-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
   }
   
-  .speaker-form {
+  .detail-card {
+    padding: 15px;
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .detail-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 20px;
+  }
+  
+  .detail-value {
+    font-size: 14px;
+  }
+  
+  .battery-percentage-large {
+    font-size: 48px;
+  }
+  
+  .voltage-chart {
+    grid-template-columns: 40px 1fr;
+    grid-template-rows: 1fr 25px;
+    gap: 8px;
+  }
+  
+  .battery-svg {
+    height: 200px;
+  }
+  
+  .chart-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .chart-filters {
+    justify-content: center;
+  }
+  
+  .data-content {
     padding: 20px;
   }
-
-  .modal-header {
-    padding: 20px;
+  
+  .data-header {
+    padding: 15px 20px;
   }
 
   .error-banner {
     margin: 15px 20px;
   }
 
-  /* NUEVO: Mostrar sección del botón back en la parte inferior */
   .bottom-buttons {
     display: flex;
     justify-content: center;
@@ -1034,10 +2040,10 @@ button:focus-visible {
     position: relative;
     overflow: hidden;
     border: none;
-    background: linear-gradient(135deg, #ed0e0e, #d71616);
+    background: linear-gradient(135deg, #ef4444, #dc2626);
     color: white;
     box-shadow: 
-      0 4px 20px rgba(100, 116, 139, 0.3),
+      0 4px 20px rgba(239, 68, 68, 0.3),
       0 1px 3px rgba(0, 0, 0, 0.1);
   }
   
@@ -1053,10 +2059,10 @@ button:focus-visible {
   }
   
   .bottom-buttons .back-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #3286fb, #334155);
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
     transform: translateY(-2px);
     box-shadow: 
-      0 8px 30px rgba(100, 116, 139, 0.4),
+      0 8px 30px rgba(239, 68, 68, 0.4),
       0 4px 10px rgba(0, 0, 0, 0.1);
   }
   
@@ -1064,15 +2070,87 @@ button:focus-visible {
     left: 100%;
   }
   
-  /* Estados activos para el botón */
   .bottom-buttons .back-btn:active:not(:disabled) {
     transform: translateY(-1px);
   }
   
-  /* Focus states */
   .bottom-buttons .back-btn:focus-visible {
-    outline: 2px solid #64748b;
+    outline: 2px solid #ef4444;
     outline-offset: 2px;
+  }
+
+  /* Responsive Design for Battery Calendar */
+  .battery-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .battery-filter-select,
+  .battery-date-filter-button,
+  .battery-clear-filter-button {
+    min-width: auto;
+    width: 100%;
+    max-width: none;
+  }
+
+  /* Battery Calendar responsive */
+  .battery-calendar-overlay {
+    display: none; /* Sin overlay en móvil */
+  }
+
+  .battery-calendar-container {
+    padding: 15px;
+    /* En móvil: comportamiento normal */
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 15px 0 0 0;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: none;
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideDownMobile 0.3s ease;
+  }
+
+  @keyframes slideDownMobile {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .battery-calendar-close-button {
+    display: none; /* No mostrar en móvil */
+  }
+
+  .battery-calendar-day {
+    min-height: 38px;
+    padding: 6px 2px;
+  }
+
+  .day-number {
+    font-size: 13px;
+  }
+
+  .data-indicator {
+    font-size: 9px;
+    padding: 1px 3px;
+  }
+
+  .battery-calendar-month-year {
+    font-size: 16px;
+  }
+
+  .battery-calendar-nav-button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
   }
 }
 
@@ -1098,7 +2176,7 @@ button:focus-visible {
   }
   
   .speaker-actions {
-    flex-direction: row;     /* ← SOLO en mobile (480px) horizontal */
+    flex-direction: row;
     justify-content: center;
     gap: 8px;
   }
@@ -1109,7 +2187,8 @@ button:focus-visible {
     font-size: 14px;
   }
   
-  .modal-actions {
+  .form-actions,
+  .delete-actions {
     flex-direction: column;
     gap: 10px;
   }
@@ -1120,19 +2199,64 @@ button:focus-visible {
     width: 100%;
   }
 
-  .speaker-form {
+  .data-content {
     padding: 15px;
   }
-
-  .modal-overlay {
-    padding: 10px;
-  }
   
-  /* CAMBIO: Ajustar solo el botón back para pantallas muy pequeñas */
   .bottom-buttons .back-btn {
     padding: 0.75rem 1.25rem;
     font-size: 0.95rem;
     min-height: 42px;
     max-width: 220px;
+  }
+
+  .battery-filter-container {
+    margin-bottom: 20px;
+  }
+
+  .battery-date-filter-button,
+  .battery-clear-filter-button,
+  .battery-filter-select {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  /* Calendar very small screens */
+  .battery-calendar-container {
+    padding: 12px;
+  }
+
+  .battery-calendar-days {
+    gap: 1px;
+  }
+
+  .battery-calendar-day {
+    min-height: 34px;
+    padding: 4px 2px;
+  }
+
+  .day-number {
+    font-size: 12px;
+  }
+
+  .data-indicator {
+    font-size: 8px;
+    padding: 0px 2px;
+    margin-top: 1px;
+  }
+
+  .battery-calendar-month-year {
+    font-size: 15px;
+  }
+
+  .battery-calendar-nav-button {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .battery-calendar-weekday {
+    font-size: 11px;
+    padding: 6px 2px;
   }
 }

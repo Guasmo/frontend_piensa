@@ -1,17 +1,17 @@
-<!-- speakers-management.component.html -->
+<!-- speakers-management.component.html - CÓDIGO COMPLETO -->
 <div class="speaker-management-container">
   <!-- Header -->
   <header class="page-header">
   <div class="header-left">
     <button class="back-btn" routerLink="/dashboard/adminpanel">← Back</button>
     <h1>🔊 Speaker Management</h1>
-    <!-- NUEVO: Botón logout movido aquí para responsive -->
+    <!-- Botón logout movido aquí para responsive -->
     <button class="logout-btn" (click)="logout()">Disconnect</button>
   </div>
   <div class="header-right">
     <!-- Botón logout original (se oculta en responsive) -->
     <button class="logout-btn" (click)="logout()">Disconnect</button>
-    <button class="create-btn" (click)="openCreateModal()" [disabled]="loading">+ Add Speaker</button>
+    <button class="create-btn" (click)="showCreateForm()" [disabled]="loading">+ Add Speaker</button>
   </div>
 </header>
 
@@ -35,27 +35,27 @@
   <div *ngIf="!loading || speakers.length > 0" class="speakers-container">
     <div class="speakers-header">
       <h2>Speakers ({{ speakers.length }})</h2>
-      <!-- NUEVO: Botón Add Speaker en speakers-header para responsive -->
-      <button class="create-btn" (click)="openCreateModal()" [disabled]="loading">+ Add Speaker</button>
+      <!-- Botón Add Speaker en speakers-header para responsive -->
+      <button class="create-btn" (click)="showCreateForm()" [disabled]="loading">+ Add Speaker</button>
     </div>
 
     <div class="speakers-grid" *ngIf="speakers.length > 0">
       <!-- Speaker Card Dynamic -->
-      <div *ngFor="let speaker of speakers; let i = index" class="speaker-card">
+      <div *ngFor="let speaker of speakers; let i = index" class="speaker-card" [class.selected]="selectedSpeaker?.id === speaker.id">
         <div class="speaker-visual">
-          <!-- CAMBIO: Emoji de parlante con círculo de color -->
+          <!-- Emoji de parlante con círculo de color -->
           <div class="speaker-circle" [style.border-color]="getSpeakerColor(i).color">
             <div class="speaker-emoji">🔊</div>
           </div>
-          <!-- CAMBIO: Mostrar "Speaker X" y color -->
+          <!-- Mostrar "Speaker X" y color -->
           <div class="speaker-color-label">{{ getSpeakerColor(i).name }}</div>
         </div>
         
         <div class="speaker-info">
-          <!-- CAMBIO: Mostrar "Speaker X" como nombre -->
+          <!-- Mostrar "Speaker X" como nombre -->
           <div class="speaker-name">Speaker {{ speaker.id }}</div>
           <div class="speaker-id">ID: {{ speaker.id }}</div>
-          <!-- CAMBIO: Posiciones corregidas -->
+          <!-- Posiciones corregidas -->
           <div class="speaker-position">Position: {{ getCorrectPosition(speaker.position) }}</div>
           
           <div class="speaker-specs">
@@ -94,26 +94,38 @@
           </div>
         </div>
 
-        <!-- CAMBIO: Botones con el mismo estilo que users-management -->
+        <!-- Botones muestran data abajo en lugar de modales -->
         <div class="speaker-actions">
           <button 
             class="action-btn edit-btn" 
+            [class.active]="activeDataView === 'edit' && selectedSpeaker?.id === speaker.id"
             title="Edit speaker"
-            (click)="openEditModal(speaker)"
+            (click)="showEditData(speaker)"
             [disabled]="loading">
             ✏️
           </button>
           <button 
             class="action-btn toggle-btn" 
+            [class.active]="activeDataView === 'toggle' && selectedSpeaker?.id === speaker.id"
             [title]="speaker.state ? 'Deactivate speaker' : 'Activate speaker'"
-            (click)="toggleSpeaker(speaker)"
+            (click)="showToggleData(speaker)"
             [disabled]="loading">
             {{ speaker.state ? '🔒' : '🔓' }}
           </button>
+          <!-- Botón de batería -->
+          <button 
+            class="action-btn battery-btn" 
+            [class.active]="activeDataView === 'battery' && selectedSpeaker?.id === speaker.id"
+            title="Battery status"
+            (click)="showBatteryData(speaker)"
+            [disabled]="loading">
+            🔋
+          </button>
           <button 
             class="action-btn delete-btn" 
+            [class.active]="activeDataView === 'delete' && selectedSpeaker?.id === speaker.id"
             title="Delete speaker"
-            (click)="openDeleteModal(speaker)"
+            (click)="showDeleteData(speaker)"
             [disabled]="loading">
             🗑️
           </button>
@@ -126,193 +138,506 @@
       <div class="empty-icon">🔊</div>
       <h3>No speakers found</h3>
       <p>Add your first speaker to get started</p>
-      <button class="create-btn" (click)="openCreateModal()">+ Add Speaker</button>
+      <button class="create-btn" (click)="showCreateForm()">+ Add Speaker</button>
     </div>
 
-    <!-- NUEVO: Bottom Buttons Section solo para el botón back en responsive -->
-    <div class="bottom-buttons">
-      <button class="back-btn" routerLink="/dashboard/adminpanel">
-        ← Back
-      </button>
-    </div>
-  </div>
-
-  <!-- Create Speaker Modal -->
-  <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeCreateModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Add New Speaker</h2>
-        <button class="close-btn" (click)="closeCreateModal()">×</button>
+    <!-- Data Container -->
+    <div class="data-container">
+      <div class="data-header">
+        <h3>Data</h3>
+        <button *ngIf="activeDataView" class="close-data-btn" (click)="clearDataView()">×</button>
       </div>
       
-      <form class="speaker-form" (ngSubmit)="createSpeaker()" #createSpeakerForm="ngForm">
-        <div class="form-section">
-          <h3>Speaker Information</h3>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="create-name">Speaker Name *</label>
-              <input 
-                type="text" 
-                id="create-name" 
-                name="createName"
-                [(ngModel)]="createForm.name"
-                placeholder="e.g., Main Hall Speaker" 
-                required />
-              <small>Display name for the speaker</small>
-            </div>
-            <div class="form-group">
-              <label for="create-position">Position *</label>
-              <select 
-                id="create-position" 
-                name="createPosition"
-                [(ngModel)]="createForm.position"
-                required>
-                <option value="">Select position</option>
-                <option *ngFor="let position of availablePositions" [value]="position">{{ position }}</option>
-              </select>
-            </div>
-          </div>
+      <div class="data-content">
+        <!-- Placeholder cuando no hay selección -->
+        <div *ngIf="!activeDataView" class="data-placeholder">
+          <div class="placeholder-icon">📊</div>
+          <p>Select an option</p>
+          <small>Click any button above to view data</small>
         </div>
 
-        <div class="form-section">
-          <h3>Initial Settings</h3>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="create-battery">Battery Percentage</label>
-              <input 
-                type="number" 
-                id="create-battery" 
-                name="createBattery"
-                [(ngModel)]="createForm.batteryPercentage"
-                placeholder="100" 
-                min="0" 
-                max="100" />
-              <small>Initial battery level (0-100%)</small>
-            </div>
-            <div class="form-group">
-              <label for="create-state">Initial State</label>
-              <select 
-                id="create-state" 
-                name="createState"
-                [(ngModel)]="createForm.state">
-                <option [value]="false">Inactive</option>
-                <option [value]="true">Active</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="cancel-btn" (click)="closeCreateModal()" [disabled]="loading">Cancel</button>
-          <button type="submit" class="submit-btn" [disabled]="!createSpeakerForm.form.valid || loading">
-            {{ loading ? 'Creating...' : 'Add Speaker' }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Edit Speaker Modal -->
-  <div *ngIf="showEditModal" class="modal-overlay" (click)="closeEditModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Edit Speaker</h2>
-        <button class="close-btn" (click)="closeEditModal()">×</button>
-      </div>
-      
-      <form class="speaker-form" (ngSubmit)="updateSpeaker()" #editSpeakerForm="ngForm">
-        <div class="form-section">
-          <h3>Speaker Information</h3>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit-name">Speaker Name *</label>
-              <input 
-                type="text" 
-                id="edit-name" 
-                name="editName"
-                [(ngModel)]="editForm.name"
-                placeholder="e.g., Main Hall Speaker" 
-                required />
-              <small>Display name for the speaker</small>
-            </div>
-            <div class="form-group">
-              <label for="edit-position">Position *</label>
-              <select 
-                id="edit-position" 
-                name="editPosition"
-                [(ngModel)]="editForm.position"
-                required>
-                <option value="">Select position</option>
-                <option *ngFor="let position of availablePositions" [value]="position">{{ position }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Speaker Settings</h3>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit-battery">Battery Percentage</label>
-              <input 
-                type="number" 
-                id="edit-battery" 
-                name="editBattery"
-                [(ngModel)]="editForm.batteryPercentage"
-                min="0" 
-                max="100" />
-              <small>Current battery level (0-100%)</small>
-            </div>
-            <div class="form-group">
-              <label for="edit-state">Status</label>
-              <div class="checkbox-container">
-                <label class="checkbox-label">
+        <!-- Create Form -->
+        <div *ngIf="activeDataView === 'create'" class="data-form">
+          <h4>🆕 Add New Speaker</h4>
+          <form (ngSubmit)="createSpeaker()" #createSpeakerForm="ngForm">
+            <div class="form-section">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="create-name">Speaker Name *</label>
                   <input 
-                    type="checkbox" 
-                    id="edit-state" 
-                    name="editState"
-                    [(ngModel)]="editForm.state">
-                  <span>Speaker is active</span>
-                </label>
+                    type="text" 
+                    id="create-name" 
+                    name="createName"
+                    [(ngModel)]="createForm.name"
+                    placeholder="e.g., Main Hall Speaker" 
+                    required />
+                </div>
+                <div class="form-group">
+                  <label for="create-position">Position *</label>
+                  <select 
+                    id="create-position" 
+                    name="createPosition"
+                    [(ngModel)]="createForm.position"
+                    required>
+                    <option value="">Select position</option>
+                    <option *ngFor="let position of availablePositions" [value]="position">{{ position }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="create-battery">Battery Percentage</label>
+                  <input 
+                    type="number" 
+                    id="create-battery" 
+                    name="createBattery"
+                    [(ngModel)]="createForm.batteryPercentage"
+                    placeholder="100" 
+                    min="0" 
+                    max="100" />
+                </div>
+                <div class="form-group">
+                  <label for="create-state">Initial State</label>
+                  <select 
+                    id="create-state" 
+                    name="createState"
+                    [(ngModel)]="createForm.state">
+                    <option [value]="false">Inactive</option>
+                    <option [value]="true">Active</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn" (click)="clearDataView()">Cancel</button>
+              <button type="submit" class="submit-btn" [disabled]="!createSpeakerForm.form.valid || loading">
+                {{ loading ? 'Creating...' : 'Add Speaker' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Edit Form -->
+        <div *ngIf="activeDataView === 'edit' && selectedSpeaker" class="data-form">
+          <h4>✏️ Edit Speaker {{ selectedSpeaker.id }}</h4>
+          <form (ngSubmit)="updateSpeaker()" #editSpeakerForm="ngForm">
+            <div class="form-section">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="edit-name">Speaker Name *</label>
+                  <input 
+                    type="text" 
+                    id="edit-name" 
+                    name="editName"
+                    [(ngModel)]="editForm.name"
+                    placeholder="e.g., Main Hall Speaker" 
+                    required />
+                </div>
+                <div class="form-group">
+                  <label for="edit-position">Position *</label>
+                  <select 
+                    id="edit-position" 
+                    name="editPosition"
+                    [(ngModel)]="editForm.position"
+                    required>
+                    <option value="">Select position</option>
+                    <option *ngFor="let position of availablePositions" [value]="position">{{ position }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="edit-battery">Battery Percentage</label>
+                  <input 
+                    type="number" 
+                    id="edit-battery" 
+                    name="editBattery"
+                    [(ngModel)]="editForm.batteryPercentage"
+                    min="0" 
+                    max="100" />
+                </div>
+                <div class="form-group">
+                  <label for="edit-state">Status</label>
+                  <div class="checkbox-container">
+                    <label class="checkbox-label">
+                      <input 
+                        type="checkbox" 
+                        id="edit-state" 
+                        name="editState"
+                        [(ngModel)]="editForm.state">
+                      <span>Speaker is active</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn" (click)="clearDataView()">Cancel</button>
+              <button type="submit" class="submit-btn" [disabled]="!editSpeakerForm.form.valid || loading">
+                {{ loading ? 'Updating...' : 'Update Speaker' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Toggle Data -->
+        <div *ngIf="activeDataView === 'toggle' && selectedSpeaker" class="toggle-data">
+          <h4>🔒 Toggle Speaker {{ selectedSpeaker.id }}</h4>
+          
+          <div class="current-status">
+            <div class="status-display">
+              <span class="current-label">Current Status:</span>
+              <span class="status-badge-large" [class.active]="selectedSpeaker.state">
+                {{ selectedSpeaker.state ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            
+            <div class="toggle-info">
+              <p *ngIf="selectedSpeaker.state">
+                This speaker is currently <strong>active</strong> and available for use in sessions. 
+                Deactivating it will prevent it from being used in new sessions.
+              </p>
+              <p *ngIf="!selectedSpeaker.state">
+                This speaker is currently <strong>inactive</strong> and cannot be used in sessions. 
+                Activating it will make it available for use.
+              </p>
+            </div>
+            
+            <div class="toggle-actions">
+              <button 
+                *ngIf="!selectedSpeaker.state"
+                class="toggle-action-btn activate" 
+                (click)="toggleSpeaker(selectedSpeaker)"
+                [disabled]="loading">
+                {{ loading ? 'Activating...' : '🔓 Activate Speaker' }}
+              </button>
+              
+              <button 
+                *ngIf="selectedSpeaker.state"
+                class="toggle-action-btn deactivate" 
+                (click)="toggleSpeaker(selectedSpeaker)"
+                [disabled]="loading">
+                {{ loading ? 'Deactivating...' : '🔒 Deactivate Speaker' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Data -->
+        <div *ngIf="activeDataView === 'delete' && selectedSpeaker" class="delete-data">
+          <h4>🗑️ Delete Speaker {{ selectedSpeaker.id }}</h4>
+          
+          <div class="warning-section">
+            <div class="warning-icon-large">⚠️</div>
+            <p><strong>Warning:</strong> This action cannot be undone!</p>
+            <p>You are about to permanently delete this speaker and all its associated data.</p>
+            <p class="warning-text">This will remove all battery history, session data, and usage statistics.</p>
+          </div>
+          
+          <div class="speaker-details">
+            <h5>Speaker Details:</h5>
+            <div class="detail-item">
+              <strong>ID:</strong> {{ selectedSpeaker.id }}
+            </div>
+            <div class="detail-item">
+              <strong>Name:</strong> {{ selectedSpeaker.name }}
+            </div>
+            <div class="detail-item">
+              <strong>Position:</strong> {{ getCorrectPosition(selectedSpeaker.position) }}
+            </div>
+            <div class="detail-item">
+              <strong>Status:</strong> {{ selectedSpeaker.state ? 'Active' : 'Inactive' }}
+            </div>
+            <div class="detail-item">
+              <strong>Battery:</strong> {{ selectedSpeaker.batteryPercentage }}%
+            </div>
+            <div class="detail-item">
+              <strong>Total Sessions:</strong> {{ getTotalSessions(selectedSpeaker) }}
+            </div>
+            <div class="detail-item">
+              <strong>Total History Records:</strong> {{ getTotalHistories(selectedSpeaker) }}
+            </div>
+          </div>
+          
+          <div class="delete-actions">
+            <button type="button" class="cancel-btn" (click)="clearDataView()">Cancel</button>
+            <button 
+              class="delete-btn" 
+              (click)="confirmDelete()"
+              [disabled]="loading">
+              {{ loading ? 'Deleting...' : '🗑️ Delete Speaker' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Battery Info Section - CON DATOS REALES -->
+        <div *ngIf="activeDataView === 'battery' && selectedSpeaker" class="data-info">
+          <h4>🔋 Battery Information - Speaker {{ selectedSpeaker.id }}</h4>
+          
+          <!-- Battery Header with Percentage -->
+          <div class="battery-header">
+            <div class="battery-percentage-display">
+              <div class="battery-percentage-large">{{ selectedSpeaker.batteryPercentage }}%</div>
+              <div class="battery-status-text" [ngClass]="getBatteryStatus(selectedSpeaker.batteryPercentage)">
+                {{ getBatteryStatusText(selectedSpeaker.batteryPercentage) }}
+              </div>
+              <!-- NUEVO: Estado de carga de datos -->
+              <div class="battery-data-status" [ngClass]="{'loading': loadingBatteryData, 'no-data': !hasBatteryData && !loadingBatteryData}">
+                {{ batteryDataStatus }}
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="modal-actions">
-          <button type="button" class="cancel-btn" (click)="closeEditModal()" [disabled]="loading">Cancel</button>
-          <button type="submit" class="submit-btn" [disabled]="!editSpeakerForm.form.valid || loading">
-            {{ loading ? 'Updating...' : 'Update Speaker' }}
-          </button>
+          <!-- Battery Filters Container -->
+          <div class="battery-filter-container">
+            <!-- Date Filter Row -->
+            <div class="battery-filter-row">
+              <!-- Date Filter Button -->
+              <button 
+                class="battery-date-filter-button"
+                (click)="toggleBatteryCalendar()"
+                [class.active]="showBatteryCalendar"
+                [disabled]="loadingBatteryData">
+                📅 {{ selectedBatteryDate ? 'Date: ' + batteryDateFilter : 'Select Date' }}
+              </button>
+
+              <!-- Time Range Filter -->
+              <select 
+                [(ngModel)]="batteryTimeFilter" 
+                (change)="updateBatteryChart()" 
+                class="battery-filter-select"
+                [disabled]="loadingBatteryData">
+                <option value="hours">Last 24 Hours</option>
+                <option value="days">Last 7 Days</option>
+                <option value="weeks">Last 4 Weeks</option>
+              </select>
+
+              <!-- Clear Date Filter Button -->
+              <button 
+                class="battery-clear-filter-button" 
+                (click)="clearBatteryDateFilter()"
+                *ngIf="selectedBatteryDate"
+                [disabled]="loadingBatteryData">
+                Clear Date
+              </button>
+            </div>
+
+            <!-- Calendar Overlay (Desktop only) -->
+            <div class="battery-calendar-overlay" *ngIf="showBatteryCalendar" (click)="toggleBatteryCalendar()"></div>
+
+            <!-- Calendar Widget -->
+            <div class="battery-calendar-container" *ngIf="showBatteryCalendar" (click)="$event.stopPropagation()">
+              <div class="battery-calendar-header">
+                <button class="battery-calendar-nav-button" (click)="previousBatteryMonth()">‹</button>
+                <h3 class="battery-calendar-month-year">{{ currentBatteryMonthYear }}</h3>
+                <button class="battery-calendar-nav-button" (click)="nextBatteryMonth()">›</button>
+                <button class="battery-calendar-close-button" (click)="toggleBatteryCalendar()" title="Close Calendar">×</button>
+              </div>
+              
+              <div class="battery-calendar-weekdays">
+                <div class="battery-calendar-weekday">Sun</div>
+                <div class="battery-calendar-weekday">Mon</div>
+                <div class="battery-calendar-weekday">Tue</div>
+                <div class="battery-calendar-weekday">Wed</div>
+                <div class="battery-calendar-weekday">Thu</div>
+                <div class="battery-calendar-weekday">Fri</div>
+                <div class="battery-calendar-weekday">Sat</div>
+              </div>
+              
+              <div class="battery-calendar-days">
+                <div 
+                  *ngFor="let day of batteryCalendarDays"
+                  class="battery-calendar-day"
+                  [class.current-month]="day.isCurrentMonth"
+                  [class.today]="day.isToday"
+                  [class.selected]="day.isSelected"
+                  [class.has-data]="day.hasBatteryData"
+                  [class.clickable]="day.isCurrentMonth"
+                  (click)="selectBatteryDate(day)"
+                  [title]="day.hasBatteryData ? day.dataCount + ' session(s) on this date' : 'No data available'">
+                  
+                  <span class="day-number">{{ day.day }}</span>
+                  <span class="data-indicator" *ngIf="day.hasBatteryData">
+                    {{ day.dataCount }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Quick Date Actions -->
+              <div class="battery-calendar-actions">
+                <button class="battery-quick-date-button" (click)="clearBatteryDateFilter()" *ngIf="selectedBatteryDate">
+                  Clear Date Filter
+                </button>
+              </div>
+            </div>
+            
+            <!-- Active Filter Information -->
+            <div class="battery-filter-info" *ngIf="selectedBatteryDate">
+              <span *ngIf="hasBatteryData">Showing real battery data for {{ batteryDateFilter }}</span>
+              <span *ngIf="!hasBatteryData">No battery data available for {{ batteryDateFilter }}</span>
+            </div>
+            
+            <!-- Data Source Information -->
+            <div class="battery-data-source" *ngIf="hasBatteryData && !selectedBatteryDate">
+              📊 Showing data from {{ speakerBatteryHistory.length }} sessions
+              <span class="data-range" *ngIf="speakerBatteryHistory.length > 0">
+                ({{ formatLastConnection(speakerBatteryHistory[speakerBatteryHistory.length - 1].createdAt) }} - 
+                 {{ formatLastConnection(speakerBatteryHistory[0].createdAt) }})
+              </span>
+            </div>
+          </div>
+
+          <!-- Loading Indicator -->
+          <div class="battery-loading" *ngIf="loadingBatteryData">
+            <div class="loading-spinner-small"></div>
+            <span>Loading battery data...</span>
+          </div>
+
+          <!-- Battery Chart Section -->
+          <div class="battery-chart-section" *ngIf="!loadingBatteryData">
+            <div class="chart-container">
+              <div class="chart-header">
+                <h5>⚡ Battery Voltage</h5>
+                <div class="chart-data-info">
+                  <span *ngIf="hasBatteryData" class="real-data-badge">📈 Real Data</span>
+                  <span *ngIf="!hasBatteryData" class="estimated-data-badge">📊 Estimated</span>
+                </div>
+              </div>
+              
+              <div class="voltage-chart">
+                <div class="chart-y-axis">
+                  <div class="y-label" *ngFor="let voltage of voltageLabels">{{ voltage }}v</div>
+                </div>
+                <div class="chart-area">
+                  <svg viewBox="0 0 800 300" class="battery-svg">
+                    <!-- Grid lines -->
+                    <g class="grid-lines">
+                      <line *ngFor="let line of gridLines" 
+                            [attr.x1]="line.x1" [attr.y1]="line.y1" 
+                            [attr.x2]="line.x2" [attr.y2]="line.y2" 
+                            stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Voltage line -->
+                    <path [attr.d]="batteryChartPath" 
+                          fill="none" 
+                          [attr.stroke]="hasBatteryData ? '#10b981' : '#6b7280'"
+                          stroke-width="3" 
+                          stroke-linecap="round" 
+                          stroke-linejoin="round"
+                          [attr.stroke-dasharray]="hasBatteryData ? 'none' : '5,5'"/>
+                    
+                    <!-- Data points -->
+                    <circle *ngFor="let point of batteryDataPoints" 
+                            [attr.cx]="point.x" 
+                            [attr.cy]="point.y" 
+                            r="4" 
+                            [attr.fill]="hasBatteryData ? '#10b981' : '#6b7280'"
+                            stroke="#1a2332" 
+                            stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="chart-x-axis">
+                  <div class="x-label" *ngFor="let label of timeLabels">{{ label }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Battery Details -->
+          <div class="battery-details-grid" *ngIf="!loadingBatteryData">
+            <div class="detail-card">
+              <div class="detail-icon">🔋</div>
+              <div class="detail-content">
+                <div class="detail-label">Current Voltage</div>
+                <div class="detail-value">{{ getCurrentVoltage(selectedSpeaker.batteryPercentage) }}v</div>
+              </div>
+            </div>
+            
+            <div class="detail-card">
+              <div class="detail-icon" [ngClass]="selectedSpeaker.state ? 'active-icon' : 'inactive-icon'">
+                {{ selectedSpeaker.state ? '🟢' : '🔴' }}
+              </div>
+              <div class="detail-content">
+                <div class="detail-label">Status</div>
+                <div class="detail-value" [ngClass]="selectedSpeaker.state ? 'active' : 'inactive'">
+                  {{ selectedSpeaker.state ? 'Active' : 'Inactive' }}
+                </div>
+              </div>
+            </div>
+            
+            <div class="detail-card">
+              <div class="detail-icon">⏱️</div>
+              <div class="detail-content">
+                <div class="detail-label">Last Update</div>
+                <div class="detail-value">{{ formatLastConnection(selectedSpeaker.updatedAt) }}</div>
+              </div>
+            </div>
+            
+            <div class="detail-card">
+              <div class="detail-icon">⏰</div>
+              <div class="detail-content">
+                <div class="detail-label">Estimated Time</div>
+                <div class="detail-value">{{ getEstimatedBatteryTime(selectedSpeaker.batteryPercentage) }}</div>
+              </div>
+            </div>
+            
+            <div class="detail-card">
+              <div class="detail-icon">📍</div>
+              <div class="detail-content">
+                <div class="detail-label">Position</div>
+                <div class="detail-value">{{ getCorrectPosition(selectedSpeaker.position) }}</div>
+              </div>
+            </div>
+            
+            <div class="detail-card">
+              <div class="detail-icon">📊</div>
+              <div class="detail-content">
+                <div class="detail-label">Average Voltage</div>
+                <div class="detail-value">{{ getAverageVoltage() }}v</div>
+              </div>
+            </div>
+            
+            <!-- NUEVO: Estadísticas adicionales con datos reales -->
+            <div class="detail-card" *ngIf="hasBatteryData">
+              <div class="detail-icon">📈</div>
+              <div class="detail-content">
+                <div class="detail-label">Total Sessions</div>
+                <div class="detail-value">{{ getBatteryStats().totalSessions }}</div>
+              </div>
+            </div>
+            
+            <div class="detail-card" *ngIf="hasBatteryData">
+              <div class="detail-icon">⚡</div>
+              <div class="detail-content">
+                <div class="detail-label">Avg Consumption</div>
+                <div class="detail-value">{{ getBatteryStats().avgConsumption }}%</div>
+              </div>
+            </div>
+            
+            <div class="detail-card" *ngIf="hasBatteryData">
+              <div class="detail-icon">🕒</div>
+              <div class="detail-content">
+                <div class="detail-label">Avg Duration</div>
+                <div class="detail-value">{{ getBatteryStats().avgDuration }}m</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Data Message -->
+          <div class="no-battery-data" *ngIf="!loadingBatteryData && !hasBatteryData">
+            <div class="no-data-icon">📊</div>
+            <h4>No Battery Data Available</h4>
+            <p>This speaker hasn't been used in any sessions yet, so there's no battery consumption data to display.</p>
+            <p class="no-data-suggestion">Start using this speaker to see detailed battery analytics and voltage graphs.</p>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
-  </div>
 
-  <!-- Delete Confirmation Modal -->
-  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
-    <div class="modal-content small-modal" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Delete Speaker</h2>
-        <button class="close-btn" (click)="closeDeleteModal()">×</button>
-      </div>
-      
-      <div class="delete-content">
-        <div class="warning-icon">⚠️</div>
-        <p *ngIf="selectedSpeaker">Are you sure you want to delete <strong>Speaker {{ selectedSpeaker.id }}</strong>?</p>
-        <p class="warning-text">This action cannot be undone and all associated data will be lost.</p>
-        
-        <div class="modal-actions">
-          <button class="cancel-btn" (click)="closeDeleteModal()" [disabled]="loading">Cancel</button>
-          <button class="delete-btn" (click)="confirmDelete()" [disabled]="loading">
-            {{ loading ? 'Deleting...' : 'Delete Speaker' }}
-          </button>
-        </div>
-      </div>
+    <!-- Bottom Buttons for Mobile -->
+    <div class="bottom-buttons">
+      <button class="back-btn" routerLink="/dashboard/adminpanel">← Back to Admin Panel</button>
     </div>
   </div>
 </div>
