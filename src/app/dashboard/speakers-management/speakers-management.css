@@ -2099,8 +2099,6 @@ button:focus-visible {
   }
 
   .battery-calendar-container {
-    padding: 15px;
-    /* En móvil: comportamiento normal */
     position: static;
     transform: none;
     width: 100%;

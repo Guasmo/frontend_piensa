@@ -1,4 +1,4 @@
-// speakers-management.component.ts - CÓDIGO COMPLETO
+// speakers-management.component.ts - CÓDIGO COMPLETO Y CORREGIDO
 import { Component, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -180,9 +180,7 @@ export class SpeakersManagementComponent implements OnInit {
     });
   }
 
-  // MODIFICADO: Manejar fechas correctamente
   async loadSpeakerBatteryData(speakerId: number): Promise<void> {
-    // Verificar si ya tenemos los datos en caché
     if (this.batteryDataCache[speakerId]) {
       this.speakerBatteryHistory = this.batteryDataCache[speakerId];
       this.processBatteryData();
@@ -192,12 +190,10 @@ export class SpeakersManagementComponent implements OnInit {
     this.loadingBatteryData = true;
     
     try {
-      // Cargar historial del speaker específico (últimos 100 registros para tener suficientes datos)
       const response = await this.speakersService.getSpeakerHistory(speakerId, 100, 1).toPromise();
       
       if (response && response.data && response.data.histories) {
         this.speakerBatteryHistory = response.data.histories;
-        // Guardar en caché
         this.batteryDataCache[speakerId] = this.speakerBatteryHistory;
         this.processBatteryData();
         console.log(`✅ Battery data loaded for speaker ${speakerId}:`, this.speakerBatteryHistory.length, 'records');
@@ -214,12 +210,10 @@ export class SpeakersManagementComponent implements OnInit {
     this.loadingBatteryData = false;
   }
 
-  // MODIFICADO: Procesar fechas correctamente según el tipo
   processBatteryData(): void {
     this.batteryDataByDate = {};
     
     this.speakerBatteryHistory.forEach(history => {
-      // Manejar startDate como Date o string
       let date: Date;
       if (history.startDate instanceof Date) {
         date = history.startDate;
@@ -233,7 +227,6 @@ export class SpeakersManagementComponent implements OnInit {
         this.batteryDataByDate[dateStr] = [];
       }
       
-      // Crear punto de datos de batería
       const dataPoint: BatteryDataPoint = {
         date: dateStr,
         initialBattery: history.initialBatteryPercentage || 0,
@@ -267,12 +260,10 @@ export class SpeakersManagementComponent implements OnInit {
     return this.formatDateForComparison(date1) === this.formatDateForComparison(date2);
   }
 
-  // Get correct position
   getCorrectPosition(position: string): string {
     return this.positionMapping[position] || position;
   }
 
-  // Get speaker color for border
   getSpeakerColor(index: number): { name: string; color: string } {
     const colors = [
       { name: 'Yellow', color: '#ffc107' },
@@ -293,7 +284,6 @@ export class SpeakersManagementComponent implements OnInit {
     this.activeDataView = null;
     this.selectedSpeaker = null;
     this.error = '';
-    // Limpiar también filtros de batería
     this.showBatteryCalendar = false;
     this.selectedBatteryDate = null;
     this.batteryDateFilter = null;
@@ -325,16 +315,13 @@ export class SpeakersManagementComponent implements OnInit {
     console.log('📝 Showing edit data for speaker:', speaker);
   }
 
-  // MODIFICADO: Cargar datos reales de batería
   async showBatteryData(speaker: Speaker) {
     this.selectedSpeaker = speaker;
     this.activeDataView = 'battery';
     this.error = '';
     
-    // Cargar datos reales de batería
     await this.loadSpeakerBatteryData(speaker.id);
     
-    // Generar calendario con datos reales
     this.generateBatteryCalendar();
     this.updateBatteryChart();
     
@@ -448,7 +435,6 @@ export class SpeakersManagementComponent implements OnInit {
 
     console.log('🔄 Final update data:', updateData);
 
-    // If no changes, show message
     if (Object.keys(updateData).length === 0) {
       this.error = 'No changes detected';
       this.loading = false;
@@ -578,13 +564,12 @@ export class SpeakersManagementComponent implements OnInit {
   }
 
   percentageToVoltage(percentage: number): number {
-    // Conversión no lineal más realista
-    if (percentage >= 90) return 7.4 - (100 - percentage) * 0.02; // 7.4v - 7.2v
-    if (percentage >= 70) return 7.2 - (90 - percentage) * 0.025; // 7.2v - 6.7v
-    if (percentage >= 50) return 6.7 - (70 - percentage) * 0.03; // 6.7v - 6.1v
-    if (percentage >= 30) return 6.1 - (50 - percentage) * 0.035; // 6.1v - 5.4v
-    if (percentage >= 10) return 5.4 - (30 - percentage) * 0.04; // 5.4v - 4.6v
-    return 4.6 - (10 - percentage) * 0.46; // 4.6v - 0v
+    if (percentage >= 90) return 7.4 - (100 - percentage) * 0.02;
+    if (percentage >= 70) return 7.2 - (90 - percentage) * 0.025;
+    if (percentage >= 50) return 6.7 - (70 - percentage) * 0.03;
+    if (percentage >= 30) return 6.1 - (50 - percentage) * 0.035;
+    if (percentage >= 10) return 5.4 - (30 - percentage) * 0.04;
+    return 4.6 - (10 - percentage) * 0.46;
   }
 
   getCurrentVoltage(percentage: number): string {
@@ -592,15 +577,12 @@ export class SpeakersManagementComponent implements OnInit {
   }
 
   getEstimatedBatteryTime(percentage: number): string {
-    // MEJORADO: Usar datos reales si están disponibles
     if (this.speakerBatteryHistory.length > 0) {
-      // Calcular tiempo promedio basado en consumo real
       const avgConsumption = this.speakerBatteryHistory.reduce((sum, item) => 
         sum + (item.batteryConsumed || 0), 0) / this.speakerBatteryHistory.length;
       
       if (avgConsumption > 0) {
-        const estimatedHours = (percentage / avgConsumption) * 
-          (this.speakerBatteryHistory.reduce((sum, item) => 
+        const estimatedHours = (percentage / avgConsumption) * (this.speakerBatteryHistory.reduce((sum, item) => 
             sum + (item.durationMinutes || 0), 0) / this.speakerBatteryHistory.length / 60);
         
         if (estimatedHours >= 1) {
@@ -611,7 +593,6 @@ export class SpeakersManagementComponent implements OnInit {
       }
     }
     
-    // Fallback a estimación básica
     if (percentage > 80) return '8+ hours';
     if (percentage > 60) return '6-8 hours';
     if (percentage > 40) return '4-6 hours';
@@ -623,7 +604,6 @@ export class SpeakersManagementComponent implements OnInit {
   getAverageVoltage(): string {
     if (!this.selectedSpeaker) return '0.0';
     
-    // Si hay datos reales de batería, calcular promedio real
     if (this.speakerBatteryHistory.length > 0) {
       const validVoltages = this.speakerBatteryHistory
         .map(item => item.avgVoltage_V)
@@ -635,7 +615,6 @@ export class SpeakersManagementComponent implements OnInit {
       }
     }
     
-    // Fallback a estimación basada en porcentaje actual
     const current = this.percentageToVoltage(this.selectedSpeaker.batteryPercentage);
     const average = current + (Math.random() - 0.5) * 0.5;
     return Math.max(0, Math.min(7.4, average)).toFixed(1);
@@ -697,7 +676,6 @@ export class SpeakersManagementComponent implements OnInit {
     const month = this.currentBatteryCalendarDate.getMonth();
     
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
     
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay());
@@ -789,7 +767,6 @@ export class SpeakersManagementComponent implements OnInit {
   generateGridLines() {
     this.gridLines = [];
     
-    // Horizontal grid lines (voltage levels)
     for (let i = 0; i <= 8; i++) {
       const y = (i / 8) * 300;
       this.gridLines.push({
@@ -797,7 +774,6 @@ export class SpeakersManagementComponent implements OnInit {
       });
     }
     
-    // Vertical grid lines (time intervals)
     for (let i = 0; i <= 10; i++) {
       const x = (i / 10) * 800;
       this.gridLines.push({
@@ -813,12 +789,9 @@ export class SpeakersManagementComponent implements OnInit {
   }
 
   generateBatteryData(): { voltage: number; time: number }[] {
-    // Si hay una fecha seleccionada, usar datos de esa fecha
     if (this.selectedBatteryDate) {
       return this.generateDataForSelectedDate();
     }
-    
-    // Si no hay fecha seleccionada, usar datos recientes según el filtro de tiempo
     return this.generateDataForTimeFilter();
   }
 
@@ -961,13 +934,18 @@ export class SpeakersManagementComponent implements OnInit {
   }
 
   generateChartPath(data: { voltage: number; time: number }[]) {
-    if (data.length === 0) return;
+    if (data.length === 0) {
+        this.batteryChartPath = '';
+        return;
+    };
     
     this.batteryDataPoints = [];
     let pathData = '';
     
+    const numPoints = data.length > 1 ? data.length - 1 : 1;
+
     data.forEach((point, index) => {
-      const x = (point.time / (data.length - 1)) * 800;
+      const x = (point.time / numPoints) * 800;
       const y = (1 - (point.voltage / 7.4)) * 300;
       
       this.batteryDataPoints.push({ x, y, voltage: point.voltage });
@@ -981,35 +959,64 @@ export class SpeakersManagementComponent implements OnInit {
     
     this.batteryChartPath = pathData;
   }
-
+  
+  // ✅ FUNCIÓN CORREGIDA: Genera etiquetas de tiempo dinámicas
   generateTimeLabels() {
     this.timeLabels = [];
-    
+    const numLabels = 6;
+
     if (this.selectedBatteryDate) {
-      for (let i = 0; i < 6; i++) {
-        const hour = i * 4;
-        this.timeLabels.push(hour.toString().padStart(2, '0') + ':00');
+      const dateStr = this.formatDateForComparison(this.selectedBatteryDate);
+      const dayData = this.batteryDataByDate[dateStr] || [];
+
+      if (dayData.length === 0) {
+        for (let i = 0; i < numLabels; i++) {
+          const hour = Math.round(i * (24 / (numLabels - 1)));
+          this.timeLabels.push(hour.toString().padStart(2, '0') + ':00');
+        }
+        return;
+      }
+
+      dayData.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
+      const firstTimestamp = dayData[0].timestamp;
+      const lastTimestamp = dayData[dayData.length - 1].timestamp;
+
+      const startTime = firstTimestamp.getHours() + firstTimestamp.getMinutes() / 60;
+      const endTime = lastTimestamp.getHours() + lastTimestamp.getMinutes() / 60;
+      
+      const totalDurationHours = Math.max(1, endTime - startTime);
+      
+      for (let i = 0; i < numLabels; i++) {
+        const ratio = i / (numLabels - 1);
+        const hourDecimal = startTime + ratio * totalDurationHours;
+        const hour = Math.floor(hourDecimal);
+        const minutes = Math.round((hourDecimal - hour) * 60);
+        this.timeLabels.push(
+          hour.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0')
+        );
       }
       return;
     }
     
     if (this.batteryTimeFilter === 'hours') {
-      const now = new Date();
-      for (let i = 0; i < 6; i++) {
-        const time = new Date(now.getTime() - (24 - i * 4) * 60 * 60 * 1000);
-        this.timeLabels.push(time.getHours().toString().padStart(2, '0') + ':00');
-      }
+        const now = new Date();
+        for (let i = 0; i < numLabels; i++) {
+            const time = new Date(now.getTime() - (24 - i * (24 / (numLabels - 1))) * 60 * 60 * 1000);
+            this.timeLabels.push(time.getHours().toString().padStart(2, '0') + ':00');
+        }
     } else if (this.batteryTimeFilter === 'days') {
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const today = new Date().getDay();
-      for (let i = 0; i < 7; i++) {
-        const dayIndex = (today - 6 + i + 7) % 7;
-        this.timeLabels.push(days[dayIndex]);
-      }
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const today = new Date();
+        for (let i = 0; i < 7; i++) {
+            const day = new Date(today);
+            day.setDate(today.getDate() - (6 - i));
+            this.timeLabels.push(days[day.getDay()]);
+        }
     } else {
-      for (let i = 0; i < 4; i++) {
-        this.timeLabels.push(`Week ${i + 1}`);
-      }
+        for (let i = 0; i < 4; i++) {
+            this.timeLabels.push(`Week ${i + 1}`);
+        }
     }
   }
 
@@ -1036,7 +1043,6 @@ export class SpeakersManagementComponent implements OnInit {
 
   // ==================== UTILITY AND FORMATTING METHODS ====================
 
-  // MODIFICADO: Ahora acepta Date | string
   formatLastConnection(date: string | Date): string {
     let connectionDate: Date;
     
@@ -1086,7 +1092,6 @@ export class SpeakersManagementComponent implements OnInit {
   // ==================== COMPONENT LIFECYCLE ====================
 
   ngOnDestroy() {
-    // Limpiar event listeners si es necesario
     document.removeEventListener('keydown', (event) => {
       if (event.key === 'Escape' && this.showBatteryCalendar) {
         this.showBatteryCalendar = false;

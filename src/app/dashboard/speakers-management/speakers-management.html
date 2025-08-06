@@ -1,21 +1,16 @@
-<!-- speakers-management.component.html - CÓDIGO COMPLETO -->
 <div class="speaker-management-container">
-  <!-- Header -->
   <header class="page-header">
   <div class="header-left">
     <button class="back-btn" routerLink="/dashboard/adminpanel">← Back</button>
     <h1>🔊 Speaker Management</h1>
-    <!-- Botón logout movido aquí para responsive -->
     <button class="logout-btn" (click)="logout()">Disconnect</button>
   </div>
   <div class="header-right">
-    <!-- Botón logout original (se oculta en responsive) -->
     <button class="logout-btn" (click)="logout()">Disconnect</button>
     <button class="create-btn" (click)="showCreateForm()" [disabled]="loading">+ Add Speaker</button>
   </div>
 </header>
 
-  <!-- Error Message -->
   <div *ngIf="error" class="error-banner">
     <div class="error-content">
       <span class="error-icon">⚠️</span>
@@ -24,38 +19,30 @@
     </div>
   </div>
 
-  <!-- Loading State -->
   <div *ngIf="loading && speakers.length === 0" class="speakers-container">
     <div class="speakers-header">
       <h2>Loading speakers...</h2>
     </div>
   </div>
 
-  <!-- Speakers List -->
   <div *ngIf="!loading || speakers.length > 0" class="speakers-container">
     <div class="speakers-header">
       <h2>Speakers ({{ speakers.length }})</h2>
-      <!-- Botón Add Speaker en speakers-header para responsive -->
       <button class="create-btn" (click)="showCreateForm()" [disabled]="loading">+ Add Speaker</button>
     </div>
 
     <div class="speakers-grid" *ngIf="speakers.length > 0">
-      <!-- Speaker Card Dynamic -->
       <div *ngFor="let speaker of speakers; let i = index" class="speaker-card" [class.selected]="selectedSpeaker?.id === speaker.id">
         <div class="speaker-visual">
-          <!-- Emoji de parlante con círculo de color -->
           <div class="speaker-circle" [style.border-color]="getSpeakerColor(i).color">
             <div class="speaker-emoji">🔊</div>
           </div>
-          <!-- Mostrar "Speaker X" y color -->
           <div class="speaker-color-label">{{ getSpeakerColor(i).name }}</div>
         </div>
         
         <div class="speaker-info">
-          <!-- Mostrar "Speaker X" como nombre -->
           <div class="speaker-name">Speaker {{ speaker.id }}</div>
           <div class="speaker-id">ID: {{ speaker.id }}</div>
-          <!-- Posiciones corregidas -->
           <div class="speaker-position">Position: {{ getCorrectPosition(speaker.position) }}</div>
           
           <div class="speaker-specs">
@@ -94,7 +81,6 @@
           </div>
         </div>
 
-        <!-- Botones muestran data abajo en lugar de modales -->
         <div class="speaker-actions">
           <button 
             class="action-btn edit-btn" 
@@ -112,7 +98,6 @@
             [disabled]="loading">
             {{ speaker.state ? '🔒' : '🔓' }}
           </button>
-          <!-- Botón de batería -->
           <button 
             class="action-btn battery-btn" 
             [class.active]="activeDataView === 'battery' && selectedSpeaker?.id === speaker.id"
@@ -133,7 +118,6 @@
       </div>
     </div>
 
-    <!-- Empty State -->
     <div *ngIf="speakers.length === 0 && !loading" class="empty-state">
       <div class="empty-icon">🔊</div>
       <h3>No speakers found</h3>
@@ -141,7 +125,6 @@
       <button class="create-btn" (click)="showCreateForm()">+ Add Speaker</button>
     </div>
 
-    <!-- Data Container -->
     <div class="data-container">
       <div class="data-header">
         <h3>Data</h3>
@@ -149,14 +132,12 @@
       </div>
       
       <div class="data-content">
-        <!-- Placeholder cuando no hay selección -->
         <div *ngIf="!activeDataView" class="data-placeholder">
           <div class="placeholder-icon">📊</div>
           <p>Select an option</p>
           <small>Click any button above to view data</small>
         </div>
 
-        <!-- Create Form -->
         <div *ngIf="activeDataView === 'create'" class="data-form">
           <h4>🆕 Add New Speaker</h4>
           <form (ngSubmit)="createSpeaker()" #createSpeakerForm="ngForm">
@@ -217,7 +198,6 @@
           </form>
         </div>
 
-        <!-- Edit Form -->
         <div *ngIf="activeDataView === 'edit' && selectedSpeaker" class="data-form">
           <h4>✏️ Edit Speaker {{ selectedSpeaker.id }}</h4>
           <form (ngSubmit)="updateSpeaker()" #editSpeakerForm="ngForm">
@@ -280,7 +260,6 @@
           </form>
         </div>
 
-        <!-- Toggle Data -->
         <div *ngIf="activeDataView === 'toggle' && selectedSpeaker" class="toggle-data">
           <h4>🔒 Toggle Speaker {{ selectedSpeaker.id }}</h4>
           
@@ -323,7 +302,6 @@
           </div>
         </div>
 
-        <!-- Delete Data -->
         <div *ngIf="activeDataView === 'delete' && selectedSpeaker" class="delete-data">
           <h4>🗑️ Delete Speaker {{ selectedSpeaker.id }}</h4>
           
@@ -370,29 +348,23 @@
           </div>
         </div>
 
-        <!-- Battery Info Section - CON DATOS REALES -->
         <div *ngIf="activeDataView === 'battery' && selectedSpeaker" class="data-info">
           <h4>🔋 Battery Information - Speaker {{ selectedSpeaker.id }}</h4>
           
-          <!-- Battery Header with Percentage -->
           <div class="battery-header">
             <div class="battery-percentage-display">
               <div class="battery-percentage-large">{{ selectedSpeaker.batteryPercentage }}%</div>
               <div class="battery-status-text" [ngClass]="getBatteryStatus(selectedSpeaker.batteryPercentage)">
                 {{ getBatteryStatusText(selectedSpeaker.batteryPercentage) }}
               </div>
-              <!-- NUEVO: Estado de carga de datos -->
               <div class="battery-data-status" [ngClass]="{'loading': loadingBatteryData, 'no-data': !hasBatteryData && !loadingBatteryData}">
                 {{ batteryDataStatus }}
               </div>
             </div>
           </div>
 
-          <!-- Battery Filters Container -->
           <div class="battery-filter-container">
-            <!-- Date Filter Row -->
             <div class="battery-filter-row">
-              <!-- Date Filter Button -->
               <button 
                 class="battery-date-filter-button"
                 (click)="toggleBatteryCalendar()"
@@ -401,7 +373,6 @@
                 📅 {{ selectedBatteryDate ? 'Date: ' + batteryDateFilter : 'Select Date' }}
               </button>
 
-              <!-- Time Range Filter -->
               <select 
                 [(ngModel)]="batteryTimeFilter" 
                 (change)="updateBatteryChart()" 
@@ -412,7 +383,6 @@
                 <option value="weeks">Last 4 Weeks</option>
               </select>
 
-              <!-- Clear Date Filter Button -->
               <button 
                 class="battery-clear-filter-button" 
                 (click)="clearBatteryDateFilter()"
@@ -422,10 +392,8 @@
               </button>
             </div>
 
-            <!-- Calendar Overlay (Desktop only) -->
             <div class="battery-calendar-overlay" *ngIf="showBatteryCalendar" (click)="toggleBatteryCalendar()"></div>
 
-            <!-- Calendar Widget -->
             <div class="battery-calendar-container" *ngIf="showBatteryCalendar" (click)="$event.stopPropagation()">
               <div class="battery-calendar-header">
                 <button class="battery-calendar-nav-button" (click)="previousBatteryMonth()">‹</button>
@@ -463,7 +431,6 @@
                 </div>
               </div>
 
-              <!-- Quick Date Actions -->
               <div class="battery-calendar-actions">
                 <button class="battery-quick-date-button" (click)="clearBatteryDateFilter()" *ngIf="selectedBatteryDate">
                   Clear Date Filter
@@ -471,13 +438,11 @@
               </div>
             </div>
             
-            <!-- Active Filter Information -->
             <div class="battery-filter-info" *ngIf="selectedBatteryDate">
               <span *ngIf="hasBatteryData">Showing real battery data for {{ batteryDateFilter }}</span>
               <span *ngIf="!hasBatteryData">No battery data available for {{ batteryDateFilter }}</span>
             </div>
             
-            <!-- Data Source Information -->
             <div class="battery-data-source" *ngIf="hasBatteryData && !selectedBatteryDate">
               📊 Showing data from {{ speakerBatteryHistory.length }} sessions
               <span class="data-range" *ngIf="speakerBatteryHistory.length > 0">
@@ -487,13 +452,11 @@
             </div>
           </div>
 
-          <!-- Loading Indicator -->
           <div class="battery-loading" *ngIf="loadingBatteryData">
             <div class="loading-spinner-small"></div>
             <span>Loading battery data...</span>
           </div>
 
-          <!-- Battery Chart Section -->
           <div class="battery-chart-section" *ngIf="!loadingBatteryData">
             <div class="chart-container">
               <div class="chart-header">
@@ -510,7 +473,6 @@
                 </div>
                 <div class="chart-area">
                   <svg viewBox="0 0 800 300" class="battery-svg">
-                    <!-- Grid lines -->
                     <g class="grid-lines">
                       <line *ngFor="let line of gridLines" 
                             [attr.x1]="line.x1" [attr.y1]="line.y1" 
@@ -518,7 +480,6 @@
                             stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
                     </g>
                     
-                    <!-- Voltage line -->
                     <path [attr.d]="batteryChartPath" 
                           fill="none" 
                           [attr.stroke]="hasBatteryData ? '#10b981' : '#6b7280'"
@@ -527,7 +488,6 @@
                           stroke-linejoin="round"
                           [attr.stroke-dasharray]="hasBatteryData ? 'none' : '5,5'"/>
                     
-                    <!-- Data points -->
                     <circle *ngFor="let point of batteryDataPoints" 
                             [attr.cx]="point.x" 
                             [attr.cy]="point.y" 
@@ -544,7 +504,6 @@
             </div>
           </div>
 
-          <!-- Battery Details -->
           <div class="battery-details-grid" *ngIf="!loadingBatteryData">
             <div class="detail-card">
               <div class="detail-icon">🔋</div>
@@ -598,7 +557,6 @@
               </div>
             </div>
             
-            <!-- NUEVO: Estadísticas adicionales con datos reales -->
             <div class="detail-card" *ngIf="hasBatteryData">
               <div class="detail-icon">📈</div>
               <div class="detail-content">
@@ -624,7 +582,6 @@
             </div>
           </div>
 
-          <!-- No Data Message -->
           <div class="no-battery-data" *ngIf="!loadingBatteryData && !hasBatteryData">
             <div class="no-data-icon">📊</div>
             <h4>No Battery Data Available</h4>
@@ -635,7 +592,6 @@
       </div>
     </div>
 
-    <!-- Bottom Buttons for Mobile -->
     <div class="bottom-buttons">
       <button class="back-btn" routerLink="/dashboard/adminpanel">← Back to Admin Panel</button>
     </div>
