@@ -24,6 +24,13 @@
   <!-- Main desktop/mobile layout -->
   <div *ngIf="!isLoading" class="main-layout">
     
+<!-- Botón de regreso similar a Advanced Settings -->
+<div class="action-footer">
+      <div class="action-buttons">
+        <button class="btn btn-secondary" routerLink="/dashboard/select-panel">
+          <span class="btn-icon">←</span>
+          Back
+        </button>
     <!-- Desktop Layout -->
     <div class="desktop-grid">
       
@@ -332,12 +339,7 @@
     </div>
 
     <!-- Action buttons (footer) -->
-    <div class="action-footer">
-      <div class="action-buttons">
-        <button class="btn btn-secondary" routerLink="/dashboard/select-panel">
-          <span class="btn-icon">←</span>
-          Back
-        </button>
+    
         <button 
           class="btn btn-primary"
           (click)="saveSessionData()" 
