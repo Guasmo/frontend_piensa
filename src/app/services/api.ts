@@ -1,1 +1,1 @@
-export const apiURL = 'https://backendpiensa-production.up.railway.app/' 
+export const apiURL = 'https://backendpiensa-production.up.railway.app' 
